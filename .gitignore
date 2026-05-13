@@ -1,0 +1,43 @@
+
+# Library 
+/[Ll]ibrary/
+
+# Temp 
+/[Tt]emp/
+
+# Obj
+/[Oo]bj/
+
+# Build and Builds 
+/[Bb]uild/
+/[Bb]uilds/
+
+# Logs 
+/[Ll]ogs/
+
+# UserSettings 
+/[Uu]ser[Ss]ettings/
+
+# Windows 
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS 
+.DS_Store
+
+# Visual Studio / Rider 
+*.csproj
+*.userprefs
+*.sln
+*.suo
+*.tmp
+*.log
+*.vs/
+
+
+
+*.meta~
+
+
+sysinfo.txt
