@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/GameHUD.uss?fileID=7433441132597879392&amp;guid=344e0703ce189dc4a8d3f0c30ba693b1&amp;type=3#GameHUD" />
+</ui:UXML>
