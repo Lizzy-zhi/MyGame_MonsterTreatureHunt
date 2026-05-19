@@ -1,59 +1,159 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class ScentDetector : MonoBehaviour
 {
-    [Header("目标设置")]
-    [SerializeField] private Transform treasureTarget; // 拖入你的宝藏物体
-    [SerializeField] private float maxScentDistance = 20f;
+    [Header("References")]
+    [SerializeField] private Transform playerTransform;  // 拖拽玩家物体到这里
+    [SerializeField] private Transform treasureTarget;   // 拖拽 treasure 到这里
+    [SerializeField] private Sprite arrowSprite;         // 拖拽箭头图片到这里
 
-    [Header("摄像机")]
-    [SerializeField] private Camera targetCamera; // 建议拖拽赋值，比 Camera.main 更可靠
-    private Transform _playerTransform;
+    [Header("Settings")]
+    [SerializeField] private float maxScentDistance = 20f;
+    [SerializeField] private float arrowRotationOffset = 0f;
+    [SerializeField] private bool showDebugLogs = true;
+
+    private VisualElement scentIndicator;
+    private UIDocument uiDocument;
+    private Camera mainCamera;
+    private float lastAngle = 0f;
+    private float lastDistance = 0f;
 
     void Start()
     {
-        _playerTransform = this.transform; // 玩家就是脚本挂载的对象
-       /* if (targetCamera == null)
+        mainCamera = Camera.main;
+
+        // 查找 UIDocument（可能在别的物体上）
+        uiDocument = FindObjectOfType<UIDocument>();
+
+        if (showDebugLogs)
         {
-            targetCamera = Camera.main; // 备用方案
-            Debug.LogWarning("ScentDetector: Camera not assigned, using Camera.main.");
-        }*/
+            Debug.Log("ScentDetector: Start() called");
+            Debug.Log($"ScentDetector: Player Transform = {(playerTransform != null ? playerTransform.name : "NULL")}");
+            Debug.Log($"ScentDetector: Treasure Target = {(treasureTarget != null ? treasureTarget.name : "NULL")}");
+        }
+
+        if (uiDocument == null)
+        {
+            Debug.LogError("ScentDetector: Could not find UIDocument in scene!");
+            return;
+        }
+
+        scentIndicator = uiDocument.rootVisualElement.Q<VisualElement>("ScentIndicator");
+        if (scentIndicator == null)
+        {
+            Debug.LogError("ScentDetector: Could not find 'ScentIndicator' element! Check UXML.");
+            return;
+        }
+        else if (showDebugLogs)
+        {
+            Debug.Log("ScentDetector: Found 'ScentIndicator' element");
+        }
+
+        if (arrowSprite != null)
+        {
+            scentIndicator.style.backgroundImage = new StyleBackground(arrowSprite);
+        }
+        else
+        {
+            Debug.LogWarning("ScentDetector: Arrow sprite not assigned!");
+        }
+
+        // 如果 playerTransform 没设置，就用当前物体
+        if (playerTransform == null)
+        {
+            playerTransform = transform;
+            Debug.LogWarning("ScentDetector: Player Transform not set, using this object's transform");
+        }
+
+        HideArrow();
     }
 
     void Update()
     {
-        // 1. 基础检查
-        if (treasureTarget == null || ScentIndicatorController.Instance == null)
+        if (scentIndicator == null || mainCamera == null) return;
+
+        if (playerTransform == null || treasureTarget == null)
         {
-            ScentIndicatorController.Instance?.HideIndicator();
+            if (showDebugLogs && lastDistance > 0)
+                Debug.Log("ScentDetector: Player or Treasure is null");
+            HideArrow();
             return;
         }
 
-        // 2. 计算距离和方向
-        Vector3 directionToTarget = treasureTarget.position - _playerTransform.position;
-        float distance = directionToTarget.magnitude;
+        Vector3 directionToTreasure = treasureTarget.position - playerTransform.position;
+        float distance = directionToTreasure.magnitude;
 
-        // 3. 判断是否在探测范围内
-        if (distance < maxScentDistance)
+        if (distance >= maxScentDistance)
         {
-            // 4. 在范围内：通知 UI 控制器“显示并更新”箭头
-            ScentIndicatorController.Instance.ShowIndicator();
-            if (targetCamera != null)
-            {
-                ScentIndicatorController.Instance.UpdateIndicator(treasureTarget.position);
-            }
+            if (showDebugLogs && lastDistance < maxScentDistance)
+                Debug.Log($"ScentDetector: Distance {distance:F1} > max {maxScentDistance}, hiding");
+            HideArrow();
+            return;
         }
-        else
+
+        ShowArrow();
+        UpdateArrowDirection(directionToTreasure);
+        UpdateArrowSize(distance);
+        UpdateArrowOpacity(distance);
+    }
+
+    private void UpdateArrowDirection(Vector3 directionToTreasure)
+    {
+        // 修复：将 Y 轴取反以解决对称问题
+        float angle = Mathf.Atan2(-directionToTreasure.y, directionToTreasure.x) * Mathf.Rad2Deg;
+        float finalAngle = angle + arrowRotationOffset;
+
+        if (showDebugLogs && Mathf.Abs(finalAngle - lastAngle) > 0.1f)
         {
-            // 5. 超出范围：通知 UI 控制器“隐藏”箭头
-            ScentIndicatorController.Instance.HideIndicator();
+            Debug.Log($"ScentDetector: Angle = {finalAngle:F1}° (raw angle={angle:F1}°)");
+        }
+
+        scentIndicator.style.rotate = new Rotate(finalAngle);
+        lastAngle = finalAngle;
+    }
+
+    private void UpdateArrowSize(float distance)
+    {
+        float normalizedDistance = distance / maxScentDistance;
+        float scale = Mathf.Lerp(2.0f, 0.8f, normalizedDistance);
+        scentIndicator.style.scale = new Scale(new Vector3(scale, scale, 1));
+        lastDistance = distance;
+    }
+
+    private void UpdateArrowOpacity(float distance)
+    {
+        float normalizedDistance = distance / maxScentDistance;
+        float opacity = Mathf.Lerp(1.0f, 0.2f, normalizedDistance);
+        scentIndicator.style.opacity = opacity;
+    }
+
+    private void ShowArrow()
+    {
+        if (scentIndicator.style.display != DisplayStyle.Flex)
+        {
+            scentIndicator.style.display = DisplayStyle.Flex;
+            if (showDebugLogs) Debug.Log("ScentDetector: Showing arrow");
         }
     }
 
-    // 可选：在Scene视图绘制探测范围，便于调试
-    void OnDrawGizmosSelected()
+    private void HideArrow()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, maxScentDistance);
+        if (scentIndicator != null && scentIndicator.style.display != DisplayStyle.None)
+        {
+            scentIndicator.style.display = DisplayStyle.None;
+            if (showDebugLogs) Debug.Log("ScentDetector: Hiding arrow");
+        }
+    }
+
+    public void SetTreasureTarget(Transform newTarget)
+    {
+        treasureTarget = newTarget;
+    }
+
+    public void ClearTreasureTarget()
+    {
+        treasureTarget = null;
+        HideArrow();
     }
 }

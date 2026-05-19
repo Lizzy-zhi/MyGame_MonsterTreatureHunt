@@ -316,9 +316,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a80e05903d52584eb0c5342f7440e6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerTransform: {fileID: 45567669}
   treasureTarget: {fileID: 1571663608}
+  arrowSprite: {fileID: 21300000, guid: 55a1856c69c2b5247a8437246e3fe4e7, type: 3}
   maxScentDistance: 20
-  targetCamera: {fileID: 206229322}
+  arrowRotationOffset: 0
+  showDebugLogs: 1
 --- !u!1 &206229320
 GameObject:
   m_ObjectHideFlags: 0
@@ -648,9 +651,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a80e05903d52584eb0c5342f7440e6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  treasureTarget: {fileID: 0}
+  playerTransform: {fileID: 45567669}
+  treasureTarget: {fileID: 1571663608}
+  arrowSprite: {fileID: 21300000, guid: 55a1856c69c2b5247a8437246e3fe4e7, type: 3}
   maxScentDistance: 20
-  targetCamera: {fileID: 0}
+  arrowRotationOffset: 0
+  showDebugLogs: 1
 --- !u!61 &1571663606
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -838,15 +844,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48fdbf41c25416f4197b4cafbec180bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  indicatorName: ScentIndicator
   arrowSprite: {fileID: 21300000, guid: 55a1856c69c2b5247a8437246e3fe4e7, type: 3}
-  arrowColor: {r: 1, g: 1, b: 1, a: 1}
-  minAlpha: 0.3
-  maxAlpha: 1
-  detectionRange: 10
-  detectionSize: {x: 50, y: 50}
-  minScale: 0.5
-  maxScale: 1.2
+  indicatorName: ScentIndicator
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

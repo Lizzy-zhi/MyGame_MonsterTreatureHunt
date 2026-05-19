@@ -2,6 +2,6 @@
     <Style src="project://database/Assets/_Project/UI/GameHUD.uss?fileID=7433441132597879392&amp;guid=344e0703ce189dc4a8d3f0c30ba693b1&amp;type=3#GameHUD" />
     <ui:VisualElement name="HUDContainer" style="flex-grow: 1; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.11); align-items: center; justify-content: flex-end;">
         <ui:Label tabindex="-1" text="Treasure:0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ScoreLabel" style="position: absolute; left: 10px; top: 10px; right: auto; bottom: 1000px; -unity-text-align: upper-center; -unity-font: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=2230732570650464555&amp;guid=b34dbe4d1e80f744397653b519c93029&amp;type=3#NotInter-Regular&quot;); background-color: rgba(0, 0, 0, 0); color: rgb(232, 36, 36); font-size: 32px;" />
-        <ui:VisualElement name="ScentIndicator" class="ScentIndicator" style="flex-grow: 1; opacity: 0.08; border-top-width: 50px; border-right-width: 50px; border-bottom-width: 50px; border-left-width: 50px; border-top-left-radius: 50%; border-top-right-radius: 50%; border-bottom-right-radius: 50%; border-bottom-left-radius: 50%; align-items: auto; align-self: flex-start;" />
+        <ui:VisualElement name="ScentIndicator" class="ScentIndicator" />
     </ui:VisualElement>
 </ui:UXML>
