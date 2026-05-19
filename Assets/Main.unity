@@ -135,6 +135,7 @@ GameObject:
   - component: {fileID: 45567666}
   - component: {fileID: 45567665}
   - component: {fileID: 45567671}
+  - component: {fileID: 45567672}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -303,6 +304,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &45567672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 45567664}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a80e05903d52584eb0c5342f7440e6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treasureTarget: {fileID: 1571663608}
+  maxScentDistance: 20
+  targetCamera: {fileID: 206229322}
 --- !u!1 &206229320
 GameObject:
   m_ObjectHideFlags: 0
@@ -315,7 +331,7 @@ GameObject:
   - component: {fileID: 206229322}
   - component: {fileID: 206229321}
   m_Layer: 0
-  m_Name: Main Camera
+  m_Name: MainCamera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -634,6 +650,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   treasureTarget: {fileID: 0}
   maxScentDistance: 20
+  targetCamera: {fileID: 0}
 --- !u!61 &1571663606
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -740,7 +757,7 @@ Transform:
   m_GameObject: {fileID: 1571663604}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6, y: 2.13, z: 0}
+  m_LocalPosition: {x: -4.62, y: -0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -771,7 +788,6 @@ GameObject:
   - component: {fileID: 1793196574}
   - component: {fileID: 1793196573}
   - component: {fileID: 1793196575}
-  - component: {fileID: 1793196576}
   m_Layer: 0
   m_Name: GameUI
   m_TagString: Untagged
@@ -822,22 +838,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48fdbf41c25416f4197b4cafbec180bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arrowSprite: {fileID: 21300000, guid: 55a1856c69c2b5247a8437246e3fe4e7, type: 3}
   indicatorName: ScentIndicator
---- !u!114 &1793196576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1793196572}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a80e05903d52584eb0c5342f7440e6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  treasureTarget: {fileID: 1571663608}
-  maxScentDistance: 20
+  arrowSprite: {fileID: 21300000, guid: 55a1856c69c2b5247a8437246e3fe4e7, type: 3}
+  arrowColor: {r: 1, g: 1, b: 1, a: 1}
+  minAlpha: 0.3
+  maxAlpha: 1
+  detectionRange: 10
+  detectionSize: {x: 50, y: 50}
+  minScale: 0.5
+  maxScale: 1.2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

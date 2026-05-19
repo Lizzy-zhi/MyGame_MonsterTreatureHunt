@@ -1,0 +1,15 @@
+/* ScentIndicatorStyle.uss */
+
+/* 定义隐藏状态的样式 */
+.hidden {
+    display: none;
+    /* 或者使用 opacity: 0; visibility: hidden; 取决于你的需求 */
+}
+
+/* 定义箭头的默认样式 */
+.ScentIndicator {
+    /* 设置宽高，根据你的图片调整 */
+    width: 32px;
+    height: 32px;
+    
+}

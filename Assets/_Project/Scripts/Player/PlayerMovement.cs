@@ -24,7 +24,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("Update执行.水平输入值:" +Input.GetAxis("Horizontal"));
+        /*Debug.Log("Update执行.水平输入值:" +Input.GetAxis("Horizontal"));*/
         // 1. 获取输入
         horizontalInput = Input.GetAxis("Horizontal");
 
@@ -39,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     {
         // 3. 地面检测
         isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
-        Debug.Log("FixedUpdate执行.是否在地面: " +isGrounded);
+        /*Debug.Log("FixedUpdate执行.是否在地面: " +isGrounded);*/
         // 4. 核心：平滑移动（笨拙感来源）
         float targetSpeed = horizontalInput * moveSpeed;
         float speedDifference = targetSpeed - rb.velocity.x;
