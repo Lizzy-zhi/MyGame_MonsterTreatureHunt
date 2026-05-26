@@ -71,6 +71,11 @@ public class ScentDetector : MonoBehaviour
 
     void Update()
     {
+        if (treasureTarget == null)
+        {
+            FindNearestTreasure();
+        }
+
         if (scentIndicator == null || mainCamera == null) return;
 
         if (playerTransform == null || treasureTarget == null)
@@ -98,6 +103,25 @@ public class ScentDetector : MonoBehaviour
         UpdateArrowOpacity(distance);
     }
 
+    [SerializeField] private VisualElement compassPanel;  // 新增的面板引用
+
+    public void ShowCompass()
+    {
+        if (compassPanel != null)
+        {
+            compassPanel.style.display = DisplayStyle.Flex;
+        }
+        FindNearestTreasure();  // 开始寻找目标
+    }
+
+    public void HideCompass()
+    {
+        if (compassPanel != null)
+        {
+            compassPanel.style.display = DisplayStyle.None;
+        }
+        ClearTreasureTarget();  // 清除目标
+    }
     private void UpdateArrowDirection(Vector3 directionToTreasure)
     {
         // 修复：将 Y 轴取反以解决对称问题
@@ -156,4 +180,29 @@ public class ScentDetector : MonoBehaviour
         treasureTarget = null;
         HideArrow();
     }
+    // 在 ScentDetector.cs 中添加
+    private void FindNearestTreasure()
+    {
+        GameObject[] treasures = GameObject.FindGameObjectsWithTag("Treasure");
+        if (treasures.Length == 0)
+        {
+            ClearTreasureTarget();
+            return;
+        }
+
+        Transform nearest = null;
+        float shortest = Mathf.Infinity;
+        foreach (GameObject t in treasures)
+        {
+            float dist = Vector2.Distance(transform.position, t.transform.position);
+            if (dist < shortest)
+            {
+                shortest = dist;
+                nearest = t.transform;
+            }
+        }
+
+        SetTreasureTarget(nearest);
+    }
+   
 }

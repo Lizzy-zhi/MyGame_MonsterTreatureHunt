@@ -1,12 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 8f;          // ×î´óÒÆ¶¯ËÙ¶È
-    [SerializeField] private float acceleration = 20f;       // ¼ÓËÙ¿ìÂý£¨Ô½Ð¡Ô½±¿ÖØ£©
-    [SerializeField] private float deceleration = 15f;       // ¼õËÙ¿ìÂý£¨Ô½Ð¡»¬ÐÐÔ½Ô¶£©
-    [SerializeField] private float jumpForce = 12f;          // ÌøÔ¾Á¦¶È
+    [SerializeField] private float moveSpeed = 8f;          // ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½Ù¶ï¿½
+    [SerializeField] private float acceleration = 20f;       // ï¿½ï¿½ï¿½Ù¿ï¿½ï¿½ï¿½ï¿½ï¿½Ô½Ð¡Ô½ï¿½ï¿½ï¿½Ø£ï¿½
+    [SerializeField] private float deceleration = 15f;       // ï¿½ï¿½ï¿½Ù¿ï¿½ï¿½ï¿½ï¿½ï¿½Ô½Ð¡ï¿½ï¿½ï¿½ï¿½Ô½Ô¶ï¿½ï¿½
+    [SerializeField] private float jumpForce = 12f;          // ï¿½ï¿½Ô¾ï¿½ï¿½ï¿½ï¿½
 
     [Header("Ground Check")]
     [SerializeField] private Transform groundCheckPoint;
@@ -24,41 +24,47 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        /*Debug.Log("UpdateÖ´ÐÐ.Ë®Æ½ÊäÈëÖµ:" +Input.GetAxis("Horizontal"));*/
-        // 1. »ñÈ¡ÊäÈë
+        // 1. èŽ·å–è¾“å…¥
         horizontalInput = Input.GetAxis("Horizontal");
 
-        // 2. ÌøÔ¾Âß¼­
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // 2. è·³è·ƒæ£€æµ‹
+        if (Input.GetButtonDown("Jump"))
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            if (isGrounded)
+            {
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            }
+            else
+            {
+                Debug.Log("Cannot jump: Not grounded!");
+            }
         }
     }
 
     void FixedUpdate()
     {
-        // 3. µØÃæ¼ì²â
+        // 3. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
-        /*Debug.Log("FixedUpdateÖ´ÐÐ.ÊÇ·ñÔÚµØÃæ: " +isGrounded);*/
-        // 4. ºËÐÄ£ºÆ½»¬ÒÆ¶¯£¨±¿×¾¸ÐÀ´Ô´£©
+        Debug.Log("FixedUpdateÖ´ï¿½ï¿½.ï¿½Ç·ï¿½ï¿½Úµï¿½ï¿½ï¿½: " + isGrounded);
+        // 4. ï¿½ï¿½ï¿½Ä£ï¿½Æ½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½×¾ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½
         float targetSpeed = horizontalInput * moveSpeed;
         float speedDifference = targetSpeed - rb.velocity.x;
 
-        // ¸ù¾ÝÊÇ·ñÔÚ¼ÓËÙ»ò¼õËÙ£¬Ñ¡Ôñ²»Í¬µÄ¼ÓËÙ¶È
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ú¼ï¿½ï¿½Ù»ï¿½ï¿½ï¿½Ù£ï¿½Ñ¡ï¿½ï¿½Í¬ï¿½Ä¼ï¿½ï¿½Ù¶ï¿½
         float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
 
-        // ¼ÆËã×îÖÕÁ¦²¢Ó¦ÓÃ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½
         float movementForce = speedDifference * accelRate;
         rb.AddForce(movementForce * Vector2.right, ForceMode2D.Force);
 
-        // 5. ÏÞÖÆ×î´óËÙ¶È£¨·ÀÖ¹ÎÞÏÞ¼ÓËÙ£©
+        // 5. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶È£ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½Þ¼ï¿½ï¿½Ù£ï¿½
         if (Mathf.Abs(rb.velocity.x) > moveSpeed)
         {
             rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * moveSpeed, rb.velocity.y);
         }
     }
 
-    // ÔÚ Scene ÊÓÍ¼ÖÐÏÔÊ¾µØÃæ¼ì²â·¶Î§£¨µ÷ÊÔÓÃ£©
+    // ï¿½ï¿½ Scene ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½â·¶Î§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½
     private void OnDrawGizmosSelected()
     {
         if (groundCheckPoint == null) return;
