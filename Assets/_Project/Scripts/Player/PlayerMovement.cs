@@ -43,28 +43,21 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 3. ������
         isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
-        Debug.Log("FixedUpdateִ��.�Ƿ��ڵ���: " + isGrounded);
-        // 4. ���ģ�ƽ���ƶ�����׾����Դ��
         float targetSpeed = horizontalInput * moveSpeed;
         float speedDifference = targetSpeed - rb.velocity.x;
 
-        // �����Ƿ��ڼ��ٻ���٣�ѡ��ͬ�ļ��ٶ�
         float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
 
-        // ������������Ӧ��
         float movementForce = speedDifference * accelRate;
         rb.AddForce(movementForce * Vector2.right, ForceMode2D.Force);
 
-        // 5. ��������ٶȣ���ֹ���޼��٣�
         if (Mathf.Abs(rb.velocity.x) > moveSpeed)
         {
             rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * moveSpeed, rb.velocity.y);
         }
     }
 
-    // �� Scene ��ͼ����ʾ�����ⷶΧ�������ã�
     private void OnDrawGizmosSelected()
     {
         if (groundCheckPoint == null) return;
