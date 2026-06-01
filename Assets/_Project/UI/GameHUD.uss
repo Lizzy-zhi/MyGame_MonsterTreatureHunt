@@ -1,13 +1,67 @@
+#HUDContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#HelpButton {
+    position: absolute;
+    left: 32px;
+    top: 32px;
+    min-width: 200px;
+    height: 80px;
+    font-size: 40px;
+    -unity-font-style: bold;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    color: rgb(20, 20, 20);
+    background-color: rgb(245, 245, 245);
+    border-width: 3px;
+    border-color: rgb(60, 60, 60);
+    border-radius: 12px;
+}
+
+#TutorialLabel {
+    position: absolute;
+    left: 32px;
+    top: 128px;
+    font-size: 36px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.75);
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    border-radius: 12px;
+    max-width: 900px;
+    white-space: normal;
+}
+
+#ResultLabel {
+    position: absolute;
+    left: 32px;
+    top: 128px;
+    font-size: 40px;
+    color: #ffe082;
+    -unity-font-style: bold;
+    background-color: rgba(0, 0, 0, 0.75);
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    border-radius: 12px;
+    max-width: 900px;
+    white-space: normal;
+}
+
 #ScentIndicator {
-    width: 60px;
-    height: 60px;
+    width: 78px;
+    height: 78px;
     background-repeat: no-repeat;
     background-size: contain;
     position: absolute;
-    left: 50%;
-    top: 85%;
-    translate: -50% -50%;
-    opacity: 0.8;
-    transition: opacity 0.2s ease, scale 0.2s ease;
+    opacity: 0.95;
     transform-origin: center;
 }

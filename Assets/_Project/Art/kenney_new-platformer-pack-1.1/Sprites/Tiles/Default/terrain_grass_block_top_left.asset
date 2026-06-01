@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: grass
+  m_Name: terrain_grass_block_top_left
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 21300000, guid: b2465a0f46f70254786fc66c0db41e3c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 185f55a4265ad1f45ae083f700ab1b55, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Transform:
     e00: 1

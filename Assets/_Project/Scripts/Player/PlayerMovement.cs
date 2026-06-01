@@ -1,67 +1,106 @@
 ﻿using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+namespace MonsterTreasureHunt.Player
 {
-    [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 8f;          // ����ƶ��ٶ�
-    [SerializeField] private float acceleration = 20f;       // ���ٿ�����ԽСԽ���أ�
-    [SerializeField] private float deceleration = 15f;       // ���ٿ�����ԽС����ԽԶ��
-    [SerializeField] private float jumpForce = 12f;          // ��Ծ����
-
-    [Header("Ground Check")]
-    [SerializeField] private Transform groundCheckPoint;
-    [SerializeField] private float groundCheckRadius = 0.2f;
-    [SerializeField] private LayerMask groundLayer;
-
-    private Rigidbody2D rb;
-    private float horizontalInput;
-    private bool isGrounded;
-
-    void Awake()
+    [RequireComponent(typeof(Rigidbody2D))]
+    public class PlayerMovement : MonoBehaviour
     {
-        rb = GetComponent<Rigidbody2D>();
-    }
+        [Header("Clumsy Movement")]
+        [SerializeField] private float maxRunSpeed = 6.2f;
+        [SerializeField] private float groundAcceleration = 14f;
+        [SerializeField] private float groundDeceleration = 6f;
+        [SerializeField] private float turnResponsiveness = 0.35f;
+        [SerializeField] private float skidDrag = 0.9f;
 
-    void Update()
-    {
-        // 1. 获取输入
-        horizontalInput = Input.GetAxis("Horizontal");
+        [Header("Air Control")]
+        [SerializeField] private float airAccelerationMultiplier = 0.55f;
 
-        // 2. 跳跃检测
-        if (Input.GetButtonDown("Jump"))
+        [Header("Jump")]
+        [SerializeField] private float jumpForce = 12f;
+        [SerializeField] private float fallGravityMultiplier = 2f;
+
+        [Header("Ground Check")]
+        [SerializeField] private Transform groundCheckPoint;
+        [SerializeField] private float groundCheckRadius = 0.2f;
+        [SerializeField] private LayerMask groundLayer;
+
+        private Rigidbody2D rb;
+        private float horizontalInput;
+        private bool jumpQueued;
+        private bool isGrounded;
+
+        private void Awake()
         {
-            if (isGrounded)
+            rb = GetComponent<Rigidbody2D>();
+        }
+
+        private void Update()
+        {
+            horizontalInput = Input.GetAxisRaw("Horizontal");
+
+            if (Input.GetButtonDown("Jump") && isGrounded)
             {
-                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            }
-            else
-            {
-                Debug.Log("Cannot jump: Not grounded!");
+                jumpQueued = true;
             }
         }
-    }
 
-    void FixedUpdate()
-    {
-        isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
-        float targetSpeed = horizontalInput * moveSpeed;
-        float speedDifference = targetSpeed - rb.velocity.x;
-
-        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
-
-        float movementForce = speedDifference * accelRate;
-        rb.AddForce(movementForce * Vector2.right, ForceMode2D.Force);
-
-        if (Mathf.Abs(rb.velocity.x) > moveSpeed)
+        private void FixedUpdate()
         {
-            rb.velocity = new Vector2(Mathf.Sign(rb.velocity.x) * moveSpeed, rb.velocity.y);
-        }
-    }
+            isGrounded = Physics2D.OverlapCircle(groundCheckPoint.position, groundCheckRadius, groundLayer);
 
-    private void OnDrawGizmosSelected()
-    {
-        if (groundCheckPoint == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
+            HandleHorizontalMovement();
+            HandleJump();
+            ApplyBetterFall();
+        }
+
+        private void HandleHorizontalMovement()
+        {
+            float targetSpeed = horizontalInput * maxRunSpeed;
+            float currentSpeed = rb.velocity.x;
+
+            float accel = horizontalInput == 0f ? groundDeceleration : groundAcceleration;
+            if (!isGrounded)
+            {
+                accel *= airAccelerationMultiplier;
+            }
+
+            bool reversing = Mathf.Abs(horizontalInput) > 0.01f && Mathf.Sign(horizontalInput) != Mathf.Sign(currentSpeed) && Mathf.Abs(currentSpeed) > 0.25f;
+            if (reversing)
+            {
+                targetSpeed = Mathf.Lerp(currentSpeed, targetSpeed, turnResponsiveness);
+            }
+
+            float newSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, accel * Time.fixedDeltaTime);
+
+            if (isGrounded && Mathf.Abs(horizontalInput) < 0.01f)
+            {
+                newSpeed *= skidDrag;
+            }
+
+            rb.velocity = new Vector2(newSpeed, rb.velocity.y);
+        }
+
+        private void HandleJump()
+        {
+            if (!jumpQueued) return;
+            jumpQueued = false;
+
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        }
+
+        private void ApplyBetterFall()
+        {
+            if (rb.velocity.y < 0f)
+            {
+                rb.velocity += Vector2.up * Physics2D.gravity.y * (fallGravityMultiplier - 1f) * Time.fixedDeltaTime;
+            }
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (groundCheckPoint == null) return;
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
+        }
     }
 }

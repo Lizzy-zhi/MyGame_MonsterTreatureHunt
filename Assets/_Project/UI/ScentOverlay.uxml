@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/_Project/UI/GameHUD.uss?fileID=7433441132597879392&amp;guid=344e0703ce189dc4a8d3f0c30ba693b1&amp;type=3#GameHUD" />
+    <ui:VisualElement name="HUDContainer" picking-mode="Ignore">
+        <ui:VisualElement name="ScentIndicator" picking-mode="Ignore" style="display: none; width: 64px; height: 64px; background-image: url(&quot;project://database/Assets/_Project/Art/arrow.png?fileID=21300000&amp;guid=55a1856c69c2b5247a8437246e3fe4e7&amp;type=3#arrow&quot;); -unity-background-scale-mode: scale-to-fit;" />
+    </ui:VisualElement>
+</ui:UXML>
