@@ -229,10 +229,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84aff22e4ef470545a3ba1c97a1beecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  startPanelName: StartPanel
+  startButtonName: StartButton
+  startQuitButtonName: StartQuitButton
+  mapSelectPanelName: MapSelectPanel
+  beginnerMapButtonName: BeginnerMapButton
+  foggyMapButtonName: FoggyMapButton
+  volcanoMapButtonName: VolcanoMapButton
+  colorSelectPanelName: ColorSelectPanel
+  purpleColorButtonName: ColorPurpleButton
+  greenColorButtonName: ColorGreenButton
+  pinkColorButtonName: ColorPinkButton
+  settingsButtonName: SettingsButton
+  settingsPanelName: SettingsPanel
   helpButtonName: HelpButton
-  tutorialLabelName: TutorialLabel
+  continueButtonName: ContinueButton
+  escapeButtonName: EscapeButton
+  rulesPanelName: RulesPanel
+  rulesLabelName: RulesLabel
   resultLabelName: ResultLabel
   levelController: {fileID: 875872203}
+  mapBuilder: {fileID: 1594708972}
+  playerMovement: {fileID: 399969092}
 --- !u!114 &183101183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305,6 +323,16 @@ MonoBehaviour:
   airAccelerationMultiplier: 0.8
   jumpForce: 12
   fallGravityMultiplier: 2
+  crouchSpeedMultiplier: 0.2
+  crouchColliderSize: {x: 0.38, y: 0.75}
+  crouchColliderOffset: {x: 0, y: 0.475}
+  standUpHeadCheckExtraHeight: 0.06
+  idleSprite: {fileID: 21300000, guid: 837b8d1b927d2554bbe12af8b68498d6, type: 3}
+  runSpriteA: {fileID: 21300000, guid: 18c80d9820a417442935fd10ecd8625e, type: 3}
+  runSpriteB: {fileID: 21300000, guid: d55925b646f3caa44a2b724c75e4a74d, type: 3}
+  jumpSprite: {fileID: 21300000, guid: 4bf2f5155916ef94a991b5b04ce5f975, type: 3}
+  crouchSprite: {fileID: 21300000, guid: c7fb73a85142b174ca4fe52721aac8ad, type: 3}
+  runAnimationRate: 9
   groundCheckPoint: {fileID: 94746048}
   groundCheckRadius: 0.2
   groundLayer:
@@ -1221,7 +1249,7 @@ GameObject:
   - component: {fileID: 827614872}
   - component: {fileID: 827614874}
   - component: {fileID: 827614873}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Decoration
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1636,7 +1664,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1594708970}
   - component: {fileID: 1594708971}
-  m_Layer: 0
+  - component: {fileID: 1594708972}
+  m_Layer: 3
   m_Name: Enviornment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1672,6 +1701,39 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
+--- !u!114 &1594708972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1594708969}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundTilemap: {fileID: 636598307}
+  decorationTilemap: {fileID: 827614874}
+  topLeft: {fileID: 11400000, guid: b88664b643a047a4b80469267e98b5e4, type: 2}
+  topCenter: {fileID: 11400000, guid: 1d131b51c7d0347499a8d73160af41af, type: 2}
+  topRight: {fileID: 11400000, guid: f165c0f5ff81bdf449a8a76d6c836bc3, type: 2}
+  center: {fileID: 11400000, guid: c8d4e2f1a3b5476980abcdef11111101, type: 2}
+  bottom: {fileID: 11400000, guid: c8d4e2f1a3b5476980abcdef11111102, type: 2}
+  bottomLeft: {fileID: 11400000, guid: c8d4e2f1a3b5476980abcdef11111103, type: 2}
+  bottomRight: {fileID: 11400000, guid: c8d4e2f1a3b5476980abcdef11111104, type: 2}
+  leftEdge: {fileID: 11400000, guid: c8d4e2f1a3b5476980abcdef11111105, type: 2}
+  rightEdge: {fileID: 11400000, guid: c8d4e2f1a3b5476980abcdef11111106, type: 2}
+  signTile: {fileID: 11400000, guid: 992cb0cf8e5116f448be0cf45b3529dc, type: 2}
+  bushTile: {fileID: 11400000, guid: 4d6a25f107234f95a929335fdfba7601, type: 2}
+  rockTile: {fileID: 11400000, guid: 1f51936210c1488db1f202c0eddd807e, type: 2}
+  bridgeTile: {fileID: 11400000, guid: 018ccce1e1a94c8ea96e44509899894f, type: 2}
+  waterTile: {fileID: 11400000, guid: 2cb150fb27c1416184ac036d34955520, type: 2}
+  waterTopTile: {fileID: 11400000, guid: 8c18863f824c49a5a79270376d0da2ac, type: 2}
+  playerSpawn: {fileID: 26173730}
+  treasure: {fileID: 1295720799}
+  spawnHeightOffset: 0.5
+  buildOnStart: 1
 --- !u!1 &1687725863
 GameObject:
   m_ObjectHideFlags: 0

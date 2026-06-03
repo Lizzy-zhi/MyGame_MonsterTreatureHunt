@@ -4,45 +4,204 @@
     height: 100%;
 }
 
-#HelpButton {
+#StartPanel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(8, 16, 28, 0.78);
+}
+
+#MapSelectPanel,
+#ColorSelectPanel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(8, 16, 28, 0.78);
+}
+
+#StartCard {
+    width: 760px;
+    max-width: 86%;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    background-color: rgba(10, 22, 40, 0.9);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.82);
+    border-radius: 10px;
+}
+
+#MapSelectCard,
+#ColorSelectCard {
+    width: 640px;
+    max-width: 80%;
+    padding-left: 28px;
+    padding-right: 28px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    background-color: rgba(10, 22, 40, 0.9);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.82);
+    border-radius: 10px;
+}
+
+#StartTitle {
+    font-size: 46px;
+    -unity-font-style: bold;
+    color: #ffe082;
+    unity-text-align: upper-left;
+    margin-bottom: 12px;
+}
+
+#MapSelectTitle,
+#ColorSelectTitle {
+    font-size: 38px;
+    -unity-font-style: bold;
+    color: #ffe082;
+    margin-bottom: 16px;
+}
+
+#StartSubtitle {
+    font-size: 25px;
+    color: rgb(242, 245, 250);
+    white-space: normal;
+    margin-bottom: 24px;
+}
+
+#StartButton {
+    height: 62px;
+    font-size: 30px;
+    -unity-font-style: bold;
+    margin-bottom: 12px;
+    color: rgb(20, 20, 20);
+    background-color: rgb(245, 245, 245);
+    border-width: 2px;
+    border-color: rgb(60, 60, 60);
+    border-radius: 8px;
+}
+
+#BeginnerMapButton,
+#FoggyMapButton,
+#VolcanoMapButton,
+#ColorPurpleButton,
+#ColorGreenButton,
+#ColorPinkButton {
+    height: 58px;
+    font-size: 28px;
+    -unity-font-style: bold;
+    margin-bottom: 10px;
+    color: rgb(20, 20, 20);
+    background-color: rgb(245, 245, 245);
+    border-width: 2px;
+    border-color: rgb(60, 60, 60);
+    border-radius: 8px;
+}
+
+#VolcanoMapButton,
+#ColorPinkButton {
+    margin-bottom: 0;
+}
+
+#StartQuitButton {
+    height: 56px;
+    font-size: 26px;
+    -unity-font-style: bold;
+    color: rgb(20, 20, 20);
+    background-color: rgb(245, 245, 245);
+    border-width: 2px;
+    border-color: rgb(60, 60, 60);
+    border-radius: 8px;
+}
+
+#SettingsButton {
     position: absolute;
     left: 32px;
     top: 32px;
-    min-width: 200px;
-    height: 80px;
-    font-size: 40px;
+    min-width: 180px;
+    height: 72px;
+    font-size: 34px;
     -unity-font-style: bold;
     padding-left: 24px;
     padding-right: 24px;
-    padding-top: 8px;
-    padding-bottom: 8px;
     color: rgb(20, 20, 20);
     background-color: rgb(245, 245, 245);
     border-width: 3px;
     border-color: rgb(60, 60, 60);
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
-#TutorialLabel {
+#SettingsPanel {
     position: absolute;
     left: 32px;
-    top: 128px;
-    font-size: 36px;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.75);
-    padding-left: 24px;
-    padding-right: 24px;
+    top: 120px;
+    width: 300px;
+    padding-left: 18px;
+    padding-right: 18px;
     padding-top: 18px;
     padding-bottom: 18px;
-    border-radius: 12px;
-    max-width: 900px;
+    background-color: rgba(0, 0, 0, 0.78);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+}
+
+#SettingsPanel Button {
+    height: 58px;
+    margin-bottom: 12px;
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: rgb(20, 20, 20);
+    background-color: rgb(245, 245, 245);
+    border-width: 2px;
+    border-color: rgb(60, 60, 60);
+    border-radius: 8px;
+}
+
+#EscapeButton {
+    margin-bottom: 0;
+}
+
+#RulesPanel {
+    position: absolute;
+    left: 360px;
+    top: 120px;
+    width: 720px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 22px;
+    padding-bottom: 22px;
+    background-color: rgba(0, 0, 0, 0.78);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+}
+
+#RulesTitle {
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: #ffe082;
+    margin-bottom: 12px;
+}
+
+#RulesLabel {
+    font-size: 26px;
+    color: white;
     white-space: normal;
 }
 
 #ResultLabel {
     position: absolute;
     left: 32px;
-    top: 128px;
+    top: 120px;
     font-size: 40px;
     color: #ffe082;
     -unity-font-style: bold;

@@ -1,8 +1,40 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/_Project/UI/GameHUD.uss?fileID=7433441132597879392&amp;guid=344e0703ce189dc4a8d3f0c30ba693b1&amp;type=3#GameHUD" />
     <ui:VisualElement name="HUDContainer">
-        <ui:Button name="HelpButton" text="Help" />
-        <ui:Label name="TutorialLabel" display="none" />
+        <ui:VisualElement name="StartPanel">
+            <ui:VisualElement name="StartCard">
+                <ui:Label name="StartTitle" text="Monster Treasure Hunt" />
+                <ui:Label name="StartSubtitle" text="A clumsy little monster, a huge island, and hidden treasure." />
+                <ui:Button name="StartButton" text="Start Game" />
+                <ui:Button name="StartQuitButton" text="Quit" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="MapSelectPanel" display="none">
+            <ui:VisualElement name="MapSelectCard">
+                <ui:Label name="MapSelectTitle" text="Select Map" />
+                <ui:Button name="BeginnerMapButton" text="Beginner Island" />
+                <ui:Button name="FoggyMapButton" text="Foggy Forest" />
+                <ui:Button name="VolcanoMapButton" text="Volcano Cave" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="ColorSelectPanel" display="none">
+            <ui:VisualElement name="ColorSelectCard">
+                <ui:Label name="ColorSelectTitle" text="Select Character Color" />
+                <ui:Button name="ColorPurpleButton" text="Purple" />
+                <ui:Button name="ColorGreenButton" text="Green" />
+                <ui:Button name="ColorPinkButton" text="Pink" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Button name="SettingsButton" text="Settings" />
+        <ui:VisualElement name="SettingsPanel" display="none">
+            <ui:Button name="HelpButton" text="Help" />
+            <ui:Button name="ContinueButton" text="Continue" />
+            <ui:Button name="EscapeButton" text="Escape" />
+        </ui:VisualElement>
+        <ui:VisualElement name="RulesPanel" display="none">
+            <ui:Label name="RulesTitle" text="Game Rules" />
+            <ui:Label name="RulesLabel" />
+        </ui:VisualElement>
         <ui:Label name="ResultLabel" display="none" />
         <ui:VisualElement name="ScentIndicator" style="top: 100%; left: 100%; display: none; width: 64px; height: 64px; background-image: url(&quot;project://database/Assets/_Project/Art/arrow.png?fileID=21300000&amp;guid=55a1856c69c2b5247a8437246e3fe4e7&amp;type=3#arrow&quot;); background-color: rgb(255, 255, 255); -unity-background-scale-mode: scale-to-fit;" />
     </ui:VisualElement>
