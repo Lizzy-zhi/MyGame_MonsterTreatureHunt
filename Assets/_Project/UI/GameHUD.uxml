@@ -17,12 +17,26 @@
                 <ui:Button name="VolcanoMapButton" text="Volcano Cave" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="ColorSelectPanel" display="none">
-            <ui:VisualElement name="ColorSelectCard">
-                <ui:Label name="ColorSelectTitle" text="Select Character Color" />
-                <ui:Button name="ColorPurpleButton" text="Purple" />
-                <ui:Button name="ColorGreenButton" text="Green" />
-                <ui:Button name="ColorPinkButton" text="Pink" />
+        <ui:VisualElement name="SkinSelectPanel" display="none">
+            <ui:VisualElement name="SkinSelectCard">
+                <ui:Label name="SkinSelectTitle" text="Skin" />
+                <ui:VisualElement name="SkinSelectContent">
+                    <ui:VisualElement name="SkinPreviewPane">
+                        <ui:Image name="SkinPreviewImage" />
+                        <ui:Label name="SkinNameLabel" text="Purple" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="SkinOptionList">
+                        <ui:Button name="PurpleSkinButton" text="Purple" />
+                        <ui:Button name="GreenSkinButton" text="Green" />
+                        <ui:Button name="PinkSkinButton" text="Pink" />
+                        <ui:Button name="YellowSkinButton" text="Yellow" />
+                        <ui:Button name="BeigeSkinButton" text="Beige" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="SkinActionRow">
+                    <ui:Button name="BackToMapButton" text="Back" />
+                    <ui:Button name="ConfirmSkinButton" text="Confirm" />
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:Button name="SettingsButton" text="Settings" />

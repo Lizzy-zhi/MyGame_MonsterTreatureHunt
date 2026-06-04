@@ -16,10 +16,16 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private string beginnerMapButtonName = "BeginnerMapButton";
         [SerializeField] private string foggyMapButtonName = "FoggyMapButton";
         [SerializeField] private string volcanoMapButtonName = "VolcanoMapButton";
-        [SerializeField] private string colorSelectPanelName = "ColorSelectPanel";
-        [SerializeField] private string purpleColorButtonName = "ColorPurpleButton";
-        [SerializeField] private string greenColorButtonName = "ColorGreenButton";
-        [SerializeField] private string pinkColorButtonName = "ColorPinkButton";
+        [SerializeField] private string skinSelectPanelName = "SkinSelectPanel";
+        [SerializeField] private string skinPreviewImageName = "SkinPreviewImage";
+        [SerializeField] private string skinNameLabelName = "SkinNameLabel";
+        [SerializeField] private string purpleSkinButtonName = "PurpleSkinButton";
+        [SerializeField] private string greenSkinButtonName = "GreenSkinButton";
+        [SerializeField] private string pinkSkinButtonName = "PinkSkinButton";
+        [SerializeField] private string yellowSkinButtonName = "YellowSkinButton";
+        [SerializeField] private string beigeSkinButtonName = "BeigeSkinButton";
+        [SerializeField] private string confirmSkinButtonName = "ConfirmSkinButton";
+        [SerializeField] private string backToMapButtonName = "BackToMapButton";
         [SerializeField] private string settingsButtonName = "SettingsButton";
         [SerializeField] private string settingsPanelName = "SettingsPanel";
         [SerializeField] private string helpButtonName = "HelpButton";
@@ -34,6 +40,41 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private BeginnerIslandMapBuilder mapBuilder;
         [SerializeField] private PlayerMovement playerMovement;
 
+        [Header("Purple Skin")]
+        [SerializeField] private Sprite purpleIdleSprite;
+        [SerializeField] private Sprite purpleRunSpriteA;
+        [SerializeField] private Sprite purpleRunSpriteB;
+        [SerializeField] private Sprite purpleJumpSprite;
+        [SerializeField] private Sprite purpleCrouchSprite;
+
+        [Header("Green Skin")]
+        [SerializeField] private Sprite greenIdleSprite;
+        [SerializeField] private Sprite greenRunSpriteA;
+        [SerializeField] private Sprite greenRunSpriteB;
+        [SerializeField] private Sprite greenJumpSprite;
+        [SerializeField] private Sprite greenCrouchSprite;
+
+        [Header("Pink Skin")]
+        [SerializeField] private Sprite pinkIdleSprite;
+        [SerializeField] private Sprite pinkRunSpriteA;
+        [SerializeField] private Sprite pinkRunSpriteB;
+        [SerializeField] private Sprite pinkJumpSprite;
+        [SerializeField] private Sprite pinkCrouchSprite;
+
+        [Header("Yellow Skin")]
+        [SerializeField] private Sprite yellowIdleSprite;
+        [SerializeField] private Sprite yellowRunSpriteA;
+        [SerializeField] private Sprite yellowRunSpriteB;
+        [SerializeField] private Sprite yellowJumpSprite;
+        [SerializeField] private Sprite yellowCrouchSprite;
+
+        [Header("Beige Skin")]
+        [SerializeField] private Sprite beigeIdleSprite;
+        [SerializeField] private Sprite beigeRunSpriteA;
+        [SerializeField] private Sprite beigeRunSpriteB;
+        [SerializeField] private Sprite beigeJumpSprite;
+        [SerializeField] private Sprite beigeCrouchSprite;
+
         private VisualElement startPanel;
         private Button startButton;
         private Button startQuitButton;
@@ -41,10 +82,16 @@ namespace MonsterTreasureHunt.UI
         private Button beginnerMapButton;
         private Button foggyMapButton;
         private Button volcanoMapButton;
-        private VisualElement colorSelectPanel;
-        private Button purpleColorButton;
-        private Button greenColorButton;
-        private Button pinkColorButton;
+        private VisualElement skinSelectPanel;
+        private Image skinPreviewImage;
+        private Label skinNameLabel;
+        private Button purpleSkinButton;
+        private Button greenSkinButton;
+        private Button pinkSkinButton;
+        private Button yellowSkinButton;
+        private Button beigeSkinButton;
+        private Button confirmSkinButton;
+        private Button backToMapButton;
         private Button settingsButton;
         private Button helpButton;
         private Button continueButton;
@@ -60,12 +107,37 @@ namespace MonsterTreasureHunt.UI
         private BeginnerIslandMapBuilder.MapTheme pendingMap = BeginnerIslandMapBuilder.MapTheme.BeginnerIsland;
         private bool mapChosen;
         private string selectedMapTitle = "Beginner Island";
+        private SkinChoice selectedSkin;
+        private SkinChoice[] skinChoices;
 
+        private const string SelectedSkinClass = "skin-option-selected";
         private const string RulesText =
             "Move left and right with A / D or the arrow keys.\n" +
             "Press Space to jump over small steps.\n" +
             "Follow the scent arrow when the treasure is off screen.\n" +
             "Reach the treasure chest at the far right side of the island.";
+
+        private struct SkinChoice
+        {
+            public string Name;
+            public Sprite Idle;
+            public Sprite RunA;
+            public Sprite RunB;
+            public Sprite Jump;
+            public Sprite Crouch;
+            public Button Button;
+
+            public SkinChoice(string name, Sprite idle, Sprite runA, Sprite runB, Sprite jump, Sprite crouch, Button button)
+            {
+                Name = name;
+                Idle = idle;
+                RunA = runA;
+                RunB = runB;
+                Jump = jump;
+                Crouch = crouch;
+                Button = button;
+            }
+        }
 
         private void OnEnable()
         {
@@ -97,10 +169,16 @@ namespace MonsterTreasureHunt.UI
             beginnerMapButton = root.Q<Button>(beginnerMapButtonName);
             foggyMapButton = root.Q<Button>(foggyMapButtonName);
             volcanoMapButton = root.Q<Button>(volcanoMapButtonName);
-            colorSelectPanel = root.Q<VisualElement>(colorSelectPanelName);
-            purpleColorButton = root.Q<Button>(purpleColorButtonName);
-            greenColorButton = root.Q<Button>(greenColorButtonName);
-            pinkColorButton = root.Q<Button>(pinkColorButtonName);
+            skinSelectPanel = root.Q<VisualElement>(skinSelectPanelName);
+            skinPreviewImage = root.Q<Image>(skinPreviewImageName);
+            skinNameLabel = root.Q<Label>(skinNameLabelName);
+            purpleSkinButton = root.Q<Button>(purpleSkinButtonName);
+            greenSkinButton = root.Q<Button>(greenSkinButtonName);
+            pinkSkinButton = root.Q<Button>(pinkSkinButtonName);
+            yellowSkinButton = root.Q<Button>(yellowSkinButtonName);
+            beigeSkinButton = root.Q<Button>(beigeSkinButtonName);
+            confirmSkinButton = root.Q<Button>(confirmSkinButtonName);
+            backToMapButton = root.Q<Button>(backToMapButtonName);
             settingsButton = root.Q<Button>(settingsButtonName);
             settingsPanel = root.Q<VisualElement>(settingsPanelName);
             helpButton = root.Q<Button>(helpButtonName);
@@ -110,7 +188,6 @@ namespace MonsterTreasureHunt.UI
             rulesLabel = root.Q<Label>(rulesLabelName);
             resultLabel = root.Q<Label>(resultLabelName);
 
-            // Prevent gameplay keys (especially Space) from triggering focused UI buttons.
             DisableKeyboardFocus(settingsButton);
             DisableKeyboardFocus(helpButton);
             DisableKeyboardFocus(continueButton);
@@ -120,9 +197,13 @@ namespace MonsterTreasureHunt.UI
             DisableKeyboardFocus(beginnerMapButton);
             DisableKeyboardFocus(foggyMapButton);
             DisableKeyboardFocus(volcanoMapButton);
-            DisableKeyboardFocus(purpleColorButton);
-            DisableKeyboardFocus(greenColorButton);
-            DisableKeyboardFocus(pinkColorButton);
+            DisableKeyboardFocus(purpleSkinButton);
+            DisableKeyboardFocus(greenSkinButton);
+            DisableKeyboardFocus(pinkSkinButton);
+            DisableKeyboardFocus(yellowSkinButton);
+            DisableKeyboardFocus(beigeSkinButton);
+            DisableKeyboardFocus(confirmSkinButton);
+            DisableKeyboardFocus(backToMapButton);
             root.Focus();
 
             if (mapBuilder == null)
@@ -140,6 +221,7 @@ namespace MonsterTreasureHunt.UI
                 playerBody = playerMovement.GetComponent<Rigidbody2D>();
             }
 
+            BuildSkinChoices();
             RegisterCallbacks();
 
             if (rulesLabel != null)
@@ -148,10 +230,12 @@ namespace MonsterTreasureHunt.UI
             }
 
             gameStarted = false;
+            levelCompleted = false;
             mapChosen = false;
+            SelectSkin(0);
             SetStartPanelVisible(true);
             SetMapSelectVisible(false);
-            SetColorSelectVisible(false);
+            SetSkinSelectVisible(false);
             SetSettingsButtonVisible(false);
             SetGameplayInputEnabled(false);
             SetSettingsVisible(false);
@@ -171,6 +255,18 @@ namespace MonsterTreasureHunt.UI
             element.tabIndex = -1;
         }
 
+        private void BuildSkinChoices()
+        {
+            skinChoices = new[]
+            {
+                new SkinChoice("Purple", purpleIdleSprite, purpleRunSpriteA, purpleRunSpriteB, purpleJumpSprite, purpleCrouchSprite, purpleSkinButton),
+                new SkinChoice("Green", greenIdleSprite, greenRunSpriteA, greenRunSpriteB, greenJumpSprite, greenCrouchSprite, greenSkinButton),
+                new SkinChoice("Pink", pinkIdleSprite, pinkRunSpriteA, pinkRunSpriteB, pinkJumpSprite, pinkCrouchSprite, pinkSkinButton),
+                new SkinChoice("Yellow", yellowIdleSprite, yellowRunSpriteA, yellowRunSpriteB, yellowJumpSprite, yellowCrouchSprite, yellowSkinButton),
+                new SkinChoice("Beige", beigeIdleSprite, beigeRunSpriteA, beigeRunSpriteB, beigeJumpSprite, beigeCrouchSprite, beigeSkinButton),
+            };
+        }
+
         private void RegisterCallbacks()
         {
             if (startButton != null) startButton.clicked += StartGame;
@@ -178,9 +274,13 @@ namespace MonsterTreasureHunt.UI
             if (beginnerMapButton != null) beginnerMapButton.clicked += SelectBeginnerMap;
             if (foggyMapButton != null) foggyMapButton.clicked += SelectFoggyMap;
             if (volcanoMapButton != null) volcanoMapButton.clicked += SelectVolcanoMap;
-            if (purpleColorButton != null) purpleColorButton.clicked += SelectPurpleColor;
-            if (greenColorButton != null) greenColorButton.clicked += SelectGreenColor;
-            if (pinkColorButton != null) pinkColorButton.clicked += SelectPinkColor;
+            if (purpleSkinButton != null) purpleSkinButton.clicked += SelectPurpleSkin;
+            if (greenSkinButton != null) greenSkinButton.clicked += SelectGreenSkin;
+            if (pinkSkinButton != null) pinkSkinButton.clicked += SelectPinkSkin;
+            if (yellowSkinButton != null) yellowSkinButton.clicked += SelectYellowSkin;
+            if (beigeSkinButton != null) beigeSkinButton.clicked += SelectBeigeSkin;
+            if (confirmSkinButton != null) confirmSkinButton.clicked += ConfirmSkinAndStart;
+            if (backToMapButton != null) backToMapButton.clicked += BackToMapSelect;
             if (settingsButton != null) settingsButton.clicked += ToggleSettings;
             if (helpButton != null) helpButton.clicked += ShowRules;
             if (continueButton != null) continueButton.clicked += ContinueGame;
@@ -194,9 +294,13 @@ namespace MonsterTreasureHunt.UI
             if (beginnerMapButton != null) beginnerMapButton.clicked -= SelectBeginnerMap;
             if (foggyMapButton != null) foggyMapButton.clicked -= SelectFoggyMap;
             if (volcanoMapButton != null) volcanoMapButton.clicked -= SelectVolcanoMap;
-            if (purpleColorButton != null) purpleColorButton.clicked -= SelectPurpleColor;
-            if (greenColorButton != null) greenColorButton.clicked -= SelectGreenColor;
-            if (pinkColorButton != null) pinkColorButton.clicked -= SelectPinkColor;
+            if (purpleSkinButton != null) purpleSkinButton.clicked -= SelectPurpleSkin;
+            if (greenSkinButton != null) greenSkinButton.clicked -= SelectGreenSkin;
+            if (pinkSkinButton != null) pinkSkinButton.clicked -= SelectPinkSkin;
+            if (yellowSkinButton != null) yellowSkinButton.clicked -= SelectYellowSkin;
+            if (beigeSkinButton != null) beigeSkinButton.clicked -= SelectBeigeSkin;
+            if (confirmSkinButton != null) confirmSkinButton.clicked -= ConfirmSkinAndStart;
+            if (backToMapButton != null) backToMapButton.clicked -= BackToMapSelect;
             if (settingsButton != null) settingsButton.clicked -= ToggleSettings;
             if (helpButton != null) helpButton.clicked -= ShowRules;
             if (continueButton != null) continueButton.clicked -= ContinueGame;
@@ -208,7 +312,7 @@ namespace MonsterTreasureHunt.UI
             mapChosen = false;
             SetStartPanelVisible(false);
             SetMapSelectVisible(true);
-            SetColorSelectVisible(false);
+            SetSkinSelectVisible(false);
             SetSettingsButtonVisible(false);
             SetSettingsVisible(false);
             SetRulesVisible(false);
@@ -234,26 +338,72 @@ namespace MonsterTreasureHunt.UI
             pendingMap = map;
             selectedMapTitle = mapTitle;
             mapChosen = true;
+            SelectSkin(0);
             SetMapSelectVisible(false);
-            SetColorSelectVisible(true);
+            SetSkinSelectVisible(true);
         }
 
-        private void SelectPurpleColor()
+        private void SelectPurpleSkin()
         {
-            StartWithColor(new Color(0.74f, 0.58f, 1f, 1f));
+            SelectSkin(0);
         }
 
-        private void SelectGreenColor()
+        private void SelectGreenSkin()
         {
-            StartWithColor(new Color(0.6f, 0.95f, 0.58f, 1f));
+            SelectSkin(1);
         }
 
-        private void SelectPinkColor()
+        private void SelectPinkSkin()
         {
-            StartWithColor(new Color(1f, 0.68f, 0.84f, 1f));
+            SelectSkin(2);
         }
 
-        private void StartWithColor(Color tint)
+        private void SelectYellowSkin()
+        {
+            SelectSkin(3);
+        }
+
+        private void SelectBeigeSkin()
+        {
+            SelectSkin(4);
+        }
+
+        private void SelectSkin(int index)
+        {
+            if (skinChoices == null || skinChoices.Length == 0) return;
+            if (index < 0 || index >= skinChoices.Length) return;
+
+            selectedSkin = skinChoices[index];
+
+            if (skinPreviewImage != null)
+            {
+                skinPreviewImage.sprite = selectedSkin.Idle;
+                skinPreviewImage.scaleMode = ScaleMode.ScaleToFit;
+                skinPreviewImage.tintColor = Color.white;
+            }
+
+            if (skinNameLabel != null)
+            {
+                skinNameLabel.text = selectedSkin.Name;
+            }
+
+            for (int i = 0; i < skinChoices.Length; i++)
+            {
+                Button button = skinChoices[i].Button;
+                if (button == null) continue;
+
+                if (i == index)
+                {
+                    button.AddToClassList(SelectedSkinClass);
+                }
+                else
+                {
+                    button.RemoveFromClassList(SelectedSkinClass);
+                }
+            }
+        }
+
+        private void ConfirmSkinAndStart()
         {
             if (!mapChosen) return;
 
@@ -265,13 +415,21 @@ namespace MonsterTreasureHunt.UI
 
             if (playerMovement != null)
             {
-                playerMovement.SetBodyTint(tint);
+                playerMovement.ApplySkin(selectedSkin.Idle, selectedSkin.RunA, selectedSkin.RunB, selectedSkin.Jump, selectedSkin.Crouch);
             }
 
             gameStarted = true;
-            SetColorSelectVisible(false);
+            SetSkinSelectVisible(false);
             SetSettingsButtonVisible(true);
             SetGameplayInputEnabled(true);
+            SetSettingsVisible(false);
+            SetRulesVisible(false);
+        }
+
+        private void BackToMapSelect()
+        {
+            SetSkinSelectVisible(false);
+            SetMapSelectVisible(true);
             SetSettingsVisible(false);
             SetRulesVisible(false);
         }
@@ -341,11 +499,11 @@ namespace MonsterTreasureHunt.UI
             }
         }
 
-        private void SetColorSelectVisible(bool visible)
+        private void SetSkinSelectVisible(bool visible)
         {
-            if (colorSelectPanel != null)
+            if (skinSelectPanel != null)
             {
-                colorSelectPanel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+                skinSelectPanel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 

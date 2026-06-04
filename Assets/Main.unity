@@ -236,10 +236,16 @@ MonoBehaviour:
   beginnerMapButtonName: BeginnerMapButton
   foggyMapButtonName: FoggyMapButton
   volcanoMapButtonName: VolcanoMapButton
-  colorSelectPanelName: ColorSelectPanel
-  purpleColorButtonName: ColorPurpleButton
-  greenColorButtonName: ColorGreenButton
-  pinkColorButtonName: ColorPinkButton
+  skinSelectPanelName: SkinSelectPanel
+  skinPreviewImageName: SkinPreviewImage
+  skinNameLabelName: SkinNameLabel
+  purpleSkinButtonName: PurpleSkinButton
+  greenSkinButtonName: GreenSkinButton
+  pinkSkinButtonName: PinkSkinButton
+  yellowSkinButtonName: YellowSkinButton
+  beigeSkinButtonName: BeigeSkinButton
+  confirmSkinButtonName: ConfirmSkinButton
+  backToMapButtonName: BackToMapButton
   settingsButtonName: SettingsButton
   settingsPanelName: SettingsPanel
   helpButtonName: HelpButton
@@ -251,6 +257,31 @@ MonoBehaviour:
   levelController: {fileID: 875872203}
   mapBuilder: {fileID: 1594708972}
   playerMovement: {fileID: 399969092}
+  purpleIdleSprite: {fileID: 21300000, guid: 837b8d1b927d2554bbe12af8b68498d6, type: 3}
+  purpleRunSpriteA: {fileID: 21300000, guid: 18c80d9820a417442935fd10ecd8625e, type: 3}
+  purpleRunSpriteB: {fileID: 21300000, guid: d55925b646f3caa44a2b724c75e4a74d, type: 3}
+  purpleJumpSprite: {fileID: 21300000, guid: 4bf2f5155916ef94a991b5b04ce5f975, type: 3}
+  purpleCrouchSprite: {fileID: 21300000, guid: c7fb73a85142b174ca4fe52721aac8ad, type: 3}
+  greenIdleSprite: {fileID: 21300000, guid: 3bd3a029e85cc39418acb93f49fa6780, type: 3}
+  greenRunSpriteA: {fileID: 21300000, guid: 8cba6cacc916d824ea62fd6603662944, type: 3}
+  greenRunSpriteB: {fileID: 21300000, guid: 5f88b102e59c4a146a05266af3043554, type: 3}
+  greenJumpSprite: {fileID: 21300000, guid: 2c18bebf684e59142ad26ad822166ee2, type: 3}
+  greenCrouchSprite: {fileID: 21300000, guid: 680096233a38d994ab5dd63a55fa6efa, type: 3}
+  pinkIdleSprite: {fileID: 21300000, guid: 63c687c77c1342d478c1bf4d1ef4b833, type: 3}
+  pinkRunSpriteA: {fileID: 21300000, guid: a243e5630b2e47449b6bcd77173b0c59, type: 3}
+  pinkRunSpriteB: {fileID: 21300000, guid: c18a4745403a5da4ea90f9eb7804b0b3, type: 3}
+  pinkJumpSprite: {fileID: 21300000, guid: c27bc33d026d1f6439c415014a36ff49, type: 3}
+  pinkCrouchSprite: {fileID: 21300000, guid: fb2093d01bb8bbf45931af388f11b30e, type: 3}
+  yellowIdleSprite: {fileID: 21300000, guid: 2ba7d49a6a3065a4e9ac7bcfbe16bbd4, type: 3}
+  yellowRunSpriteA: {fileID: 21300000, guid: 288f080c7190f2d4693f4f7844acd35f, type: 3}
+  yellowRunSpriteB: {fileID: 21300000, guid: 42c11a704a997914dafcf0f102bb4f26, type: 3}
+  yellowJumpSprite: {fileID: 21300000, guid: ef4c01d08da51084285bb7ece9c70393, type: 3}
+  yellowCrouchSprite: {fileID: 21300000, guid: 177f59982cd9ed848a381c22ab7dc8de, type: 3}
+  beigeIdleSprite: {fileID: 21300000, guid: 9ca8369cdd3e84340b8e5857d6954733, type: 3}
+  beigeRunSpriteA: {fileID: 21300000, guid: 05ccaae1027d01346925052b6021aadb, type: 3}
+  beigeRunSpriteB: {fileID: 21300000, guid: 9ef922cda0bcec94f9ba185dba9e59d5, type: 3}
+  beigeJumpSprite: {fileID: 21300000, guid: 9acf6d283320f7b48bf73dedf24277da, type: 3}
+  beigeCrouchSprite: {fileID: 21300000, guid: a38570ce37731224abc122f885c67399, type: 3}
 --- !u!114 &183101183
 MonoBehaviour:
   m_ObjectHideFlags: 0

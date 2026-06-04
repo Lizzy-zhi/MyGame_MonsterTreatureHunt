@@ -216,6 +216,26 @@ namespace MonsterTreasureHunt.Player
             spriteRenderer.sprite = sprite;
         }
 
+        public void ApplySkin(Sprite idle, Sprite runA, Sprite runB, Sprite jump, Sprite crouch)
+        {
+            idleSprite = idle != null ? idle : idleSprite;
+            runSpriteA = runA != null ? runA : runSpriteA;
+            runSpriteB = runB != null ? runB : runSpriteB;
+            jumpSprite = jump != null ? jump : jumpSprite;
+            crouchSprite = crouch != null ? crouch : crouchSprite;
+
+            if (spriteRenderer == null)
+            {
+                spriteRenderer = GetComponent<SpriteRenderer>();
+            }
+
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = Color.white;
+                SetSpriteIfPresent(idleSprite);
+            }
+        }
+
         public void SetBodyTint(Color tint)
         {
             if (spriteRenderer == null)

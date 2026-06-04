@@ -16,7 +16,7 @@
 }
 
 #MapSelectPanel,
-#ColorSelectPanel {
+#SkinSelectPanel {
     position: absolute;
     left: 0;
     top: 0;
@@ -41,7 +41,7 @@
 }
 
 #MapSelectCard,
-#ColorSelectCard {
+#SkinSelectCard {
     width: 640px;
     max-width: 80%;
     padding-left: 28px;
@@ -54,6 +54,13 @@
     border-radius: 10px;
 }
 
+#SkinSelectCard {
+    width: 760px;
+    height: 520px;
+    background-color: rgb(246, 248, 252);
+    border-color: rgb(210, 215, 225);
+}
+
 #StartTitle {
     font-size: 46px;
     -unity-font-style: bold;
@@ -63,11 +70,98 @@
 }
 
 #MapSelectTitle,
-#ColorSelectTitle {
+#SkinSelectTitle {
     font-size: 38px;
     -unity-font-style: bold;
     color: #ffe082;
     margin-bottom: 16px;
+}
+
+#SkinSelectTitle {
+    color: rgb(25, 25, 25);
+    font-size: 34px;
+}
+
+#SkinSelectContent {
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+#SkinPreviewPane {
+    width: 430px;
+    justify-content: center;
+    align-items: center;
+}
+
+#SkinPreviewImage {
+    width: 250px;
+    height: 280px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#SkinNameLabel {
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(35, 35, 35);
+    margin-top: 12px;
+}
+
+#SkinOptionList {
+    width: 260px;
+    justify-content: center;
+}
+
+#PurpleSkinButton,
+#GreenSkinButton,
+#PinkSkinButton,
+#YellowSkinButton,
+#BeigeSkinButton {
+    height: 48px;
+    font-size: 22px;
+    margin-bottom: 12px;
+    color: rgb(35, 35, 35);
+    background-color: rgb(250, 250, 250);
+    border-width: 2px;
+    border-color: rgb(140, 145, 155);
+    border-radius: 8px;
+    -unity-font-style: bold;
+}
+
+#PurpleSkinButton.skin-option-selected,
+#GreenSkinButton.skin-option-selected,
+#PinkSkinButton.skin-option-selected,
+#YellowSkinButton.skin-option-selected,
+#BeigeSkinButton.skin-option-selected {
+    color: rgb(15, 60, 120);
+    background-color: rgb(221, 235, 255);
+    border-color: rgb(85, 125, 215);
+}
+
+#SkinActionRow {
+    height: 56px;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+#BackToMapButton,
+#ConfirmSkinButton {
+    width: 120px;
+    height: 44px;
+    margin-left: 12px;
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: rgb(25, 25, 25);
+    background-color: rgb(245, 245, 245);
+    border-width: 2px;
+    border-color: rgb(80, 80, 80);
+    border-radius: 8px;
+}
+
+#ConfirmSkinButton {
+    color: white;
+    background-color: rgb(50, 115, 220);
+    border-color: rgb(35, 80, 170);
 }
 
 #StartSubtitle {
@@ -91,10 +185,7 @@
 
 #BeginnerMapButton,
 #FoggyMapButton,
-#VolcanoMapButton,
-#ColorPurpleButton,
-#ColorGreenButton,
-#ColorPinkButton {
+#VolcanoMapButton {
     height: 58px;
     font-size: 28px;
     -unity-font-style: bold;
@@ -106,8 +197,7 @@
     border-radius: 8px;
 }
 
-#VolcanoMapButton,
-#ColorPinkButton {
+#VolcanoMapButton {
     margin-bottom: 0;
 }
 
