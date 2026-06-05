@@ -13,9 +13,9 @@ namespace MonsterTreasureHunt.Levels
 
             EditorGUILayout.Space();
 
-            if (GUILayout.Button("Build Full Beginner Island Map"))
+            if (GUILayout.Button("Build Selected Map"))
             {
-                ExecuteForTargets("Build Beginner Island Map", builder => builder.BuildMap());
+                ExecuteForTargets("Build Selected Map", builder => builder.BuildMap());
             }
 
             EditorGUILayout.Space();
@@ -23,32 +23,32 @@ namespace MonsterTreasureHunt.Levels
 
             if (GUILayout.Button("Build Ground Only"))
             {
-                ExecuteForTargets("Build Beginner Island Ground", builder => builder.BuildGround());
+                ExecuteForTargets("Build Selected Map Ground", builder => builder.BuildGround());
             }
 
             if (GUILayout.Button("Clear Ground Only"))
             {
-                ExecuteForTargets("Clear Beginner Island Ground", builder => builder.ClearGround());
+                ExecuteForTargets("Clear Map Ground", builder => builder.ClearGround());
             }
 
             if (GUILayout.Button("Build Decorations Only"))
             {
-                ExecuteForTargets("Build Beginner Island Decorations", builder => builder.BuildDecorations());
+                ExecuteForTargets("Build Selected Map Decorations", builder => builder.BuildDecorations());
             }
 
             if (GUILayout.Button("Clear Decorations Only"))
             {
-                ExecuteForTargets("Clear Beginner Island Decorations", builder => builder.ClearDecorations());
+                ExecuteForTargets("Clear Map Decorations", builder => builder.ClearDecorations());
             }
 
             if (GUILayout.Button("Place Player Spawn Only"))
             {
-                ExecuteForTargets("Place Beginner Island Player Spawn", builder => builder.PlacePlayerSpawn());
+                ExecuteForTargets("Place Selected Map Player Spawn", builder => builder.PlacePlayerSpawn());
             }
 
             if (GUILayout.Button("Place Treasure Only"))
             {
-                ExecuteForTargets("Place Beginner Island Treasure", builder => builder.PlaceTreasure());
+                ExecuteForTargets("Place Selected Map Treasure", builder => builder.PlaceTreasure());
             }
         }
 

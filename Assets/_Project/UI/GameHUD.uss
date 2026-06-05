@@ -305,6 +305,24 @@
     white-space: normal;
 }
 
+#FailureIcon {
+    position: absolute;
+    left: 50%;
+    top: 38%;
+    width: 116px;
+    height: 116px;
+    margin-left: -58px;
+    margin-top: -58px;
+    font-size: 82px;
+    color: white;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgb(190, 45, 45);
+    border-width: 5px;
+    border-color: white;
+    border-radius: 58px;
+}
+
 #ScentIndicator {
     width: 78px;
     height: 78px;

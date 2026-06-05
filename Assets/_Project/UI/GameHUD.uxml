@@ -49,6 +49,7 @@
             <ui:Label name="RulesTitle" text="Game Rules" />
             <ui:Label name="RulesLabel" />
         </ui:VisualElement>
+        <ui:Label name="FailureIcon" text="X" display="none" />
         <ui:Label name="ResultLabel" display="none" />
         <ui:VisualElement name="ScentIndicator" style="top: 100%; left: 100%; display: none; width: 64px; height: 64px; background-image: url(&quot;project://database/Assets/_Project/Art/arrow.png?fileID=21300000&amp;guid=55a1856c69c2b5247a8437246e3fe4e7&amp;type=3#arrow&quot;); background-color: rgb(255, 255, 255); -unity-background-scale-mode: scale-to-fit;" />
     </ui:VisualElement>

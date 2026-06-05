@@ -34,11 +34,13 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private string rulesPanelName = "RulesPanel";
         [SerializeField] private string rulesLabelName = "RulesLabel";
         [SerializeField] private string resultLabelName = "ResultLabel";
+        [SerializeField] private string failureIconName = "FailureIcon";
 
         [Header("Level")]
         [SerializeField] private BeginnerIslandLevelController levelController;
         [SerializeField] private BeginnerIslandMapBuilder mapBuilder;
         [SerializeField] private PlayerMovement playerMovement;
+        [SerializeField] private float fallFailureDistance = 12f;
 
         [Header("Purple Skin")]
         [SerializeField] private Sprite purpleIdleSprite;
@@ -100,10 +102,13 @@ namespace MonsterTreasureHunt.UI
         private VisualElement rulesPanel;
         private Label rulesLabel;
         private Label resultLabel;
+        private Label failureIcon;
 
         private bool levelCompleted;
+        private bool levelFailed;
         private bool gameStarted;
         private Rigidbody2D playerBody;
+        private float playerStartY;
         private BeginnerIslandMapBuilder.MapTheme pendingMap = BeginnerIslandMapBuilder.MapTheme.BeginnerIsland;
         private bool mapChosen;
         private string selectedMapTitle = "Beginner Island";
@@ -187,6 +192,7 @@ namespace MonsterTreasureHunt.UI
             rulesPanel = root.Q<VisualElement>(rulesPanelName);
             rulesLabel = root.Q<Label>(rulesLabelName);
             resultLabel = root.Q<Label>(resultLabelName);
+            failureIcon = root.Q<Label>(failureIconName);
 
             DisableKeyboardFocus(settingsButton);
             DisableKeyboardFocus(helpButton);
@@ -231,6 +237,7 @@ namespace MonsterTreasureHunt.UI
 
             gameStarted = false;
             levelCompleted = false;
+            levelFailed = false;
             mapChosen = false;
             SelectSkin(0);
             SetStartPanelVisible(true);
@@ -246,6 +253,13 @@ namespace MonsterTreasureHunt.UI
                 resultLabel.style.display = DisplayStyle.None;
                 resultLabel.text = string.Empty;
             }
+
+            SetFailureIconVisible(false);
+        }
+
+        private void Update()
+        {
+            CheckFallFailure();
         }
 
         private static void DisableKeyboardFocus(VisualElement element)
@@ -416,14 +430,24 @@ namespace MonsterTreasureHunt.UI
             if (playerMovement != null)
             {
                 playerMovement.ApplySkin(selectedSkin.Idle, selectedSkin.RunA, selectedSkin.RunB, selectedSkin.Jump, selectedSkin.Crouch);
+                playerStartY = playerMovement.transform.position.y;
             }
 
             gameStarted = true;
+            levelCompleted = false;
+            levelFailed = false;
             SetSkinSelectVisible(false);
             SetSettingsButtonVisible(true);
             SetGameplayInputEnabled(true);
             SetSettingsVisible(false);
             SetRulesVisible(false);
+            SetFailureIconVisible(false);
+
+            if (resultLabel != null)
+            {
+                resultLabel.style.display = DisplayStyle.None;
+                resultLabel.text = string.Empty;
+            }
         }
 
         private void BackToMapSelect()
@@ -436,7 +460,7 @@ namespace MonsterTreasureHunt.UI
 
         private void ToggleSettings()
         {
-            if (!gameStarted || levelCompleted || settingsPanel == null) return;
+            if (!gameStarted || levelCompleted || levelFailed || settingsPanel == null) return;
 
             bool isVisible = settingsPanel.style.display == DisplayStyle.Flex;
             SetSettingsVisible(!isVisible);
@@ -448,7 +472,7 @@ namespace MonsterTreasureHunt.UI
 
         private void ShowRules()
         {
-            if (!gameStarted || levelCompleted) return;
+            if (!gameStarted || levelCompleted || levelFailed) return;
 
             SetSettingsVisible(true);
             SetRulesVisible(true);
@@ -475,10 +499,36 @@ namespace MonsterTreasureHunt.UI
             levelCompleted = true;
             SetSettingsVisible(false);
             SetRulesVisible(false);
+            SetFailureIconVisible(false);
 
             if (resultLabel != null)
             {
                 resultLabel.text = selectedMapTitle + " cleared!\nYou found your treasure.";
+                resultLabel.style.display = DisplayStyle.Flex;
+            }
+        }
+
+        private void CheckFallFailure()
+        {
+            if (!gameStarted || levelCompleted || levelFailed || playerMovement == null) return;
+
+            if (playerMovement.transform.position.y > playerStartY - fallFailureDistance) return;
+
+            HandleLevelFailed();
+        }
+
+        private void HandleLevelFailed()
+        {
+            levelFailed = true;
+            SetSettingsVisible(false);
+            SetRulesVisible(false);
+            SetSettingsButtonVisible(false);
+            SetGameplayInputEnabled(false);
+            SetFailureIconVisible(true);
+
+            if (resultLabel != null)
+            {
+                resultLabel.text = "You fell!\nLevel failed.";
                 resultLabel.style.display = DisplayStyle.Flex;
             }
         }
@@ -543,6 +593,14 @@ namespace MonsterTreasureHunt.UI
             if (rulesPanel != null)
             {
                 rulesPanel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void SetFailureIconVisible(bool visible)
+        {
+            if (failureIcon != null)
+            {
+                failureIcon.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
     }

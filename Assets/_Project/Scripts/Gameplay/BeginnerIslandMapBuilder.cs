@@ -45,6 +45,9 @@ namespace MonsterTreasureHunt.Levels
         [SerializeField] private TileBase bridgeTile;
         [SerializeField] private TileBase waterTile;
         [SerializeField] private TileBase waterTopTile;
+        [SerializeField] private TileBase fenceTile;
+        [SerializeField] private TileBase mushroomRedTile;
+        [SerializeField] private TileBase mushroomBrownTile;
 
         [Header("Gameplay")]
         [SerializeField] private Transform playerSpawn;
@@ -63,6 +66,8 @@ namespace MonsterTreasureHunt.Levels
         private const int PlayerSpawnSurfaceY = -5;
         private const int TreasureCellX = 98;
         private const int TreasureSurfaceY = -3;
+        private const int FoggyForestTreasureCellX = 116;
+        private const int FoggyForestTreasureSurfaceY = -2;
 
         private static readonly PlatformSegment[] DefaultLayout =
         {
@@ -95,26 +100,31 @@ namespace MonsterTreasureHunt.Levels
 
         private static readonly PlatformSegment[] FoggyForestLayout =
         {
+            // Main forest floor: longer than Beginner Island, with small readable gaps and gentle rises.
             new() { xMin = -28, xMax = -16, surfaceY = -5, depth = 6 },
-            new() { xMin = -15, xMax = -3, surfaceY = -5, depth = 6 },
+            new() { xMin = -15, xMax = -2, surfaceY = -5, depth = 6 },
             new() { xMin = -1, xMax = 10, surfaceY = -5, depth = 6 },
-            new() { xMin = 11, xMax = 22, surfaceY = -4, depth = 5 },
-            new() { xMin = 24, xMax = 35, surfaceY = -4, depth = 5 },
-            new() { xMin = 37, xMax = 48, surfaceY = -3, depth = 5 },
-            new() { xMin = 50, xMax = 62, surfaceY = -3, depth = 5 },
-            new() { xMin = 64, xMax = 78, surfaceY = -3, depth = 5 },
-            new() { xMin = 80, xMax = 94, surfaceY = -3, depth = 5 },
-            new() { xMin = 96, xMax = 108, surfaceY = -3, depth = 5 },
+            new() { xMin = 12, xMax = 23, surfaceY = -4, depth = 5 },
+            new() { xMin = 25, xMax = 36, surfaceY = -4, depth = 5 },
+            new() { xMin = 38, xMax = 49, surfaceY = -4, depth = 5 },
+            new() { xMin = 51, xMax = 62, surfaceY = -3, depth = 5 },
+            new() { xMin = 64, xMax = 75, surfaceY = -3, depth = 5 },
+            new() { xMin = 77, xMax = 88, surfaceY = -3, depth = 5 },
+            new() { xMin = 90, xMax = 103, surfaceY = -3, depth = 5 },
+            new() { xMin = 105, xMax = 118, surfaceY = -2, depth = 4 },
+            new() { xMin = 119, xMax = 126, surfaceY = -2, depth = 4 },
 
-            new() { xMin = -11, xMax = -7, surfaceY = -4, depth = 1 },
-            new() { xMin = -4, xMax = 0, surfaceY = -4, depth = 1 },
-            new() { xMin = 5, xMax = 9, surfaceY = -4, depth = 1 },
-            new() { xMin = 14, xMax = 19, surfaceY = -3, depth = 1 },
-            new() { xMin = 28, xMax = 32, surfaceY = -3, depth = 1 },
-            new() { xMin = 41, xMax = 46, surfaceY = -2, depth = 1 },
-            new() { xMin = 54, xMax = 58, surfaceY = -2, depth = 1 },
-            new() { xMin = 70, xMax = 74, surfaceY = -2, depth = 1 },
-            new() { xMin = 86, xMax = 90, surfaceY = -2, depth = 1 },
+            // Upper canopy route: optional exploration path with beginner-friendly jumps.
+            new() { xMin = -12, xMax = -8, surfaceY = -3, depth = 1 },
+            new() { xMin = -4, xMax = 1, surfaceY = -3, depth = 1 },
+            new() { xMin = 6, xMax = 11, surfaceY = -3, depth = 1 },
+            new() { xMin = 16, xMax = 22, surfaceY = -2, depth = 1 },
+            new() { xMin = 28, xMax = 34, surfaceY = -2, depth = 1 },
+            new() { xMin = 42, xMax = 48, surfaceY = -1, depth = 1 },
+            new() { xMin = 56, xMax = 62, surfaceY = -1, depth = 1 },
+            new() { xMin = 70, xMax = 76, surfaceY = -1, depth = 1 },
+            new() { xMin = 84, xMax = 90, surfaceY = -1, depth = 1 },
+            new() { xMin = 100, xMax = 106, surfaceY = 0, depth = 1 },
         };
 
         private static readonly PlatformSegment[] VolcanoCaveLayout =
@@ -151,7 +161,7 @@ namespace MonsterTreasureHunt.Levels
                 BuildGround();
             }
 
-            if (buildDecorationsOnStart)
+            if (buildDecorationsOnStart || SelectedMapUsesDecorations())
             {
                 BuildDecorations();
             }
@@ -171,15 +181,15 @@ namespace MonsterTreasureHunt.Levels
             }
         }
 
-        [ContextMenu("Build Beginner Island Map")]
+        [ContextMenu("Build Selected Map")]
         public void BuildMap()
         {
             BuildGround();
-            ClearDecorations();
+            BuildDecorations();
             PlaceGameplayObjects();
         }
 
-        [ContextMenu("Build Beginner Island Ground")]
+        [ContextMenu("Build Selected Map Ground")]
         public void BuildGround()
         {
             if (groundTilemap == null)
@@ -198,7 +208,7 @@ namespace MonsterTreasureHunt.Levels
             RefreshColliders();
         }
 
-        [ContextMenu("Clear Beginner Island Ground")]
+        [ContextMenu("Clear Map Ground")]
         public void ClearGround()
         {
             if (groundTilemap == null) return;
@@ -207,13 +217,18 @@ namespace MonsterTreasureHunt.Levels
             RefreshColliders();
         }
 
-        [ContextMenu("Build Beginner Island Decorations")]
+        [ContextMenu("Build Selected Map Decorations")]
         public void BuildDecorations()
         {
             ClearDecorations();
+
+            if (selectedMap == MapTheme.FoggyForest)
+            {
+                PlaceFoggyForestDecorations();
+            }
         }
 
-        [ContextMenu("Clear Beginner Island Decorations")]
+        [ContextMenu("Clear Map Decorations")]
         public void ClearDecorations()
         {
             if (decorationTilemap == null) return;
@@ -287,6 +302,35 @@ namespace MonsterTreasureHunt.Levels
             BuildWaterStrip(77, 86, -5);
         }
 
+        private void PlaceFoggyForestDecorations()
+        {
+            if (decorationTilemap == null) return;
+
+            SetSurfaceDecoration(-27, -5, signTile);
+            SetSurfaceDecoration(-21, -5, bushTile);
+            SetSurfaceDecoration(-13, -5, rockTile);
+            SetSurfaceDecoration(-5, -5, mushroomBrownTile);
+            SetSurfaceDecoration(4, -5, mushroomRedTile);
+            SetSurfaceDecoration(14, -4, bushTile);
+            SetSurfaceDecoration(22, -4, rockTile);
+            SetSurfaceDecoration(27, -4, fenceTile);
+            SetSurfaceDecoration(28, -4, fenceTile);
+            SetSurfaceDecoration(29, -4, fenceTile);
+            SetSurfaceDecoration(31, -4, mushroomBrownTile);
+            SetSurfaceDecoration(40, -4, bushTile);
+            SetSurfaceDecoration(47, -4, mushroomRedTile);
+            SetSurfaceDecoration(56, -3, rockTile);
+            SetSurfaceDecoration(66, -3, bushTile);
+            SetSurfaceDecoration(73, -3, mushroomBrownTile);
+            SetSurfaceDecoration(82, -3, fenceTile);
+            SetSurfaceDecoration(83, -3, fenceTile);
+            SetSurfaceDecoration(84, -3, fenceTile);
+            SetSurfaceDecoration(94, -3, rockTile);
+            SetSurfaceDecoration(108, -2, bushTile);
+            SetSurfaceDecoration(116, -2, mushroomRedTile);
+
+        }
+
         private void BuildWaterStrip(int xMin, int xMax, int topY)
         {
             BuildDecorationLine(xMin, xMax, topY, waterTopTile);
@@ -303,7 +347,7 @@ namespace MonsterTreasureHunt.Levels
 
         private void SetSurfaceDecoration(int x, int surfaceY, TileBase tile)
         {
-            SetDecoration(x, surfaceY, tile);
+            SetDecoration(x, surfaceY + 1, tile);
         }
 
         private void SetDecoration(int x, int y, TileBase tile)
@@ -313,7 +357,7 @@ namespace MonsterTreasureHunt.Levels
             decorationTilemap.SetTile(new Vector3Int(x, y, 0), tile);
         }
 
-        [ContextMenu("Place Beginner Island Gameplay Objects")]
+        [ContextMenu("Place Selected Map Gameplay Objects")]
         public void PlaceGameplayObjects()
         {
             PlacePlayerSpawn();
@@ -325,10 +369,11 @@ namespace MonsterTreasureHunt.Levels
             selectedMap = map;
         }
 
-        [ContextMenu("Place Beginner Island Player Spawn")]
+        [ContextMenu("Place Selected Map Player Spawn")]
         public void PlacePlayerSpawn()
         {
-            if (!TryGetSurfaceWorldPosition(PlayerSpawnCellX, PlayerSpawnSurfaceY, out Vector3 spawnWorld)) return;
+            GetPlacementForSelectedMap(out int spawnCellX, out int spawnSurfaceY, out _, out _);
+            if (!TryGetSurfaceWorldPosition(spawnCellX, spawnSurfaceY, out Vector3 spawnWorld)) return;
 
             if (playerSpawn != null)
             {
@@ -342,10 +387,11 @@ namespace MonsterTreasureHunt.Levels
             }
         }
 
-        [ContextMenu("Place Beginner Island Treasure")]
+        [ContextMenu("Place Selected Map Treasure")]
         public void PlaceTreasure()
         {
-            if (!TryGetSurfaceWorldPosition(TreasureCellX, TreasureSurfaceY, out Vector3 treasureWorld)) return;
+            GetPlacementForSelectedMap(out _, out _, out int treasureCellX, out int treasureSurfaceY);
+            if (!TryGetSurfaceWorldPosition(treasureCellX, treasureSurfaceY, out Vector3 treasureWorld)) return;
 
             if (treasure != null)
             {
@@ -379,6 +425,25 @@ namespace MonsterTreasureHunt.Levels
             if (composite != null)
             {
                 composite.GenerateGeometry();
+            }
+        }
+
+        private bool SelectedMapUsesDecorations()
+        {
+            return selectedMap == MapTheme.FoggyForest;
+        }
+
+        private void GetPlacementForSelectedMap(out int spawnCellX, out int spawnSurfaceY, out int treasureCellX, out int treasureSurfaceY)
+        {
+            spawnCellX = PlayerSpawnCellX;
+            spawnSurfaceY = PlayerSpawnSurfaceY;
+            treasureCellX = TreasureCellX;
+            treasureSurfaceY = TreasureSurfaceY;
+
+            if (selectedMap == MapTheme.FoggyForest)
+            {
+                treasureCellX = FoggyForestTreasureCellX;
+                treasureSurfaceY = FoggyForestTreasureSurfaceY;
             }
         }
 
