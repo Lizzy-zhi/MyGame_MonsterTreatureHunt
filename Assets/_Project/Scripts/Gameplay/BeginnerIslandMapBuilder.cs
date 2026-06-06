@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using MonsterTreasureHunt.Gameplay;
 
 namespace MonsterTreasureHunt.Levels
 {
@@ -54,6 +55,13 @@ namespace MonsterTreasureHunt.Levels
         [SerializeField] private Transform treasure;
         [SerializeField] private float spawnHeightOffset = 0.5f;
 
+        [Header("Health Pickups")]
+        [SerializeField] private Sprite healthPickupSprite;
+        [SerializeField] private int healthPickupSortingOrder = 2;
+        [SerializeField] private float healthPickupHeightOffset = 0.75f;
+        [SerializeField] private Vector2 healthPickupColliderSize = new Vector2(1.2f, 1.2f);
+        [SerializeField] private Transform healthPickupParent;
+
         [Header("Build")]
         [SerializeField] private bool buildOnStart = true;
         [SerializeField] private bool buildGroundOnStart = true;
@@ -66,8 +74,8 @@ namespace MonsterTreasureHunt.Levels
         private const int PlayerSpawnSurfaceY = -5;
         private const int TreasureCellX = 98;
         private const int TreasureSurfaceY = -3;
-        private const int FoggyForestTreasureCellX = 116;
-        private const int FoggyForestTreasureSurfaceY = -2;
+        private const int FoggyForestTreasureCellX = 74;
+        private const int FoggyForestTreasureSurfaceY = -3;
 
         private static readonly PlatformSegment[] DefaultLayout =
         {
@@ -100,7 +108,7 @@ namespace MonsterTreasureHunt.Levels
 
         private static readonly PlatformSegment[] FoggyForestLayout =
         {
-            // Main forest floor: longer than Beginner Island, with small readable gaps and gentle rises.
+            // Main forest floor: compact second-map route with small readable gaps and gentle rises.
             new() { xMin = -28, xMax = -16, surfaceY = -5, depth = 6 },
             new() { xMin = -15, xMax = -2, surfaceY = -5, depth = 6 },
             new() { xMin = -1, xMax = 10, surfaceY = -5, depth = 6 },
@@ -108,13 +116,9 @@ namespace MonsterTreasureHunt.Levels
             new() { xMin = 25, xMax = 36, surfaceY = -4, depth = 5 },
             new() { xMin = 38, xMax = 49, surfaceY = -4, depth = 5 },
             new() { xMin = 51, xMax = 62, surfaceY = -3, depth = 5 },
-            new() { xMin = 64, xMax = 75, surfaceY = -3, depth = 5 },
-            new() { xMin = 77, xMax = 88, surfaceY = -3, depth = 5 },
-            new() { xMin = 90, xMax = 103, surfaceY = -3, depth = 5 },
-            new() { xMin = 105, xMax = 118, surfaceY = -2, depth = 4 },
-            new() { xMin = 119, xMax = 126, surfaceY = -2, depth = 4 },
+            new() { xMin = 64, xMax = 78, surfaceY = -3, depth = 5 },
 
-            // Upper canopy route: optional exploration path with beginner-friendly jumps.
+            // Upper canopy route: short optional exploration path with beginner-friendly jumps.
             new() { xMin = -12, xMax = -8, surfaceY = -3, depth = 1 },
             new() { xMin = -4, xMax = 1, surfaceY = -3, depth = 1 },
             new() { xMin = 6, xMax = 11, surfaceY = -3, depth = 1 },
@@ -122,9 +126,6 @@ namespace MonsterTreasureHunt.Levels
             new() { xMin = 28, xMax = 34, surfaceY = -2, depth = 1 },
             new() { xMin = 42, xMax = 48, surfaceY = -1, depth = 1 },
             new() { xMin = 56, xMax = 62, surfaceY = -1, depth = 1 },
-            new() { xMin = 70, xMax = 76, surfaceY = -1, depth = 1 },
-            new() { xMin = 84, xMax = 90, surfaceY = -1, depth = 1 },
-            new() { xMin = 100, xMax = 106, surfaceY = 0, depth = 1 },
         };
 
         private static readonly PlatformSegment[] VolcanoCaveLayout =
@@ -192,6 +193,8 @@ namespace MonsterTreasureHunt.Levels
         [ContextMenu("Build Selected Map Ground")]
         public void BuildGround()
         {
+            EnsureTilemapsAssigned();
+
             if (groundTilemap == null)
             {
                 Debug.LogError("[BeginnerIslandMapBuilder] Ground tilemap is not assigned.");
@@ -211,6 +214,7 @@ namespace MonsterTreasureHunt.Levels
         [ContextMenu("Clear Map Ground")]
         public void ClearGround()
         {
+            EnsureTilemapsAssigned();
             if (groundTilemap == null) return;
 
             groundTilemap.ClearAllTiles();
@@ -220,6 +224,7 @@ namespace MonsterTreasureHunt.Levels
         [ContextMenu("Build Selected Map Decorations")]
         public void BuildDecorations()
         {
+            EnsureTilemapsAssigned();
             ClearDecorations();
 
             if (selectedMap == MapTheme.FoggyForest)
@@ -231,6 +236,7 @@ namespace MonsterTreasureHunt.Levels
         [ContextMenu("Clear Map Decorations")]
         public void ClearDecorations()
         {
+            EnsureTilemapsAssigned();
             if (decorationTilemap == null) return;
 
             decorationTilemap.ClearAllTiles();
@@ -321,14 +327,9 @@ namespace MonsterTreasureHunt.Levels
             SetSurfaceDecoration(47, -4, mushroomRedTile);
             SetSurfaceDecoration(56, -3, rockTile);
             SetSurfaceDecoration(66, -3, bushTile);
-            SetSurfaceDecoration(73, -3, mushroomBrownTile);
-            SetSurfaceDecoration(82, -3, fenceTile);
-            SetSurfaceDecoration(83, -3, fenceTile);
-            SetSurfaceDecoration(84, -3, fenceTile);
-            SetSurfaceDecoration(94, -3, rockTile);
-            SetSurfaceDecoration(108, -2, bushTile);
-            SetSurfaceDecoration(116, -2, mushroomRedTile);
-
+            SetSurfaceDecoration(70, -3, fenceTile);
+            SetSurfaceDecoration(71, -3, fenceTile);
+            SetSurfaceDecoration(78, -3, mushroomRedTile);
         }
 
         private void BuildWaterStrip(int xMin, int xMax, int topY)
@@ -362,6 +363,7 @@ namespace MonsterTreasureHunt.Levels
         {
             PlacePlayerSpawn();
             PlaceTreasure();
+            BuildHealthPickups();
         }
 
         public void SelectMap(MapTheme map)
@@ -399,9 +401,66 @@ namespace MonsterTreasureHunt.Levels
             }
         }
 
+        [ContextMenu("Build Health Pickups")]
+        public void BuildHealthPickups()
+        {
+            ClearHealthPickups();
+
+            if (healthPickupSprite == null) return;
+
+            Vector2Int[] placements = GetHealthPickupPlacementsForSelectedMap();
+            for (int i = 0; i < placements.Length; i++)
+            {
+                Vector2Int placement = placements[i];
+                if (!TryGetPickupWorldPosition(placement.x, placement.y, out Vector3 worldPosition)) continue;
+
+                CreateHealthPickup(i + 1, worldPosition);
+            }
+        }
+
+        [ContextMenu("Clear Health Pickups")]
+        public void ClearHealthPickups()
+        {
+            Transform parent = GetHealthPickupParent();
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = parent.GetChild(i);
+                if (child != null && child.name.StartsWith("HealthPickup_", StringComparison.Ordinal))
+                {
+                    if (Application.isPlaying)
+                    {
+                        Destroy(child.gameObject);
+                    }
+                    else
+                    {
+                        DestroyImmediate(child.gameObject);
+                    }
+                }
+            }
+        }
+
+        private void CreateHealthPickup(int index, Vector3 worldPosition)
+        {
+            GameObject pickupObject = new GameObject($"HealthPickup_{index:00}");
+            pickupObject.transform.SetParent(GetHealthPickupParent(), true);
+            pickupObject.transform.position = worldPosition;
+
+            SpriteRenderer renderer = pickupObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = healthPickupSprite;
+            renderer.sortingOrder = healthPickupSortingOrder;
+
+            BoxCollider2D collider = pickupObject.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            collider.size = healthPickupColliderSize;
+
+            pickupObject.AddComponent<HealthPickup>();
+        }
+
         private bool TryGetSurfaceWorldPosition(int cellX, int surfaceY, out Vector3 worldPosition)
         {
             worldPosition = default;
+            EnsureTilemapsAssigned();
+
             if (groundTilemap == null)
             {
                 Debug.LogError("[BeginnerIslandMapBuilder] Ground tilemap is required for placement.");
@@ -411,6 +470,61 @@ namespace MonsterTreasureHunt.Levels
             worldPosition = groundTilemap.GetCellCenterWorld(new Vector3Int(cellX, surfaceY, 0));
             worldPosition.y += groundTilemap.cellSize.y * 0.5f + spawnHeightOffset;
             return true;
+        }
+
+        private bool TryGetPickupWorldPosition(int cellX, int surfaceY, out Vector3 worldPosition)
+        {
+            worldPosition = default;
+            EnsureTilemapsAssigned();
+
+            if (groundTilemap == null)
+            {
+                Debug.LogError("[BeginnerIslandMapBuilder] Ground tilemap is required for health pickup placement.");
+                return false;
+            }
+
+            worldPosition = groundTilemap.GetCellCenterWorld(new Vector3Int(cellX, surfaceY, 0));
+            worldPosition.y += groundTilemap.cellSize.y * 0.5f + healthPickupHeightOffset;
+            return true;
+        }
+
+        private Transform GetHealthPickupParent()
+        {
+            if (healthPickupParent != null) return healthPickupParent;
+
+            Transform existing = transform.Find("HealthPickups");
+            if (existing != null)
+            {
+                healthPickupParent = existing;
+                return healthPickupParent;
+            }
+
+            GameObject parentObject = new GameObject("HealthPickups");
+            healthPickupParent = parentObject.transform;
+            healthPickupParent.SetParent(transform, false);
+            return healthPickupParent;
+        }
+
+        private void EnsureTilemapsAssigned()
+        {
+            if (groundTilemap != null && decorationTilemap != null) return;
+
+            Tilemap[] childTilemaps = GetComponentsInChildren<Tilemap>(true);
+            foreach (Tilemap tilemap in childTilemaps)
+            {
+                if (tilemap == null) continue;
+
+                if (groundTilemap == null && tilemap.GetComponent<TilemapCollider2D>() != null)
+                {
+                    groundTilemap = tilemap;
+                    continue;
+                }
+
+                if (decorationTilemap == null && tilemap.name.IndexOf("Decoration", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    decorationTilemap = tilemap;
+                }
+            }
         }
 
         private void RefreshColliders()
@@ -444,6 +558,31 @@ namespace MonsterTreasureHunt.Levels
             {
                 treasureCellX = FoggyForestTreasureCellX;
                 treasureSurfaceY = FoggyForestTreasureSurfaceY;
+            }
+        }
+
+        private Vector2Int[] GetHealthPickupPlacementsForSelectedMap()
+        {
+            switch (selectedMap)
+            {
+                case MapTheme.FoggyForest:
+                    return new[]
+                    {
+                        new Vector2Int(22, -4),
+                        new Vector2Int(58, -3),
+                    };
+                case MapTheme.VolcanoCave:
+                    return new[]
+                    {
+                        new Vector2Int(31, -4),
+                        new Vector2Int(70, -3),
+                    };
+                default:
+                    return new[]
+                    {
+                        new Vector2Int(34, -4),
+                        new Vector2Int(72, -3),
+                    };
             }
         }
 

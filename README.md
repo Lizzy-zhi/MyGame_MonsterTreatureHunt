@@ -1,26 +1,70 @@
-# MyGame_MonsterTreatureHunt
-“Monster Treasure Hunt” Game Plan and UI Design
-**Core Design**
-Players take on the role of a clumsy and adorable little monster on a hand-drawn style island, using a smell detection system to find hidden treasures, avoid traps, and ultimately become the island's treasure hunt king.
-**Core Mechanics**：
-1. Smell-based Treasure Hunt System (core gameplay)
-Visuals: “Scent indicator arrows” appear at the screen edges; the closer to the treasure, the bigger and darker the arrows
-Game Logic: Treasures emit “scent particles,” triggering guidance when the player enters range
-Technical Implementation: Unity Particle System + UI arrow pointing
-2. Clumsy Physics System (characteristic feel)
-Monster movement has inertia, slow turning, and skidding when stopping suddenly
-Adds fun with physical feedback
-3. Treasure Collection and Upgrades
-Collecting treasures unlocks new appearances (colors, hats)
-Simple progression system
-**Game Structure** 
-Level Design: 3 islands
---**Beginner Island** (tutorial level)
-1 treasure, no traps
-Teaching: movement, smell system
---**Foggy Forest**
-3 treasures, 2 types of traps (mud pits, rolling stones)
-New: scents are blown by the wind, increasing difficulty
---**Volcano Cave**
-5 treasures, complex traps
-Final level, combines all mechanics
+# Monster Treasure Hunt
+
+Players control a clumsy little monster on a hand-drawn island, using scent guidance to find treasure, explore themed maps, and unlock character skins.
+
+## Current Build Status
+
+### Done
+
+- Start flow: Start Game -> map selection -> skin selection -> gameplay.
+- UI language is English.
+- Settings button opens Help, Continue, and Escape controls.
+- Help panel shows game rules.
+- Character skins can be previewed and confirmed before entering gameplay.
+- Player movement includes inertia, skid feel, jumping, crouching, and slow crouch movement.
+- Scent arrow UI points toward the treasure.
+- Treasure collection triggers level clear text.
+- Falling too far below the spawn height shows a failure icon and stops player input.
+- Ground, decoration, player spawn, and treasure placement are controlled separately in the map builder.
+- Camera background uses Kenney parallax layers for stronger movement feeling.
+
+### Maps
+
+- Beginner Island: playable tutorial map with one treasure and no traps.
+- Foggy Forest: compact second map layout built with Kenney tiles, forest decorations, one treasure near the end, and stable grid colliders on ground tiles.
+- Volcano Cave: placeholder layout exists, but final theme, traps, and treasure count still need design work.
+
+### In Progress
+
+- Foggy Forest polish pass in Unity Play Mode:
+  - Verify every main platform is standable.
+  - Confirm the treasure is reachable from the spawn.
+  - Check camera framing and parallax background movement across the route.
+
+### Backlog
+
+- Foggy Forest gameplay upgrade:
+  - Add 3 treasures.
+  - Add mud pits and rolling stones.
+  - Add wind influence to scent guidance.
+- Volcano Cave:
+  - Build final cave layout.
+  - Add 5 treasures.
+  - Add complex traps.
+- Progression:
+  - Unlock skins or hats after collecting treasures.
+  - Save selected skin and unlocked rewards.
+- UI polish:
+  - Add retry/restart action on failure.
+  - Add clearer level completion panel.
+  - Add map-specific preview art on map selection.
+
+## Core Mechanics
+
+1. Smell-based treasure hunt system
+   - Scent indicator arrows appear near the screen edge.
+   - The arrow guides the player toward the active treasure.
+
+2. Clumsy physics system
+   - Movement has inertia and skid when stopping or turning.
+   - Crouching changes the collider and allows slow movement.
+
+3. Treasure collection and upgrades
+   - Current build supports treasure collection and skin selection.
+   - Future work should connect treasure progress to unlockable appearances.
+
+## Level Plan
+
+- Beginner Island: tutorial level, one treasure, no traps.
+- Foggy Forest: forest level, planned three treasures and two trap types.
+- Volcano Cave: final level, planned five treasures and more complex trap combinations.

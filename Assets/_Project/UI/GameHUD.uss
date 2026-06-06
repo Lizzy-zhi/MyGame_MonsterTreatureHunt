@@ -65,7 +65,7 @@
     font-size: 46px;
     -unity-font-style: bold;
     color: #ffe082;
-    unity-text-align: upper-left;
+    -unity-text-align: upper-left;
     margin-bottom: 12px;
 }
 
@@ -227,6 +227,32 @@
     border-width: 3px;
     border-color: rgb(60, 60, 60);
     border-radius: 10px;
+}
+
+#LivesContainer {
+    position: absolute;
+    right: 32px;
+    top: 32px;
+    height: 64px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    padding-left: 14px;
+    padding-right: 14px;
+    background-color: rgba(0, 0, 0, 0.42);
+    border-width: 2px;
+    border-color: rgba(255, 255, 255, 0.76);
+    border-radius: 8px;
+}
+
+#LifeHeart1,
+#LifeHeart2,
+#LifeHeart3 {
+    width: 44px;
+    height: 44px;
+    margin-left: 5px;
+    margin-right: 5px;
+    -unity-background-scale-mode: scale-to-fit;
 }
 
 #SettingsPanel {

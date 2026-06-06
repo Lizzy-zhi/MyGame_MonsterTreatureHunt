@@ -40,6 +40,11 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:Button name="SettingsButton" text="Settings" />
+        <ui:VisualElement name="LivesContainer" display="none" picking-mode="Ignore">
+            <ui:Image name="LifeHeart1" />
+            <ui:Image name="LifeHeart2" />
+            <ui:Image name="LifeHeart3" />
+        </ui:VisualElement>
         <ui:VisualElement name="SettingsPanel" display="none">
             <ui:Button name="HelpButton" text="Help" />
             <ui:Button name="ContinueButton" text="Continue" />

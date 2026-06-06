@@ -49,6 +49,10 @@ namespace MonsterTreasureHunt.Player
         private Vector2 standingColliderSize;
         private Vector2 standingColliderOffset;
 
+        public bool IsGrounded => isGrounded;
+        public bool IsCrouching => isCrouching;
+        public Rigidbody2D Body => rb;
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using MonsterTreasureHunt.Gameplay;
 using MonsterTreasureHunt.Levels;
 using MonsterTreasureHunt.Player;
 
@@ -35,12 +36,23 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private string rulesLabelName = "RulesLabel";
         [SerializeField] private string resultLabelName = "ResultLabel";
         [SerializeField] private string failureIconName = "FailureIcon";
+        [SerializeField] private string livesContainerName = "LivesContainer";
+        [SerializeField] private string[] lifeHeartNames = { "LifeHeart1", "LifeHeart2", "LifeHeart3" };
 
         [Header("Level")]
         [SerializeField] private BeginnerIslandLevelController levelController;
         [SerializeField] private BeginnerIslandMapBuilder mapBuilder;
         [SerializeField] private PlayerMovement playerMovement;
+        [SerializeField] private PlayerHealth playerHealth;
         [SerializeField] private float fallFailureDistance = 12f;
+        [SerializeField] private int maxLives = 3;
+        [SerializeField] private float respawnBackDistance = 4f;
+        [SerializeField] private float safePositionSampleInterval = 0.25f;
+        [SerializeField] private float respawnInvulnerabilityTime = 0.75f;
+
+        [Header("Lives HUD")]
+        [SerializeField] private Sprite fullHeartSprite;
+        [SerializeField] private Sprite emptyHeartSprite;
 
         [Header("Purple Skin")]
         [SerializeField] private Sprite purpleIdleSprite;
@@ -103,12 +115,18 @@ namespace MonsterTreasureHunt.UI
         private Label rulesLabel;
         private Label resultLabel;
         private Label failureIcon;
+        private VisualElement livesContainer;
+        private Image[] lifeHearts;
 
         private bool levelCompleted;
         private bool levelFailed;
         private bool gameStarted;
         private Rigidbody2D playerBody;
         private float playerStartY;
+        private Vector3 lastSafeRespawnPosition;
+        private float lastSafeSampleTime;
+        private float nextFallDamageTime;
+        private bool healthCallbacksRegistered;
         private BeginnerIslandMapBuilder.MapTheme pendingMap = BeginnerIslandMapBuilder.MapTheme.BeginnerIsland;
         private bool mapChosen;
         private string selectedMapTitle = "Beginner Island";
@@ -120,6 +138,7 @@ namespace MonsterTreasureHunt.UI
             "Move left and right with A / D or the arrow keys.\n" +
             "Press Space to jump over small steps.\n" +
             "Follow the scent arrow when the treasure is off screen.\n" +
+            "You have three lives. Falling costs one life and returns you to safe ground.\n" +
             "Reach the treasure chest at the far right side of the island.";
 
         private struct SkinChoice
@@ -193,6 +212,8 @@ namespace MonsterTreasureHunt.UI
             rulesLabel = root.Q<Label>(rulesLabelName);
             resultLabel = root.Q<Label>(resultLabelName);
             failureIcon = root.Q<Label>(failureIconName);
+            livesContainer = root.Q<VisualElement>(livesContainerName);
+            lifeHearts = BuildLifeHeartElements(root);
 
             DisableKeyboardFocus(settingsButton);
             DisableKeyboardFocus(helpButton);
@@ -225,6 +246,19 @@ namespace MonsterTreasureHunt.UI
             if (playerMovement != null)
             {
                 playerBody = playerMovement.GetComponent<Rigidbody2D>();
+                if (playerHealth == null)
+                {
+                    playerHealth = playerMovement.GetComponent<PlayerHealth>();
+                    if (playerHealth == null)
+                    {
+                        playerHealth = playerMovement.gameObject.AddComponent<PlayerHealth>();
+                    }
+                }
+            }
+
+            if (playerHealth == null)
+            {
+                playerHealth = FindObjectOfType<PlayerHealth>();
             }
 
             BuildSkinChoices();
@@ -244,6 +278,7 @@ namespace MonsterTreasureHunt.UI
             SetMapSelectVisible(false);
             SetSkinSelectVisible(false);
             SetSettingsButtonVisible(false);
+            SetLivesVisible(false);
             SetGameplayInputEnabled(false);
             SetSettingsVisible(false);
             SetRulesVisible(false);
@@ -259,6 +294,7 @@ namespace MonsterTreasureHunt.UI
 
         private void Update()
         {
+            UpdateSafeRespawnPosition();
             CheckFallFailure();
         }
 
@@ -299,6 +335,7 @@ namespace MonsterTreasureHunt.UI
             if (helpButton != null) helpButton.clicked += ShowRules;
             if (continueButton != null) continueButton.clicked += ContinueGame;
             if (escapeButton != null) escapeButton.clicked += EscapeGame;
+            RegisterHealthCallbacks();
         }
 
         private void UnregisterCallbacks()
@@ -319,6 +356,23 @@ namespace MonsterTreasureHunt.UI
             if (helpButton != null) helpButton.clicked -= ShowRules;
             if (continueButton != null) continueButton.clicked -= ContinueGame;
             if (escapeButton != null) escapeButton.clicked -= EscapeGame;
+            UnregisterHealthCallbacks();
+        }
+
+        private void RegisterHealthCallbacks()
+        {
+            if (playerHealth == null || healthCallbacksRegistered) return;
+
+            playerHealth.HealthChanged += HandleHealthChanged;
+            healthCallbacksRegistered = true;
+        }
+
+        private void UnregisterHealthCallbacks()
+        {
+            if (playerHealth == null || !healthCallbacksRegistered) return;
+
+            playerHealth.HealthChanged -= HandleHealthChanged;
+            healthCallbacksRegistered = false;
         }
 
         private void StartGame()
@@ -431,13 +485,23 @@ namespace MonsterTreasureHunt.UI
             {
                 playerMovement.ApplySkin(selectedSkin.Idle, selectedSkin.RunA, selectedSkin.RunB, selectedSkin.Jump, selectedSkin.Crouch);
                 playerStartY = playerMovement.transform.position.y;
+                lastSafeRespawnPosition = playerMovement.transform.position;
+                lastSafeSampleTime = Time.time;
             }
 
+            if (playerHealth != null)
+            {
+                playerHealth.ResetHealth(maxLives);
+            }
+
+            nextFallDamageTime = 0f;
             gameStarted = true;
             levelCompleted = false;
             levelFailed = false;
             SetSkinSelectVisible(false);
             SetSettingsButtonVisible(true);
+            SetLivesVisible(true);
+            UpdateLivesUI(playerHealth != null ? playerHealth.CurrentLives : maxLives, maxLives);
             SetGameplayInputEnabled(true);
             SetSettingsVisible(false);
             SetRulesVisible(false);
@@ -500,6 +564,7 @@ namespace MonsterTreasureHunt.UI
             SetSettingsVisible(false);
             SetRulesVisible(false);
             SetFailureIconVisible(false);
+            SetLivesVisible(false);
 
             if (resultLabel != null)
             {
@@ -511,10 +576,54 @@ namespace MonsterTreasureHunt.UI
         private void CheckFallFailure()
         {
             if (!gameStarted || levelCompleted || levelFailed || playerMovement == null) return;
+            if (Time.time < nextFallDamageTime) return;
 
-            if (playerMovement.transform.position.y > playerStartY - fallFailureDistance) return;
+            float fallBaselineY = Mathf.Max(playerStartY, lastSafeRespawnPosition.y);
+            if (playerMovement.transform.position.y > fallBaselineY - fallFailureDistance) return;
 
-            HandleLevelFailed();
+            HandlePlayerFall();
+        }
+
+        private void UpdateSafeRespawnPosition()
+        {
+            if (!gameStarted || levelCompleted || levelFailed || playerMovement == null) return;
+            if (!playerMovement.IsGrounded || playerMovement.transform.position.y <= playerStartY - 1f) return;
+            if (Time.time - lastSafeSampleTime < safePositionSampleInterval) return;
+
+            Vector3 position = playerMovement.transform.position;
+            if (Vector2.Distance(position, lastSafeRespawnPosition) >= respawnBackDistance)
+            {
+                lastSafeRespawnPosition = position;
+            }
+
+            lastSafeSampleTime = Time.time;
+        }
+
+        private void HandlePlayerFall()
+        {
+            nextFallDamageTime = Time.time + respawnInvulnerabilityTime;
+
+            if (playerHealth == null || !playerHealth.Damage(1) || playerHealth.IsDepleted)
+            {
+                HandleLevelFailed();
+                return;
+            }
+
+            RespawnPlayer();
+        }
+
+        private void RespawnPlayer()
+        {
+            if (playerMovement == null) return;
+
+            Vector3 respawnPosition = lastSafeRespawnPosition;
+            playerMovement.transform.position = respawnPosition;
+
+            if (playerBody != null)
+            {
+                playerBody.velocity = Vector2.zero;
+                playerBody.angularVelocity = 0f;
+            }
         }
 
         private void HandleLevelFailed()
@@ -523,6 +632,7 @@ namespace MonsterTreasureHunt.UI
             SetSettingsVisible(false);
             SetRulesVisible(false);
             SetSettingsButtonVisible(false);
+            SetLivesVisible(false);
             SetGameplayInputEnabled(false);
             SetFailureIconVisible(true);
 
@@ -530,6 +640,42 @@ namespace MonsterTreasureHunt.UI
             {
                 resultLabel.text = "You fell!\nLevel failed.";
                 resultLabel.style.display = DisplayStyle.Flex;
+            }
+        }
+
+        private void HandleHealthChanged(int currentLives, int totalLives)
+        {
+            UpdateLivesUI(currentLives, totalLives);
+        }
+
+        private Image[] BuildLifeHeartElements(VisualElement root)
+        {
+            if (lifeHeartNames == null || lifeHeartNames.Length == 0) return new Image[0];
+
+            Image[] hearts = new Image[lifeHeartNames.Length];
+            for (int i = 0; i < lifeHeartNames.Length; i++)
+            {
+                hearts[i] = root.Q<Image>(lifeHeartNames[i]);
+                DisableKeyboardFocus(hearts[i]);
+            }
+
+            return hearts;
+        }
+
+        private void UpdateLivesUI(int currentLives, int totalLives)
+        {
+            if (lifeHearts == null) return;
+
+            int cappedTotal = Mathf.Clamp(totalLives, 0, lifeHearts.Length);
+            for (int i = 0; i < lifeHearts.Length; i++)
+            {
+                Image heart = lifeHearts[i];
+                if (heart == null) continue;
+
+                heart.style.display = i < cappedTotal ? DisplayStyle.Flex : DisplayStyle.None;
+                heart.sprite = i < currentLives ? fullHeartSprite : emptyHeartSprite;
+                heart.scaleMode = ScaleMode.ScaleToFit;
+                heart.tintColor = Color.white;
             }
         }
 
@@ -562,6 +708,14 @@ namespace MonsterTreasureHunt.UI
             if (settingsButton != null)
             {
                 settingsButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void SetLivesVisible(bool visible)
+        {
+            if (livesContainer != null)
+            {
+                livesContainer.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 
