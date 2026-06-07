@@ -14,6 +14,8 @@ namespace MonsterTreasureHunt.Levels
 
         private void OnEnable()
         {
+            EnsureTreasureAssigned();
+
             if (treasure != null)
             {
                 treasure.Collected += HandleTreasureCollected;
@@ -28,12 +30,31 @@ namespace MonsterTreasureHunt.Levels
             }
         }
 
+        public void ResetLevel()
+        {
+            IsCompleted = false;
+            EnsureTreasureAssigned();
+
+            if (treasure != null)
+            {
+                treasure.ResetCollectible();
+            }
+        }
+
         private void HandleTreasureCollected(TreasureCollectible collectedTreasure)
         {
             if (IsCompleted) return;
 
             IsCompleted = true;
             LevelCompleted?.Invoke();
+        }
+
+        private void EnsureTreasureAssigned()
+        {
+            if (treasure == null)
+            {
+                treasure = FindObjectOfType<TreasureCollectible>();
+            }
         }
     }
 }

@@ -260,10 +260,20 @@ MonoBehaviour:
   - LifeHeart1
   - LifeHeart2
   - LifeHeart3
+  inventoryButtonName: InventoryButton
+  inventoryPanelName: InventoryPanel
+  inventoryKeyIconName: InventoryKeyIcon
+  inventoryKeyLabelName: InventoryKeyLabel
+  chestLockedMessageName: ChestLockedMessage
+  victoryPanelName: VictoryPanel
+  victoryMessageName: VictoryMessage
+  victoryRewardName: VictoryReward
   levelController: {fileID: 875872203}
   mapBuilder: {fileID: 1594708972}
   playerMovement: {fileID: 399969092}
   playerHealth: {fileID: 399969096}
+  playerInventory: {fileID: 399969097}
+  treasure: {fileID: 1295720796}
   fallFailureDistance: 12
   maxLives: 3
   respawnBackDistance: 4
@@ -271,6 +281,7 @@ MonoBehaviour:
   respawnInvulnerabilityTime: 0.75
   fullHeartSprite: {fileID: 21300000, guid: 9655a1439a48d6a4fa98028a7ba2f963, type: 3}
   emptyHeartSprite: {fileID: 21300000, guid: c2988b83835ee82459b4263aa89ef39c, type: 3}
+  inventoryKeySprite: {fileID: 21300000, guid: 2ce18ce36a017d44c9218dfb6c1399ac, type: 3}
   purpleIdleSprite: {fileID: 21300000, guid: 837b8d1b927d2554bbe12af8b68498d6, type: 3}
   purpleRunSpriteA: {fileID: 21300000, guid: 18c80d9820a417442935fd10ecd8625e, type: 3}
   purpleRunSpriteB: {fileID: 21300000, guid: d55925b646f3caa44a2b724c75e4a74d, type: 3}
@@ -326,6 +337,7 @@ GameObject:
   - component: {fileID: 399969092}
   - component: {fileID: 399969095}
   - component: {fileID: 399969096}
+  - component: {fileID: 399969097}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -398,6 +410,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxLives: 3
   currentLives: 3
+--- !u!114 &399969097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399969090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 884e6140aafe4c5d8d49ac128f207a63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  yellowKeys: 0
 --- !u!50 &399969093
 Rigidbody2D:
   serializedVersion: 4
@@ -1544,6 +1569,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collectorTag: Player
   disableOnCollect: 1
+  requiresYellowKey: 1
+  unlockEffectSprite: {fileID: 21300000, guid: c774b4b090501294db5709da7abb3a8f, type: 3}
+  unlockEffectSortingOrder: 6
+  unlockEffectDuration: 0.9
+  unlockEffectRadius: 1.15
+  unlockEffectOffset: {x: 0, y: 0.45, z: 0}
 --- !u!61 &1295720797
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1778,7 +1809,14 @@ MonoBehaviour:
   healthPickupSortingOrder: 2
   healthPickupHeightOffset: 0.75
   healthPickupColliderSize: {x: 1.2, y: 1.2}
+  healthPickupVisualScale: 2
   healthPickupParent: {fileID: 0}
+  keyPickupSprite: {fileID: 21300000, guid: 438e6cf23f346034bb833dc191816712, type: 3}
+  keyPickupSortingOrder: 3
+  keyPickupHeightOffset: 0.85
+  keyPickupVisualScale: 1.5
+  keyPickupColliderSize: {x: 1.1, y: 1.1}
+  keyPickupParent: {fileID: 0}
   buildOnStart: 1
   buildGroundOnStart: 1
   buildDecorationsOnStart: 0

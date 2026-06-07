@@ -231,7 +231,7 @@
 
 #LivesContainer {
     position: absolute;
-    right: 32px;
+    right: 240px;
     top: 32px;
     height: 64px;
     flex-direction: row;
@@ -253,6 +253,89 @@
     margin-left: 5px;
     margin-right: 5px;
     -unity-background-scale-mode: scale-to-fit;
+}
+
+#InventoryButton {
+    position: absolute;
+    right: 32px;
+    top: 32px;
+    min-width: 180px;
+    height: 64px;
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: rgb(20, 20, 20);
+    background-color: rgb(245, 245, 245);
+    border-width: 3px;
+    border-color: rgb(60, 60, 60);
+    border-radius: 10px;
+}
+
+#InventoryPanel {
+    position: absolute;
+    right: 32px;
+    top: 112px;
+    width: 330px;
+    padding-left: 22px;
+    padding-right: 22px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+    background-color: rgba(0, 0, 0, 0.78);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+}
+
+#InventoryTitle {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: #ffe082;
+    margin-bottom: 12px;
+}
+
+#InventoryItemRow {
+    height: 58px;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+#InventoryKeyIcon {
+    width: 42px;
+    height: 42px;
+    margin-right: 14px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+#InventoryKeyLabel {
+    font-size: 24px;
+    color: white;
+    -unity-font-style: bold;
+}
+
+#InventoryHint {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.72);
+    margin-top: 4px;
+}
+
+#ChestLockedMessage {
+    position: absolute;
+    left: 50%;
+    top: 24%;
+    width: 680px;
+    margin-left: -340px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    font-size: 30px;
+    color: #ffe082;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgba(0, 0, 0, 0.76);
+    border-width: 3px;
+    border-color: rgba(255, 255, 255, 0.86);
+    border-radius: 10px;
 }
 
 #SettingsPanel {
@@ -329,6 +412,62 @@
     border-radius: 12px;
     max-width: 900px;
     white-space: normal;
+}
+
+#VictoryPanel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(8, 16, 28, 0.58);
+}
+
+#VictoryCard {
+    width: 720px;
+    max-width: 84%;
+    padding-left: 34px;
+    padding-right: 34px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    background-color: rgba(10, 22, 40, 0.93);
+    border-width: 3px;
+    border-color: rgba(255, 224, 130, 0.92);
+    border-radius: 10px;
+    align-items: center;
+}
+
+#VictoryTitle {
+    font-size: 46px;
+    -unity-font-style: bold;
+    color: #ffe082;
+    -unity-text-align: middle-center;
+    margin-bottom: 14px;
+}
+
+#VictoryMessage {
+    font-size: 28px;
+    color: white;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 18px;
+}
+
+#VictoryReward {
+    font-size: 30px;
+    -unity-font-style: bold;
+    color: rgb(25, 25, 25);
+    -unity-text-align: middle-center;
+    background-color: rgb(255, 224, 130);
+    border-width: 2px;
+    border-color: rgb(255, 247, 196);
+    border-radius: 8px;
+    padding-left: 26px;
+    padding-right: 26px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 #FailureIcon {

@@ -38,12 +38,22 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private string failureIconName = "FailureIcon";
         [SerializeField] private string livesContainerName = "LivesContainer";
         [SerializeField] private string[] lifeHeartNames = { "LifeHeart1", "LifeHeart2", "LifeHeart3" };
+        [SerializeField] private string inventoryButtonName = "InventoryButton";
+        [SerializeField] private string inventoryPanelName = "InventoryPanel";
+        [SerializeField] private string inventoryKeyIconName = "InventoryKeyIcon";
+        [SerializeField] private string inventoryKeyLabelName = "InventoryKeyLabel";
+        [SerializeField] private string chestLockedMessageName = "ChestLockedMessage";
+        [SerializeField] private string victoryPanelName = "VictoryPanel";
+        [SerializeField] private string victoryMessageName = "VictoryMessage";
+        [SerializeField] private string victoryRewardName = "VictoryReward";
 
         [Header("Level")]
         [SerializeField] private BeginnerIslandLevelController levelController;
         [SerializeField] private BeginnerIslandMapBuilder mapBuilder;
         [SerializeField] private PlayerMovement playerMovement;
         [SerializeField] private PlayerHealth playerHealth;
+        [SerializeField] private PlayerInventory playerInventory;
+        [SerializeField] private TreasureCollectible treasure;
         [SerializeField] private float fallFailureDistance = 12f;
         [SerializeField] private int maxLives = 3;
         [SerializeField] private float respawnBackDistance = 4f;
@@ -53,6 +63,7 @@ namespace MonsterTreasureHunt.UI
         [Header("Lives HUD")]
         [SerializeField] private Sprite fullHeartSprite;
         [SerializeField] private Sprite emptyHeartSprite;
+        [SerializeField] private Sprite inventoryKeySprite;
 
         [Header("Purple Skin")]
         [SerializeField] private Sprite purpleIdleSprite;
@@ -117,6 +128,14 @@ namespace MonsterTreasureHunt.UI
         private Label failureIcon;
         private VisualElement livesContainer;
         private Image[] lifeHearts;
+        private Button inventoryButton;
+        private VisualElement inventoryPanel;
+        private Image inventoryKeyIcon;
+        private Label inventoryKeyLabel;
+        private Label chestLockedMessage;
+        private VisualElement victoryPanel;
+        private Label victoryMessage;
+        private Label victoryReward;
 
         private bool levelCompleted;
         private bool levelFailed;
@@ -127,6 +146,9 @@ namespace MonsterTreasureHunt.UI
         private float lastSafeSampleTime;
         private float nextFallDamageTime;
         private bool healthCallbacksRegistered;
+        private bool inventoryCallbacksRegistered;
+        private bool treasureCallbacksRegistered;
+        private float hideLockedMessageAt;
         private BeginnerIslandMapBuilder.MapTheme pendingMap = BeginnerIslandMapBuilder.MapTheme.BeginnerIsland;
         private bool mapChosen;
         private string selectedMapTitle = "Beginner Island";
@@ -139,6 +161,8 @@ namespace MonsterTreasureHunt.UI
             "Press Space to jump over small steps.\n" +
             "Follow the scent arrow when the treasure is off screen.\n" +
             "You have three lives. Falling costs one life and returns you to safe ground.\n" +
+            "Find the yellow key before opening the treasure chest.\n" +
+            "Press I to view the items collected this round.\n" +
             "Reach the treasure chest at the far right side of the island.";
 
         private struct SkinChoice
@@ -214,6 +238,14 @@ namespace MonsterTreasureHunt.UI
             failureIcon = root.Q<Label>(failureIconName);
             livesContainer = root.Q<VisualElement>(livesContainerName);
             lifeHearts = BuildLifeHeartElements(root);
+            inventoryButton = root.Q<Button>(inventoryButtonName);
+            inventoryPanel = root.Q<VisualElement>(inventoryPanelName);
+            inventoryKeyIcon = root.Q<Image>(inventoryKeyIconName);
+            inventoryKeyLabel = root.Q<Label>(inventoryKeyLabelName);
+            chestLockedMessage = root.Q<Label>(chestLockedMessageName);
+            victoryPanel = root.Q<VisualElement>(victoryPanelName);
+            victoryMessage = root.Q<Label>(victoryMessageName);
+            victoryReward = root.Q<Label>(victoryRewardName);
 
             DisableKeyboardFocus(settingsButton);
             DisableKeyboardFocus(helpButton);
@@ -231,6 +263,7 @@ namespace MonsterTreasureHunt.UI
             DisableKeyboardFocus(beigeSkinButton);
             DisableKeyboardFocus(confirmSkinButton);
             DisableKeyboardFocus(backToMapButton);
+            DisableKeyboardFocus(inventoryButton);
             root.Focus();
 
             if (mapBuilder == null)
@@ -254,6 +287,15 @@ namespace MonsterTreasureHunt.UI
                         playerHealth = playerMovement.gameObject.AddComponent<PlayerHealth>();
                     }
                 }
+
+                if (playerInventory == null)
+                {
+                    playerInventory = playerMovement.GetComponent<PlayerInventory>();
+                    if (playerInventory == null)
+                    {
+                        playerInventory = playerMovement.gameObject.AddComponent<PlayerInventory>();
+                    }
+                }
             }
 
             if (playerHealth == null)
@@ -261,8 +303,19 @@ namespace MonsterTreasureHunt.UI
                 playerHealth = FindObjectOfType<PlayerHealth>();
             }
 
+            if (playerInventory == null)
+            {
+                playerInventory = FindObjectOfType<PlayerInventory>();
+            }
+
+            if (treasure == null)
+            {
+                treasure = FindObjectOfType<TreasureCollectible>();
+            }
+
             BuildSkinChoices();
             RegisterCallbacks();
+            ConfigureInventoryIcons();
 
             if (rulesLabel != null)
             {
@@ -279,9 +332,12 @@ namespace MonsterTreasureHunt.UI
             SetSkinSelectVisible(false);
             SetSettingsButtonVisible(false);
             SetLivesVisible(false);
+            SetInventoryButtonVisible(false);
+            SetInventoryVisible(false);
             SetGameplayInputEnabled(false);
             SetSettingsVisible(false);
             SetRulesVisible(false);
+            SetVictoryVisible(false);
 
             if (resultLabel != null)
             {
@@ -290,10 +346,24 @@ namespace MonsterTreasureHunt.UI
             }
 
             SetFailureIconVisible(false);
+            SetChestLockedMessageVisible(false);
         }
 
         private void Update()
         {
+            if (gameStarted && !levelCompleted && !levelFailed && Input.GetKeyDown(KeyCode.I))
+            {
+                ToggleInventory();
+            }
+
+            if (chestLockedMessage != null &&
+                chestLockedMessage.style.display == DisplayStyle.Flex &&
+                hideLockedMessageAt > 0f &&
+                Time.time >= hideLockedMessageAt)
+            {
+                SetChestLockedMessageVisible(false);
+            }
+
             UpdateSafeRespawnPosition();
             CheckFallFailure();
         }
@@ -335,7 +405,10 @@ namespace MonsterTreasureHunt.UI
             if (helpButton != null) helpButton.clicked += ShowRules;
             if (continueButton != null) continueButton.clicked += ContinueGame;
             if (escapeButton != null) escapeButton.clicked += EscapeGame;
+            if (inventoryButton != null) inventoryButton.clicked += ToggleInventory;
             RegisterHealthCallbacks();
+            RegisterInventoryCallbacks();
+            RegisterTreasureCallbacks();
         }
 
         private void UnregisterCallbacks()
@@ -356,7 +429,10 @@ namespace MonsterTreasureHunt.UI
             if (helpButton != null) helpButton.clicked -= ShowRules;
             if (continueButton != null) continueButton.clicked -= ContinueGame;
             if (escapeButton != null) escapeButton.clicked -= EscapeGame;
+            if (inventoryButton != null) inventoryButton.clicked -= ToggleInventory;
             UnregisterHealthCallbacks();
+            UnregisterInventoryCallbacks();
+            UnregisterTreasureCallbacks();
         }
 
         private void RegisterHealthCallbacks()
@@ -375,6 +451,38 @@ namespace MonsterTreasureHunt.UI
             healthCallbacksRegistered = false;
         }
 
+        private void RegisterInventoryCallbacks()
+        {
+            if (playerInventory == null || inventoryCallbacksRegistered) return;
+
+            playerInventory.InventoryChanged += HandleInventoryChanged;
+            inventoryCallbacksRegistered = true;
+        }
+
+        private void UnregisterInventoryCallbacks()
+        {
+            if (playerInventory == null || !inventoryCallbacksRegistered) return;
+
+            playerInventory.InventoryChanged -= HandleInventoryChanged;
+            inventoryCallbacksRegistered = false;
+        }
+
+        private void RegisterTreasureCallbacks()
+        {
+            if (treasure == null || treasureCallbacksRegistered) return;
+
+            treasure.Locked += HandleTreasureLocked;
+            treasureCallbacksRegistered = true;
+        }
+
+        private void UnregisterTreasureCallbacks()
+        {
+            if (treasure == null || !treasureCallbacksRegistered) return;
+
+            treasure.Locked -= HandleTreasureLocked;
+            treasureCallbacksRegistered = false;
+        }
+
         private void StartGame()
         {
             mapChosen = false;
@@ -382,8 +490,11 @@ namespace MonsterTreasureHunt.UI
             SetMapSelectVisible(true);
             SetSkinSelectVisible(false);
             SetSettingsButtonVisible(false);
+            SetInventoryButtonVisible(false);
+            SetInventoryVisible(false);
             SetSettingsVisible(false);
             SetRulesVisible(false);
+            SetVictoryVisible(false);
         }
 
         private void SelectBeginnerMap()
@@ -481,6 +592,11 @@ namespace MonsterTreasureHunt.UI
                 mapBuilder.BuildMap();
             }
 
+            if (levelController != null)
+            {
+                levelController.ResetLevel();
+            }
+
             if (playerMovement != null)
             {
                 playerMovement.ApplySkin(selectedSkin.Idle, selectedSkin.RunA, selectedSkin.RunB, selectedSkin.Jump, selectedSkin.Crouch);
@@ -494,18 +610,29 @@ namespace MonsterTreasureHunt.UI
                 playerHealth.ResetHealth(maxLives);
             }
 
+            if (playerInventory != null)
+            {
+                playerInventory.ResetInventory();
+                UpdateInventoryUI(playerInventory.YellowKeys);
+            }
+
             nextFallDamageTime = 0f;
+            hideLockedMessageAt = 0f;
             gameStarted = true;
             levelCompleted = false;
             levelFailed = false;
             SetSkinSelectVisible(false);
             SetSettingsButtonVisible(true);
+            SetInventoryButtonVisible(true);
+            SetInventoryVisible(false);
             SetLivesVisible(true);
             UpdateLivesUI(playerHealth != null ? playerHealth.CurrentLives : maxLives, maxLives);
             SetGameplayInputEnabled(true);
             SetSettingsVisible(false);
             SetRulesVisible(false);
             SetFailureIconVisible(false);
+            SetVictoryVisible(false);
+            SetChestLockedMessageVisible(false);
 
             if (resultLabel != null)
             {
@@ -520,6 +647,8 @@ namespace MonsterTreasureHunt.UI
             SetMapSelectVisible(true);
             SetSettingsVisible(false);
             SetRulesVisible(false);
+            SetInventoryVisible(false);
+            SetVictoryVisible(false);
         }
 
         private void ToggleSettings()
@@ -565,11 +694,15 @@ namespace MonsterTreasureHunt.UI
             SetRulesVisible(false);
             SetFailureIconVisible(false);
             SetLivesVisible(false);
+            SetInventoryButtonVisible(false);
+            SetInventoryVisible(false);
+            SetGameplayInputEnabled(false);
+            SetVictoryVisible(true);
 
             if (resultLabel != null)
             {
-                resultLabel.text = selectedMapTitle + " cleared!\nYou found your treasure.";
-                resultLabel.style.display = DisplayStyle.Flex;
+                resultLabel.style.display = DisplayStyle.None;
+                resultLabel.text = string.Empty;
             }
         }
 
@@ -633,6 +766,8 @@ namespace MonsterTreasureHunt.UI
             SetRulesVisible(false);
             SetSettingsButtonVisible(false);
             SetLivesVisible(false);
+            SetInventoryButtonVisible(false);
+            SetInventoryVisible(false);
             SetGameplayInputEnabled(false);
             SetFailureIconVisible(true);
 
@@ -646,6 +781,38 @@ namespace MonsterTreasureHunt.UI
         private void HandleHealthChanged(int currentLives, int totalLives)
         {
             UpdateLivesUI(currentLives, totalLives);
+        }
+
+        private void HandleInventoryChanged(int yellowKeys)
+        {
+            UpdateInventoryUI(yellowKeys);
+        }
+
+        private void HandleTreasureLocked(TreasureCollectible lockedTreasure)
+        {
+            if (!gameStarted || levelCompleted || levelFailed) return;
+
+            SetChestLockedMessageVisible(true);
+            hideLockedMessageAt = Time.time + 2.5f;
+        }
+
+        private void ConfigureInventoryIcons()
+        {
+            if (inventoryKeyIcon != null)
+            {
+                inventoryKeyIcon.sprite = inventoryKeySprite;
+                inventoryKeyIcon.scaleMode = ScaleMode.ScaleToFit;
+                inventoryKeyIcon.tintColor = Color.white;
+            }
+
+        }
+
+        private void UpdateInventoryUI(int yellowKeys)
+        {
+            if (inventoryKeyLabel != null)
+            {
+                inventoryKeyLabel.text = $"Yellow Key  x{yellowKeys}";
+            }
         }
 
         private Image[] BuildLifeHeartElements(VisualElement root)
@@ -719,6 +886,30 @@ namespace MonsterTreasureHunt.UI
             }
         }
 
+        private void SetInventoryButtonVisible(bool visible)
+        {
+            if (inventoryButton != null)
+            {
+                inventoryButton.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void ToggleInventory()
+        {
+            if (!gameStarted || levelCompleted || levelFailed || inventoryPanel == null) return;
+
+            bool isVisible = inventoryPanel.style.display == DisplayStyle.Flex;
+            SetInventoryVisible(!isVisible);
+        }
+
+        private void SetInventoryVisible(bool visible)
+        {
+            if (inventoryPanel != null)
+            {
+                inventoryPanel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
         private void SetGameplayInputEnabled(bool enabled)
         {
             if (playerMovement != null)
@@ -755,6 +946,34 @@ namespace MonsterTreasureHunt.UI
             if (failureIcon != null)
             {
                 failureIcon.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void SetChestLockedMessageVisible(bool visible)
+        {
+            if (chestLockedMessage != null)
+            {
+                chestLockedMessage.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void SetVictoryVisible(bool visible)
+        {
+            if (victoryPanel != null)
+            {
+                victoryPanel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            if (!visible) return;
+
+            if (victoryMessage != null)
+            {
+                victoryMessage.text = $"You used the yellow key and cleared {selectedMapTitle}.";
+            }
+
+            if (victoryReward != null)
+            {
+                victoryReward.text = "Victory";
             }
         }
     }

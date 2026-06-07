@@ -60,7 +60,16 @@ namespace MonsterTreasureHunt.Levels
         [SerializeField] private int healthPickupSortingOrder = 2;
         [SerializeField] private float healthPickupHeightOffset = 0.75f;
         [SerializeField] private Vector2 healthPickupColliderSize = new Vector2(1.2f, 1.2f);
+        [SerializeField] private float healthPickupVisualScale = 2f;
         [SerializeField] private Transform healthPickupParent;
+
+        [Header("Key Pickup")]
+        [SerializeField] private Sprite keyPickupSprite;
+        [SerializeField] private int keyPickupSortingOrder = 3;
+        [SerializeField] private float keyPickupHeightOffset = 0.85f;
+        [SerializeField] private float keyPickupVisualScale = 1.5f;
+        [SerializeField] private Vector2 keyPickupColliderSize = new Vector2(1.1f, 1.1f);
+        [SerializeField] private Transform keyPickupParent;
 
         [Header("Build")]
         [SerializeField] private bool buildOnStart = true;
@@ -364,6 +373,7 @@ namespace MonsterTreasureHunt.Levels
             PlacePlayerSpawn();
             PlaceTreasure();
             BuildHealthPickups();
+            BuildKeyPickup();
         }
 
         public void SelectMap(MapTheme map)
@@ -448,12 +458,58 @@ namespace MonsterTreasureHunt.Levels
             SpriteRenderer renderer = pickupObject.AddComponent<SpriteRenderer>();
             renderer.sprite = healthPickupSprite;
             renderer.sortingOrder = healthPickupSortingOrder;
+            pickupObject.transform.localScale = Vector3.one * healthPickupVisualScale;
 
             BoxCollider2D collider = pickupObject.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
-            collider.size = healthPickupColliderSize;
+            collider.size = healthPickupColliderSize / Mathf.Max(0.01f, healthPickupVisualScale);
 
             pickupObject.AddComponent<HealthPickup>();
+        }
+
+        [ContextMenu("Build Key Pickup")]
+        public void BuildKeyPickup()
+        {
+            ClearKeyPickups();
+            if (keyPickupSprite == null) return;
+
+            Vector2Int placement = GetKeyPickupPlacementForSelectedMap();
+            if (!TryGetItemWorldPosition(placement.x, placement.y, keyPickupHeightOffset, out Vector3 worldPosition)) return;
+
+            GameObject pickupObject = new GameObject("KeyPickup_Yellow");
+            pickupObject.transform.SetParent(GetKeyPickupParent(), true);
+            pickupObject.transform.position = worldPosition;
+            pickupObject.transform.localScale = Vector3.one * keyPickupVisualScale;
+
+            SpriteRenderer renderer = pickupObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = keyPickupSprite;
+            renderer.sortingOrder = keyPickupSortingOrder;
+
+            BoxCollider2D collider = pickupObject.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            collider.size = keyPickupColliderSize / Mathf.Max(0.01f, keyPickupVisualScale);
+
+            pickupObject.AddComponent<KeyPickup>();
+        }
+
+        [ContextMenu("Clear Key Pickups")]
+        public void ClearKeyPickups()
+        {
+            Transform parent = GetKeyPickupParent();
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = parent.GetChild(i);
+                if (child == null || !child.name.StartsWith("KeyPickup_", StringComparison.Ordinal)) continue;
+
+                if (Application.isPlaying)
+                {
+                    Destroy(child.gameObject);
+                }
+                else
+                {
+                    DestroyImmediate(child.gameObject);
+                }
+            }
         }
 
         private bool TryGetSurfaceWorldPosition(int cellX, int surfaceY, out Vector3 worldPosition)
@@ -474,17 +530,22 @@ namespace MonsterTreasureHunt.Levels
 
         private bool TryGetPickupWorldPosition(int cellX, int surfaceY, out Vector3 worldPosition)
         {
+            return TryGetItemWorldPosition(cellX, surfaceY, healthPickupHeightOffset, out worldPosition);
+        }
+
+        private bool TryGetItemWorldPosition(int cellX, int surfaceY, float heightOffset, out Vector3 worldPosition)
+        {
             worldPosition = default;
             EnsureTilemapsAssigned();
 
             if (groundTilemap == null)
             {
-                Debug.LogError("[BeginnerIslandMapBuilder] Ground tilemap is required for health pickup placement.");
+                Debug.LogError("[BeginnerIslandMapBuilder] Ground tilemap is required for item placement.");
                 return false;
             }
 
             worldPosition = groundTilemap.GetCellCenterWorld(new Vector3Int(cellX, surfaceY, 0));
-            worldPosition.y += groundTilemap.cellSize.y * 0.5f + healthPickupHeightOffset;
+            worldPosition.y += groundTilemap.cellSize.y * 0.5f + heightOffset;
             return true;
         }
 
@@ -503,6 +564,23 @@ namespace MonsterTreasureHunt.Levels
             healthPickupParent = parentObject.transform;
             healthPickupParent.SetParent(transform, false);
             return healthPickupParent;
+        }
+
+        private Transform GetKeyPickupParent()
+        {
+            if (keyPickupParent != null) return keyPickupParent;
+
+            Transform existing = transform.Find("KeyPickups");
+            if (existing != null)
+            {
+                keyPickupParent = existing;
+                return keyPickupParent;
+            }
+
+            GameObject parentObject = new GameObject("KeyPickups");
+            keyPickupParent = parentObject.transform;
+            keyPickupParent.SetParent(transform, false);
+            return keyPickupParent;
         }
 
         private void EnsureTilemapsAssigned()
@@ -568,21 +646,34 @@ namespace MonsterTreasureHunt.Levels
                 case MapTheme.FoggyForest:
                     return new[]
                     {
-                        new Vector2Int(22, -4),
-                        new Vector2Int(58, -3),
+                        new Vector2Int(34, -4),
+                        new Vector2Int(52, -3),
                     };
                 case MapTheme.VolcanoCave:
                     return new[]
                     {
-                        new Vector2Int(31, -4),
-                        new Vector2Int(70, -3),
+                        new Vector2Int(24, -4),
+                        new Vector2Int(76, -3),
                     };
                 default:
                     return new[]
                     {
-                        new Vector2Int(34, -4),
-                        new Vector2Int(72, -3),
+                        new Vector2Int(36, -4),
+                        new Vector2Int(82, -3),
                     };
+            }
+        }
+
+        private Vector2Int GetKeyPickupPlacementForSelectedMap()
+        {
+            switch (selectedMap)
+            {
+                case MapTheme.FoggyForest:
+                    return new Vector2Int(46, -4);
+                case MapTheme.VolcanoCave:
+                    return new Vector2Int(56, -3);
+                default:
+                    return new Vector2Int(62, -3);
             }
         }
 

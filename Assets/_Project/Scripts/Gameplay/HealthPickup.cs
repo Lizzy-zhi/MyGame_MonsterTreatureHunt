@@ -74,6 +74,7 @@ namespace MonsterTreasureHunt.Gameplay
             if (health == null) return;
 
             health.Heal(healAmount);
+
             collected = true;
             if (disableOnCollect)
             {
