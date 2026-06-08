@@ -1,6 +1,6 @@
 # Monster Treasure Hunt
 
-Players control a clumsy little monster on a hand-drawn island, using scent guidance to find treasure, explore themed maps, and unlock character skins.
+Players control a clumsy little monster on a island, using scent guidance to find treasure, explore themed maps, and unlock character skins.
 
 ## Current Build Status
 
