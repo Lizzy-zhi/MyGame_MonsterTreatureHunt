@@ -1,18 +1,16 @@
 # Monster Treasure Hunt
 
-Players control a clumsy little monster on a hand-drawn island, using scent guidance to find treasure, explore themed maps, and unlock character skins.
+Players control a clumsy little monster on a island, using scent guidance to find treasure, explore themed maps, and unlock character skins.
 
 ## Current Build Status
 
 ### Done
 
 - Start flow: Start Game -> map selection -> skin selection -> gameplay.
-- UI language is English.
 - Settings button opens Help, Continue, and Escape controls.
 - Help panel shows game rules.
 - Character skins can be previewed and confirmed before entering gameplay.
 - Player movement includes inertia, skid feel, jumping, crouching, and slow crouch movement.
-- Scent arrow UI points toward the treasure.
 - Treasure collection triggers level clear text.
 - Falling too far below the spawn height shows a failure icon and stops player input.
 - Ground, decoration, player spawn, and treasure placement are controlled separately in the map builder.
