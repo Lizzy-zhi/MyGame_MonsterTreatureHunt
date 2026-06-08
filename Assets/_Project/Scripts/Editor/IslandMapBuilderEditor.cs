@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace MonsterTreasureHunt.Levels
 {
-    [CustomEditor(typeof(BeginnerIslandMapBuilder))]
-    public class BeginnerIslandMapBuilderEditor : Editor
+    [CustomEditor(typeof(IslandMapBuilder))]
+    public class IslandMapBuilderEditor : Editor
     {
         public override void OnInspectorGUI()
         {
@@ -52,9 +52,9 @@ namespace MonsterTreasureHunt.Levels
             }
         }
 
-        private void ExecuteForTargets(string undoName, System.Action<BeginnerIslandMapBuilder> action)
+        private void ExecuteForTargets(string undoName, System.Action<IslandMapBuilder> action)
         {
-            foreach (BeginnerIslandMapBuilder builder in targets)
+            foreach (IslandMapBuilder builder in targets)
             {
                 Undo.RegisterFullObjectHierarchyUndo(builder.gameObject, undoName);
                 action(builder);

@@ -9,6 +9,8 @@ namespace MonsterTreasureHunt.Gameplay
         [SerializeField] private string collectorTag = "Player";
         [SerializeField] private bool disableOnCollect = true;
         [SerializeField] private bool requiresYellowKey = true;
+        [SerializeField] private Vector2 triggerSize = new Vector2(1.35f, 1.25f);
+        [SerializeField] private Vector2 triggerOffset = new Vector2(0f, 0.22f);
         [SerializeField] private Sprite unlockEffectSprite;
         [SerializeField] private int unlockEffectSortingOrder = 6;
         [SerializeField] private float unlockEffectDuration = 0.9f;
@@ -46,17 +48,8 @@ namespace MonsterTreasureHunt.Gameplay
 
             if (col is not BoxCollider2D box) return;
 
-            if (box.size.x >= 0.01f && box.size.y >= 0.01f) return;
-
-            SpriteRenderer sprite = GetComponent<SpriteRenderer>();
-            if (sprite != null && sprite.sprite != null)
-            {
-                box.size = sprite.sprite.bounds.size;
-            }
-            else
-            {
-                box.size = new Vector2(0.64f, 0.64f);
-            }
+            box.size = triggerSize;
+            box.offset = triggerOffset;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -127,6 +120,8 @@ namespace MonsterTreasureHunt.Gameplay
                 col.enabled = true;
                 col.isTrigger = true;
             }
+
+            EnsureCollectTrigger();
         }
 
         private IEnumerator PlayUnlockEffectThenCollect()

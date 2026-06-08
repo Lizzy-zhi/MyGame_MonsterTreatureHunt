@@ -6,7 +6,7 @@ using MonsterTreasureHunt.Gameplay;
 namespace MonsterTreasureHunt.Levels
 {
     [DisallowMultipleComponent]
-    public class BeginnerIslandMapBuilder : MonoBehaviour
+    public class IslandMapBuilder : MonoBehaviour
     {
         public enum MapTheme
         {
@@ -85,6 +85,8 @@ namespace MonsterTreasureHunt.Levels
         private const int TreasureSurfaceY = -3;
         private const int FoggyForestTreasureCellX = 74;
         private const int FoggyForestTreasureSurfaceY = -3;
+        private const int VolcanoCaveTreasureCellX = 104;
+        private const int VolcanoCaveTreasureSurfaceY = -3;
 
         private static readonly PlatformSegment[] DefaultLayout =
         {
@@ -206,7 +208,7 @@ namespace MonsterTreasureHunt.Levels
 
             if (groundTilemap == null)
             {
-                Debug.LogError("[BeginnerIslandMapBuilder] Ground tilemap is not assigned.");
+                Debug.LogError("[IslandMapBuilder] Ground tilemap is not assigned.");
                 return;
             }
 
@@ -519,10 +521,11 @@ namespace MonsterTreasureHunt.Levels
 
             if (groundTilemap == null)
             {
-                Debug.LogError("[BeginnerIslandMapBuilder] Ground tilemap is required for placement.");
+                Debug.LogError("[IslandMapBuilder] Ground tilemap is required for placement.");
                 return false;
             }
 
+            surfaceY = ResolveOpenSurfaceY(cellX, surfaceY);
             worldPosition = groundTilemap.GetCellCenterWorld(new Vector3Int(cellX, surfaceY, 0));
             worldPosition.y += groundTilemap.cellSize.y * 0.5f + spawnHeightOffset;
             return true;
@@ -540,13 +543,47 @@ namespace MonsterTreasureHunt.Levels
 
             if (groundTilemap == null)
             {
-                Debug.LogError("[BeginnerIslandMapBuilder] Ground tilemap is required for item placement.");
+                Debug.LogError("[IslandMapBuilder] Ground tilemap is required for item placement.");
                 return false;
             }
 
+            surfaceY = ResolveOpenSurfaceY(cellX, surfaceY);
             worldPosition = groundTilemap.GetCellCenterWorld(new Vector3Int(cellX, surfaceY, 0));
             worldPosition.y += groundTilemap.cellSize.y * 0.5f + heightOffset;
             return true;
+        }
+
+        private int ResolveOpenSurfaceY(int cellX, int preferredSurfaceY)
+        {
+            int fallbackSurfaceY = int.MinValue;
+            PlatformSegment[] layout = GetLayoutForSelectedMap();
+
+            foreach (PlatformSegment segment in layout)
+            {
+                if (cellX < segment.xMin || cellX > segment.xMax) continue;
+                if (!IsSurfaceOpen(cellX, segment.surfaceY)) continue;
+
+                if (segment.surfaceY == preferredSurfaceY)
+                {
+                    return preferredSurfaceY;
+                }
+
+                if (fallbackSurfaceY == int.MinValue || segment.surfaceY > fallbackSurfaceY)
+                {
+                    fallbackSurfaceY = segment.surfaceY;
+                }
+            }
+
+            return fallbackSurfaceY != int.MinValue ? fallbackSurfaceY : preferredSurfaceY;
+        }
+
+        private bool IsSurfaceOpen(int cellX, int surfaceY)
+        {
+            if (groundTilemap == null) return true;
+
+            Vector3Int surfaceCell = new Vector3Int(cellX, surfaceY, 0);
+            Vector3Int aboveCell = new Vector3Int(cellX, surfaceY + 1, 0);
+            return groundTilemap.HasTile(surfaceCell) && !groundTilemap.HasTile(aboveCell);
         }
 
         private Transform GetHealthPickupParent()
@@ -637,6 +674,11 @@ namespace MonsterTreasureHunt.Levels
                 treasureCellX = FoggyForestTreasureCellX;
                 treasureSurfaceY = FoggyForestTreasureSurfaceY;
             }
+            else if (selectedMap == MapTheme.VolcanoCave)
+            {
+                treasureCellX = VolcanoCaveTreasureCellX;
+                treasureSurfaceY = VolcanoCaveTreasureSurfaceY;
+            }
         }
 
         private Vector2Int[] GetHealthPickupPlacementsForSelectedMap()
@@ -658,8 +700,8 @@ namespace MonsterTreasureHunt.Levels
                 default:
                     return new[]
                     {
-                        new Vector2Int(36, -4),
-                        new Vector2Int(82, -3),
+                        new Vector2Int(30, -4),
+                        new Vector2Int(86, -3),
                     };
             }
         }
@@ -671,9 +713,9 @@ namespace MonsterTreasureHunt.Levels
                 case MapTheme.FoggyForest:
                     return new Vector2Int(46, -4);
                 case MapTheme.VolcanoCave:
-                    return new Vector2Int(56, -3);
-                default:
                     return new Vector2Int(62, -3);
+                default:
+                    return new Vector2Int(66, -3);
             }
         }
 

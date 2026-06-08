@@ -3,7 +3,7 @@ using MonsterTreasureHunt.Gameplay;
 
 namespace MonsterTreasureHunt.Levels
 {
-    public class BeginnerIslandLevelController : MonoBehaviour
+    public class IslandLevelController : MonoBehaviour
     {
         [SerializeField] private TreasureCollectible treasure;
 

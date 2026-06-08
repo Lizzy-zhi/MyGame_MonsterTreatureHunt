@@ -48,8 +48,8 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private string victoryRewardName = "VictoryReward";
 
         [Header("Level")]
-        [SerializeField] private BeginnerIslandLevelController levelController;
-        [SerializeField] private BeginnerIslandMapBuilder mapBuilder;
+        [SerializeField] private IslandLevelController levelController;
+        [SerializeField] private IslandMapBuilder mapBuilder;
         [SerializeField] private PlayerMovement playerMovement;
         [SerializeField] private PlayerHealth playerHealth;
         [SerializeField] private PlayerInventory playerInventory;
@@ -149,7 +149,7 @@ namespace MonsterTreasureHunt.UI
         private bool inventoryCallbacksRegistered;
         private bool treasureCallbacksRegistered;
         private float hideLockedMessageAt;
-        private BeginnerIslandMapBuilder.MapTheme pendingMap = BeginnerIslandMapBuilder.MapTheme.BeginnerIsland;
+        private IslandMapBuilder.MapTheme pendingMap = IslandMapBuilder.MapTheme.BeginnerIsland;
         private bool mapChosen;
         private string selectedMapTitle = "Beginner Island";
         private SkinChoice selectedSkin;
@@ -268,7 +268,7 @@ namespace MonsterTreasureHunt.UI
 
             if (mapBuilder == null)
             {
-                mapBuilder = FindObjectOfType<BeginnerIslandMapBuilder>();
+                mapBuilder = FindObjectOfType<IslandMapBuilder>();
             }
 
             if (playerMovement == null)
@@ -499,20 +499,20 @@ namespace MonsterTreasureHunt.UI
 
         private void SelectBeginnerMap()
         {
-            SelectMap(BeginnerIslandMapBuilder.MapTheme.BeginnerIsland, "Beginner Island");
+            SelectMap(IslandMapBuilder.MapTheme.BeginnerIsland, "Beginner Island");
         }
 
         private void SelectFoggyMap()
         {
-            SelectMap(BeginnerIslandMapBuilder.MapTheme.FoggyForest, "Foggy Forest");
+            SelectMap(IslandMapBuilder.MapTheme.FoggyForest, "Foggy Forest");
         }
 
         private void SelectVolcanoMap()
         {
-            SelectMap(BeginnerIslandMapBuilder.MapTheme.VolcanoCave, "Volcano Cave");
+            SelectMap(IslandMapBuilder.MapTheme.VolcanoCave, "Volcano Cave");
         }
 
-        private void SelectMap(BeginnerIslandMapBuilder.MapTheme map, string mapTitle)
+        private void SelectMap(IslandMapBuilder.MapTheme map, string mapTitle)
         {
             pendingMap = map;
             selectedMapTitle = mapTitle;

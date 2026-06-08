@@ -1570,6 +1570,8 @@ MonoBehaviour:
   collectorTag: Player
   disableOnCollect: 1
   requiresYellowKey: 1
+  triggerSize: {x: 1.35, y: 1.25}
+  triggerOffset: {x: 0, y: 0.22}
   unlockEffectSprite: {fileID: 21300000, guid: c774b4b090501294db5709da7abb3a8f, type: 3}
   unlockEffectSortingOrder: 6
   unlockEffectDuration: 0.9
@@ -1661,7 +1663,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 668891cc9e6b5b44aa7efccf98ed85bf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b3bc590215948e84ea14ff6e1ebf3d9d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1697,7 +1699,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1383321965}
   m_Layer: 0
-  m_Name: Map_BeginnerIsland
+  m_Name: Map_Islands
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1735,7 +1737,7 @@ GameObject:
   - component: {fileID: 1594708971}
   - component: {fileID: 1594708972}
   m_Layer: 3
-  m_Name: Enviornment
+  m_Name: Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
