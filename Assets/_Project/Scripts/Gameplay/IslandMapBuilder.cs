@@ -24,6 +24,13 @@ namespace MonsterTreasureHunt.Levels
             public int depth;
         }
 
+        private struct ColoredPlacement
+        {
+            public TreasureKeyColor color;
+            public int cellX;
+            public int surfaceY;
+        }
+
         [Header("Tilemaps")]
         [SerializeField] private Tilemap groundTilemap;
         [SerializeField] private Tilemap decorationTilemap;
@@ -39,6 +46,17 @@ namespace MonsterTreasureHunt.Levels
         [SerializeField] private TileBase leftEdge;
         [SerializeField] private TileBase rightEdge;
 
+        [Header("Stone Tiles")]
+        [SerializeField] private TileBase stoneTopLeft;
+        [SerializeField] private TileBase stoneTopCenter;
+        [SerializeField] private TileBase stoneTopRight;
+        [SerializeField] private TileBase stoneCenter;
+        [SerializeField] private TileBase stoneBottom;
+        [SerializeField] private TileBase stoneBottomLeft;
+        [SerializeField] private TileBase stoneBottomRight;
+        [SerializeField] private TileBase stoneLeftEdge;
+        [SerializeField] private TileBase stoneRightEdge;
+
         [Header("Decorations")]
         [SerializeField] private TileBase signTile;
         [SerializeField] private TileBase bushTile;
@@ -49,6 +67,18 @@ namespace MonsterTreasureHunt.Levels
         [SerializeField] private TileBase fenceTile;
         [SerializeField] private TileBase mushroomRedTile;
         [SerializeField] private TileBase mushroomBrownTile;
+
+        [Header("Volcano Decorations")]
+        [SerializeField] private TileBase lavaTile;
+        [SerializeField] private TileBase lavaTopTile;
+        [SerializeField] private TileBase spikesTile;
+        [SerializeField] private TileBase torchTile;
+
+        [Header("Spike Hazards")]
+        [SerializeField] private int spikeSortingOrder = 1;
+        [SerializeField] private Vector2 spikeColliderSize = new Vector2(0.9f, 0.45f);
+        [SerializeField] private Vector2 spikeColliderOffset = new Vector2(0f, 0.35f);
+        [SerializeField] private Transform spikeHazardParent;
 
         [Header("Gameplay")]
         [SerializeField] private Transform playerSpawn;
@@ -65,11 +95,31 @@ namespace MonsterTreasureHunt.Levels
 
         [Header("Key Pickup")]
         [SerializeField] private Sprite keyPickupSprite;
+        [SerializeField] private Sprite redKeyPickupSprite;
+        [SerializeField] private Sprite greenKeyPickupSprite;
+        [SerializeField] private Sprite blueKeyPickupSprite;
         [SerializeField] private int keyPickupSortingOrder = 3;
         [SerializeField] private float keyPickupHeightOffset = 0.85f;
         [SerializeField] private float keyPickupVisualScale = 1.5f;
         [SerializeField] private Vector2 keyPickupColliderSize = new Vector2(1.1f, 1.1f);
         [SerializeField] private Transform keyPickupParent;
+
+        [Header("Treasure Chests")]
+        [SerializeField] private Sprite yellowChestBodySprite;
+        [SerializeField] private Sprite redChestBodySprite;
+        [SerializeField] private Sprite greenChestBodySprite;
+        [SerializeField] private Sprite blueChestBodySprite;
+        [SerializeField] private Sprite yellowChestLockSprite;
+        [SerializeField] private Sprite redChestLockSprite;
+        [SerializeField] private Sprite greenChestLockSprite;
+        [SerializeField] private Sprite blueChestLockSprite;
+        [SerializeField] private Sprite treasureUnlockEffectSprite;
+        [SerializeField] private int treasureSortingOrder = 3;
+        [SerializeField] private float treasureHeightOffset = 0.55f;
+        [SerializeField] private float treasureVisualScale = 1.65f;
+        [SerializeField] private Vector2 treasureColliderSize = new Vector2(1.25f, 1.15f);
+        [SerializeField] private Vector2 treasureColliderOffset = new Vector2(0f, 0.05f);
+        [SerializeField] private Transform treasureParent;
 
         [Header("Build")]
         [SerializeField] private bool buildOnStart = true;
@@ -83,10 +133,66 @@ namespace MonsterTreasureHunt.Levels
         private const int PlayerSpawnSurfaceY = -5;
         private const int TreasureCellX = 98;
         private const int TreasureSurfaceY = -3;
-        private const int FoggyForestTreasureCellX = 74;
-        private const int FoggyForestTreasureSurfaceY = -3;
-        private const int VolcanoCaveTreasureCellX = 104;
-        private const int VolcanoCaveTreasureSurfaceY = -3;
+        private const int FoggyForestTreasureCellX = 88;
+        private const int FoggyForestTreasureSurfaceY = 2;
+        private const int VolcanoCaveTreasureCellX = 106;
+        private const int VolcanoCaveTreasureSurfaceY = 2;
+
+        private static readonly ColoredPlacement[] BeginnerTreasurePlacements =
+        {
+            new() { color = TreasureKeyColor.Yellow, cellX = TreasureCellX, surfaceY = TreasureSurfaceY },
+        };
+
+        private static readonly ColoredPlacement[] FoggyForestTreasurePlacements =
+        {
+            // Act 2 canopy reward: visible from the trail, reached via upper stepping stones.
+            new() { color = TreasureKeyColor.Yellow, cellX = 25, surfaceY = -1 },
+            // Act 4 gated alcove: red key is on the risky high route over misty pits.
+            new() { color = TreasureKeyColor.Red, cellX = 68, surfaceY = 0 },
+            // Act 5 summit: final peak after the canopy climb.
+            new() { color = TreasureKeyColor.Green, cellX = 88, surfaceY = 2 },
+        };
+
+        private static readonly ColoredPlacement[] VolcanoCaveTreasurePlacements =
+        {
+            new() { color = TreasureKeyColor.Yellow, cellX = 27, surfaceY = -1 },
+            new() { color = TreasureKeyColor.Red, cellX = 71, surfaceY = 0 },
+            new() { color = TreasureKeyColor.Green, cellX = VolcanoCaveTreasureCellX, surfaceY = VolcanoCaveTreasureSurfaceY },
+        };
+
+        private static readonly ColoredPlacement[] BeginnerKeyPlacements =
+        {
+            new() { color = TreasureKeyColor.Yellow, cellX = 66, surfaceY = -3 },
+        };
+
+        private static readonly ColoredPlacement[] FoggyForestKeyPlacements =
+        {
+            // Act 1 tutorial hop: first upper platform teaches vertical routing.
+            new() { color = TreasureKeyColor.Yellow, cellX = -7, surfaceY = -3 },
+            // Act 3 detour: narrow high stone over the mist pit.
+            new() { color = TreasureKeyColor.Red, cellX = 45, surfaceY = -1 },
+            // Act 4 main path: collected before the final climb.
+            new() { color = TreasureKeyColor.Green, cellX = 74, surfaceY = -3 },
+        };
+
+        private static readonly ColoredPlacement[] VolcanoCaveKeyPlacements =
+        {
+            new() { color = TreasureKeyColor.Yellow, cellX = -5, surfaceY = -3 },
+            new() { color = TreasureKeyColor.Red, cellX = 45, surfaceY = -1 },
+            // Upper route after the red chest: collected before the caldera crossing.
+            new() { color = TreasureKeyColor.Green, cellX = 84, surfaceY = 1 },
+        };
+
+        private static readonly Vector2Int[] VolcanoSpikePlacements =
+        {
+            new(13, -2),
+            new(18, -2),
+            new(34, -2),
+            new(50, -1),
+            new(57, -1),
+            new(68, 0),
+            new(88, 1),
+        };
 
         private static readonly PlatformSegment[] DefaultLayout =
         {
@@ -102,66 +208,127 @@ namespace MonsterTreasureHunt.Levels
             new() { xMin = 77, xMax = 89, surfaceY = -3, depth = 5 },
             new() { xMin = 90, xMax = 104, surfaceY = -3, depth = 5 },
 
-            // Floating platform groups (runner style)
-            new() { xMin = -10, xMax = -6, surfaceY = -4, depth = 1 },
-            new() { xMin = -2, xMax = 2, surfaceY = -4, depth = 1 },
-            new() { xMin = 6, xMax = 10, surfaceY = -4, depth = 1 },
-            new() { xMin = 15, xMax = 20, surfaceY = -3, depth = 1 },
-            new() { xMin = 24, xMax = 28, surfaceY = -3, depth = 1 },
-            new() { xMin = 33, xMax = 38, surfaceY = -3, depth = 1 },
-            new() { xMin = 42, xMax = 47, surfaceY = -3, depth = 1 },
-            new() { xMin = 52, xMax = 56, surfaceY = -2, depth = 1 },
-            new() { xMin = 60, xMax = 64, surfaceY = -2, depth = 1 },
-            new() { xMin = 69, xMax = 74, surfaceY = -2, depth = 1 },
-            new() { xMin = 79, xMax = 84, surfaceY = -2, depth = 1 },
-            new() { xMin = 88, xMax = 93, surfaceY = -2, depth = 1 },
+            // Floating platform groups: short hops with alternating height to restore layered movement.
+            new() { xMin = -11, xMax = -9, surfaceY = -3, depth = 1 },
+            new() { xMin = -7, xMax = -5, surfaceY = -3, depth = 1 },
+            new() { xMin = -2, xMax = 0, surfaceY = -3, depth = 1 },
+            new() { xMin = 2, xMax = 4, surfaceY = -3, depth = 1 },
+            new() { xMin = 7, xMax = 9, surfaceY = -3, depth = 1 },
+            new() { xMin = 13, xMax = 15, surfaceY = -2, depth = 1 },
+            new() { xMin = 17, xMax = 19, surfaceY = -2, depth = 1 },
+            new() { xMin = 23, xMax = 26, surfaceY = -2, depth = 1 },
+            new() { xMin = 28, xMax = 30, surfaceY = -2, depth = 1 },
+            new() { xMin = 33, xMax = 35, surfaceY = -2, depth = 1 },
+            new() { xMin = 37, xMax = 39, surfaceY = -2, depth = 1 },
+            new() { xMin = 42, xMax = 44, surfaceY = -2, depth = 1 },
+            new() { xMin = 46, xMax = 48, surfaceY = -2, depth = 1 },
+            new() { xMin = 51, xMax = 53, surfaceY = -1, depth = 1 },
+            new() { xMin = 55, xMax = 57, surfaceY = -1, depth = 1 },
+            new() { xMin = 60, xMax = 62, surfaceY = -1, depth = 1 },
+            new() { xMin = 64, xMax = 66, surfaceY = -1, depth = 1 },
+            new() { xMin = 69, xMax = 71, surfaceY = -1, depth = 1 },
+            new() { xMin = 73, xMax = 75, surfaceY = -1, depth = 1 },
+            new() { xMin = 78, xMax = 80, surfaceY = -1, depth = 1 },
+            new() { xMin = 82, xMax = 84, surfaceY = -1, depth = 1 },
+            new() { xMin = 87, xMax = 89, surfaceY = -1, depth = 1 },
+            new() { xMin = 91, xMax = 93, surfaceY = -1, depth = 1 },
         };
 
         private static readonly PlatformSegment[] FoggyForestLayout =
         {
-            // Main forest floor: compact second-map route with small readable gaps and gentle rises.
+            // Act 1 - Forest trail: safe spawn, readable gaps, first upper hops.
             new() { xMin = -28, xMax = -16, surfaceY = -5, depth = 6 },
-            new() { xMin = -15, xMax = -2, surfaceY = -5, depth = 6 },
-            new() { xMin = -1, xMax = 10, surfaceY = -5, depth = 6 },
-            new() { xMin = 12, xMax = 23, surfaceY = -4, depth = 5 },
-            new() { xMin = 25, xMax = 36, surfaceY = -4, depth = 5 },
-            new() { xMin = 38, xMax = 49, surfaceY = -4, depth = 5 },
-            new() { xMin = 51, xMax = 62, surfaceY = -3, depth = 5 },
-            new() { xMin = 64, xMax = 78, surfaceY = -3, depth = 5 },
+            new() { xMin = -14, xMax = -4, surfaceY = -5, depth = 6 },
+            new() { xMin = -2, xMax = 8, surfaceY = -5, depth = 6 },
+            new() { xMin = -11, xMax = -9, surfaceY = -3, depth = 1 },
+            new() { xMin = -8, xMax = -6, surfaceY = -3, depth = 1 },
+            new() { xMin = -3, xMax = -1, surfaceY = -3, depth = 1 },
+            new() { xMin = 1, xMax = 3, surfaceY = -2, depth = 1 },
+            new() { xMin = 5, xMax = 7, surfaceY = -2, depth = 1 },
 
-            // Upper canopy route: short optional exploration path with beginner-friendly jumps.
-            new() { xMin = -12, xMax = -8, surfaceY = -3, depth = 1 },
-            new() { xMin = -4, xMax = 1, surfaceY = -3, depth = 1 },
-            new() { xMin = 6, xMax = 11, surfaceY = -3, depth = 1 },
-            new() { xMin = 16, xMax = 22, surfaceY = -2, depth = 1 },
-            new() { xMin = 28, xMax = 34, surfaceY = -2, depth = 1 },
-            new() { xMin = 42, xMax = 48, surfaceY = -1, depth = 1 },
-            new() { xMin = 56, xMax = 62, surfaceY = -1, depth = 1 },
+            // Act 2 - Canopy climb: floor rises while an upper route rewards exploration.
+            new() { xMin = 10, xMax = 20, surfaceY = -4, depth = 5 },
+            new() { xMin = 22, xMax = 32, surfaceY = -4, depth = 5 },
+            new() { xMin = 12, xMax = 14, surfaceY = -2, depth = 1 },
+            new() { xMin = 16, xMax = 18, surfaceY = -2, depth = 1 },
+            new() { xMin = 20, xMax = 22, surfaceY = -1, depth = 1 },
+            new() { xMin = 24, xMax = 26, surfaceY = -1, depth = 1 },
+            new() { xMin = 28, xMax = 30, surfaceY = -1, depth = 1 },
+
+            // Act 3 - Misty hollow: lower sunken path with a high-risk upper detour.
+            new() { xMin = 34, xMax = 42, surfaceY = -5, depth = 6 },
+            new() { xMin = 44, xMax = 52, surfaceY = -5, depth = 6 },
+            new() { xMin = 54, xMax = 62, surfaceY = -4, depth = 5 },
+            new() { xMin = 35, xMax = 37, surfaceY = -2, depth = 1 },
+            new() { xMin = 39, xMax = 41, surfaceY = -2, depth = 1 },
+            new() { xMin = 44, xMax = 46, surfaceY = -1, depth = 1 },
+            new() { xMin = 48, xMax = 50, surfaceY = -1, depth = 1 },
+            new() { xMin = 51, xMax = 59, surfaceY = -1, depth = 1 },
+
+            // Act 4 - Forest gate: stepped route up to the red chest alcove.
+            new() { xMin = 64, xMax = 72, surfaceY = -4, depth = 5 },
+            new() { xMin = 74, xMax = 82, surfaceY = -3, depth = 5 },
+            new() { xMin = 61, xMax = 63, surfaceY = -2, depth = 1 },
+            new() { xMin = 65, xMax = 67, surfaceY = -1, depth = 1 },
+            new() { xMin = 68, xMax = 70, surfaceY = 0, depth = 1 },
+            new() { xMin = 71, xMax = 73, surfaceY = 0, depth = 1 },
+            new() { xMin = 75, xMax = 77, surfaceY = 1, depth = 1 },
+            new() { xMin = 79, xMax = 81, surfaceY = 1, depth = 1 },
+
+            // Act 5 - Summit: short rest ledge then the final peak.
+            new() { xMin = 84, xMax = 90, surfaceY = -2, depth = 5 },
+            new() { xMin = 83, xMax = 85, surfaceY = 1, depth = 1 },
+            new() { xMin = 87, xMax = 89, surfaceY = 2, depth = 1 },
         };
 
         private static readonly PlatformSegment[] VolcanoCaveLayout =
         {
-            new() { xMin = -28, xMax = -17, surfaceY = -5, depth = 6 },
-            new() { xMin = -15, xMax = -4, surfaceY = -5, depth = 6 },
-            new() { xMin = -2, xMax = 8, surfaceY = -5, depth = 6 },
-            new() { xMin = 10, xMax = 20, surfaceY = -4, depth = 5 },
-            new() { xMin = 22, xMax = 32, surfaceY = -4, depth = 5 },
-            new() { xMin = 34, xMax = 45, surfaceY = -3, depth = 5 },
-            new() { xMin = 47, xMax = 58, surfaceY = -3, depth = 5 },
-            new() { xMin = 60, xMax = 72, surfaceY = -3, depth = 5 },
-            new() { xMin = 74, xMax = 88, surfaceY = -3, depth = 5 },
-            new() { xMin = 90, xMax = 106, surfaceY = -3, depth = 5 },
+            // Act 1 - Cave mouth: wider gaps than Foggy Forest.
+            new() { xMin = -28, xMax = -16, surfaceY = -5, depth = 8 },
+            new() { xMin = -13, xMax = -3, surfaceY = -5, depth = 8 },
+            new() { xMin = 0, xMax = 8, surfaceY = -5, depth = 8 },
+            new() { xMin = -10, xMax = -8, surfaceY = -3, depth = 1 },
+            new() { xMin = -6, xMax = -4, surfaceY = -3, depth = 1 },
+            new() { xMin = -1, xMax = 1, surfaceY = -2, depth = 1 },
 
-            new() { xMin = -10, xMax = -6, surfaceY = -4, depth = 1 },
-            new() { xMin = -1, xMax = 3, surfaceY = -4, depth = 1 },
-            new() { xMin = 7, xMax = 11, surfaceY = -3, depth = 1 },
-            new() { xMin = 16, xMax = 21, surfaceY = -3, depth = 1 },
-            new() { xMin = 27, xMax = 31, surfaceY = -2, depth = 1 },
-            new() { xMin = 39, xMax = 43, surfaceY = -2, depth = 1 },
-            new() { xMin = 52, xMax = 56, surfaceY = -2, depth = 1 },
-            new() { xMin = 66, xMax = 70, surfaceY = -2, depth = 1 },
-            new() { xMin = 81, xMax = 85, surfaceY = -2, depth = 1 },
-            new() { xMin = 97, xMax = 101, surfaceY = -2, depth = 1 },
+            // Act 2 - First lava flats.
+            new() { xMin = 11, xMax = 18, surfaceY = -4, depth = 7 },
+            new() { xMin = 21, xMax = 28, surfaceY = -4, depth = 7 },
+            new() { xMin = 12, xMax = 14, surfaceY = -2, depth = 1 },
+            new() { xMin = 17, xMax = 19, surfaceY = -2, depth = 1 },
+            new() { xMin = 22, xMax = 24, surfaceY = -1, depth = 1 },
+            new() { xMin = 26, xMax = 28, surfaceY = -1, depth = 1 },
+
+            // Act 3 - Deep heat: sunken floor and long upper detour.
+            new() { xMin = 32, xMax = 40, surfaceY = -5, depth = 8 },
+            new() { xMin = 43, xMax = 51, surfaceY = -5, depth = 8 },
+            new() { xMin = 54, xMax = 62, surfaceY = -4, depth = 7 },
+            new() { xMin = 33, xMax = 35, surfaceY = -2, depth = 1 },
+            new() { xMin = 38, xMax = 40, surfaceY = -2, depth = 1 },
+            new() { xMin = 44, xMax = 46, surfaceY = -1, depth = 1 },
+            new() { xMin = 49, xMax = 51, surfaceY = -1, depth = 1 },
+            new() { xMin = 53, xMax = 61, surfaceY = -1, depth = 1 },
+
+            // Act 4 - Magma gate: stepped climb to the red chest alcove.
+            new() { xMin = 66, xMax = 74, surfaceY = -4, depth = 7 },
+            new() { xMin = 78, xMax = 86, surfaceY = -3, depth = 7 },
+            new() { xMin = 63, xMax = 65, surfaceY = -2, depth = 1 },
+            new() { xMin = 67, xMax = 69, surfaceY = -1, depth = 1 },
+            new() { xMin = 70, xMax = 72, surfaceY = 0, depth = 1 },
+            new() { xMin = 75, xMax = 77, surfaceY = 0, depth = 1 },
+            new() { xMin = 79, xMax = 81, surfaceY = 0, depth = 1 },
+            new() { xMin = 83, xMax = 85, surfaceY = 1, depth = 1 },
+
+            // Act 5 - Caldera summit.
+            new() { xMin = 90, xMax = 98, surfaceY = -2, depth = 7 },
+            new() { xMin = 102, xMax = 110, surfaceY = -1, depth = 7 },
+            new() { xMin = 87, xMax = 89, surfaceY = 1, depth = 1 },
+            new() { xMin = 88, xMax = 88, surfaceY = -3, depth = 1 },
+            new() { xMin = 91, xMax = 93, surfaceY = 1, depth = 1 },
+            new() { xMin = 96, xMax = 98, surfaceY = 1, depth = 1 },
+            new() { xMin = 99, xMax = 100, surfaceY = 1, depth = 1 },
+            new() { xMin = 101, xMax = 103, surfaceY = 2, depth = 1 },
+            new() { xMin = 105, xMax = 107, surfaceY = 2, depth = 1 },
         };
 
         private void Start()
@@ -238,9 +405,17 @@ namespace MonsterTreasureHunt.Levels
             EnsureTilemapsAssigned();
             ClearDecorations();
 
-            if (selectedMap == MapTheme.FoggyForest)
+            if (selectedMap == MapTheme.BeginnerIsland)
+            {
+                PlaceDecorations();
+            }
+            else if (selectedMap == MapTheme.FoggyForest)
             {
                 PlaceFoggyForestDecorations();
+            }
+            else if (selectedMap == MapTheme.VolcanoCave)
+            {
+                PlaceVolcanoCaveDecorations();
             }
         }
 
@@ -279,26 +454,78 @@ namespace MonsterTreasureHunt.Levels
 
         private TileBase PickTile(bool isTop, bool isBottom, bool isLeft, bool isRight, bool singleColumn)
         {
+            if (selectedMap == MapTheme.VolcanoCave)
+            {
+                return PickTileFromTheme(
+                    isTop,
+                    isBottom,
+                    isLeft,
+                    isRight,
+                    singleColumn,
+                    stoneTopLeft != null ? stoneTopLeft : topLeft,
+                    stoneTopCenter != null ? stoneTopCenter : topCenter,
+                    stoneTopRight != null ? stoneTopRight : topRight,
+                    stoneCenter != null ? stoneCenter : center,
+                    stoneBottom != null ? stoneBottom : bottom,
+                    stoneBottomLeft != null ? stoneBottomLeft : bottomLeft,
+                    stoneBottomRight != null ? stoneBottomRight : bottomRight,
+                    stoneLeftEdge != null ? stoneLeftEdge : leftEdge,
+                    stoneRightEdge != null ? stoneRightEdge : rightEdge);
+            }
+
+            return PickTileFromTheme(
+                isTop,
+                isBottom,
+                isLeft,
+                isRight,
+                singleColumn,
+                topLeft,
+                topCenter,
+                topRight,
+                center,
+                bottom,
+                bottomLeft,
+                bottomRight,
+                leftEdge,
+                rightEdge);
+        }
+
+        private static TileBase PickTileFromTheme(
+            bool isTop,
+            bool isBottom,
+            bool isLeft,
+            bool isRight,
+            bool singleColumn,
+            TileBase themeTopLeft,
+            TileBase themeTopCenter,
+            TileBase themeTopRight,
+            TileBase themeCenter,
+            TileBase themeBottom,
+            TileBase themeBottomLeft,
+            TileBase themeBottomRight,
+            TileBase themeLeftEdge,
+            TileBase themeRightEdge)
+        {
             if (isTop)
             {
-                if (singleColumn) return topCenter;
-                if (isLeft) return topLeft;
-                if (isRight) return topRight;
-                return topCenter;
+                if (singleColumn) return themeTopCenter;
+                if (isLeft) return themeTopLeft;
+                if (isRight) return themeTopRight;
+                return themeTopCenter;
             }
 
             if (isBottom)
             {
-                if (singleColumn) return bottom;
-                if (isLeft) return bottomLeft;
-                if (isRight) return bottomRight;
-                return bottom;
+                if (singleColumn) return themeBottom;
+                if (isLeft) return themeBottomLeft;
+                if (isRight) return themeBottomRight;
+                return themeBottom;
             }
 
-            if (singleColumn) return center;
-            if (isLeft) return leftEdge;
-            if (isRight) return rightEdge;
-            return center;
+            if (singleColumn) return themeCenter;
+            if (isLeft) return themeLeftEdge;
+            if (isRight) return themeRightEdge;
+            return themeCenter;
         }
 
         private void PlaceDecorations()
@@ -306,47 +533,234 @@ namespace MonsterTreasureHunt.Levels
             if (decorationTilemap == null) return;
 
             SetSurfaceDecoration(-27, -5, signTile);
-            SetSurfaceDecoration(-20, -5, bushTile);
+            SetSurfaceDecoration(-21, -5, bushTile);
             SetSurfaceDecoration(-8, -5, rockTile);
-            SetSurfaceDecoration(4, -5, bushTile);
+            SetSurfaceDecoration(8, -5, bushTile);
             SetSurfaceDecoration(18, -4, bushTile);
-            SetSurfaceDecoration(31, -4, rockTile);
-            SetSurfaceDecoration(45, -4, bushTile);
-            SetSurfaceDecoration(58, -3, rockTile);
-            SetSurfaceDecoration(73, -3, signTile);
+            SetSurfaceDecoration(34, -4, rockTile);
+            SetSurfaceDecoration(48, -4, bushTile);
+            SetSurfaceDecoration(72, -3, rockTile);
+            SetSurfaceDecoration(91, -3, signTile);
 
             BuildWaterStrip(-36, -29, -7);
-            BuildWaterStrip(77, 86, -5);
+            BuildWaterStrip(105, 112, -5);
         }
 
         private void PlaceFoggyForestDecorations()
         {
             if (decorationTilemap == null) return;
 
-            SetSurfaceDecoration(-27, -5, signTile);
-            SetSurfaceDecoration(-21, -5, bushTile);
-            SetSurfaceDecoration(-13, -5, rockTile);
-            SetSurfaceDecoration(-5, -5, mushroomBrownTile);
-            SetSurfaceDecoration(4, -5, mushroomRedTile);
-            SetSurfaceDecoration(14, -4, bushTile);
-            SetSurfaceDecoration(22, -4, rockTile);
-            SetSurfaceDecoration(27, -4, fenceTile);
-            SetSurfaceDecoration(28, -4, fenceTile);
-            SetSurfaceDecoration(29, -4, fenceTile);
-            SetSurfaceDecoration(31, -4, mushroomBrownTile);
-            SetSurfaceDecoration(40, -4, bushTile);
-            SetSurfaceDecoration(47, -4, mushroomRedTile);
-            SetSurfaceDecoration(56, -3, rockTile);
-            SetSurfaceDecoration(66, -3, bushTile);
-            SetSurfaceDecoration(70, -3, fenceTile);
-            SetSurfaceDecoration(71, -3, fenceTile);
-            SetSurfaceDecoration(78, -3, mushroomRedTile);
+            // Act 1 trail markers.
+            SetSurfaceDecorationOnOpenGround(-27, -5, signTile);
+            SetSurfaceDecorationOnOpenGround(-22, -5, bushTile);
+            SetSurfaceDecorationOnOpenGround(-14, -5, rockTile);
+            SetSurfaceDecorationOnOpenGround(-10, -3, mushroomBrownTile);
+            SetSurfaceDecorationOnOpenGround(-5, -3, mushroomRedTile);
+            SetSurfaceDecorationOnOpenGround(2, -2, bushTile);
+
+            // Act 2 canopy framing.
+            SetSurfaceDecorationOnOpenGround(11, -4, bushTile);
+            SetSurfaceDecorationOnOpenGround(18, -4, rockTile);
+            SetSurfaceDecorationOnOpenGround(25, -1, mushroomBrownTile);
+            SetSurfaceDecorationOnOpenGround(29, -1, mushroomRedTile);
+
+            // Act 3 mist pits and risky detour cues.
+            BuildFoggyForestGapWater(9);
+            BuildFoggyForestGapBridge(21);
+            BuildFoggyForestGapWater(33);
+            BuildFoggyForestGapWater(43);
+            BuildFoggyForestGapWater(53);
+            SetSurfaceDecorationOnOpenGround(40, -2, mushroomBrownTile);
+            SetSurfaceDecorationOnOpenGround(45, -1, rockTile);
+            SetSurfaceDecorationOnOpenGround(58, -4, bushTile);
+
+            // Act 4 gate leading to the red chest alcove.
+            SetSurfaceDecorationOnOpenGround(64, -4, fenceTile);
+            SetSurfaceDecorationOnOpenGround(68, 0, fenceTile);
+            SetSurfaceDecorationOnOpenGround(69, 0, fenceTile);
+            SetSurfaceDecorationOnOpenGround(70, 0, fenceTile);
+            SetSurfaceDecorationOnOpenGround(76, 1, mushroomRedTile);
+
+            // Act 5 summit approach.
+            SetSurfaceDecorationOnOpenGround(80, -3, signTile);
+            SetSurfaceDecorationOnOpenGround(84, 1, bushTile);
+            SetSurfaceDecorationOnOpenGround(87, 2, mushroomRedTile);
+            SetSurfaceDecorationOnOpenGround(89, 2, mushroomBrownTile);
+
+            // Later gaps and map boundaries.
+            BuildFoggyForestGapWater(73);
+            BuildFoggyForestGapWater(83);
+            BuildBoundaryWater(-36, -29, -5);
+            BuildBoundaryWater(92, 98, -2);
+        }
+
+        private void BuildFoggyForestGapWater(int gapX)
+        {
+            if (HasOpenGroundAt(gapX)) return;
+
+            BuildGapWater(gapX);
+        }
+
+        private void BuildFoggyForestGapBridge(int gapX)
+        {
+            BuildGapBridge(gapX, bridgeTile);
+        }
+
+        private void PlaceVolcanoCaveDecorations()
+        {
+            if (decorationTilemap == null) return;
+
+            BuildVolcanoGapLava(-15, -14);
+            BuildVolcanoGapLava(-2, -1);
+            BuildVolcanoGapLava(9);
+            BuildVolcanoGapLava(19, 20);
+            BuildVolcanoGapLava(29, 31);
+            BuildVolcanoGapLava(41, 43);
+            BuildVolcanoGapLava(47, 48);
+            BuildVolcanoGapLava(52);
+            BuildVolcanoGapLava(75, 76);
+            BuildVolcanoBridgedPitLava(99, 101);
+            BuildBoundaryLava(-36, -29, -5);
+            BuildBoundaryLava(111, 118, -2);
+
+            SetSurfaceDecorationOnOpenGround(-25, -5, torchTile);
+            SetSurfaceDecorationOnOpenGround(-4, -5, torchTile);
+            SetSurfaceDecorationOnOpenGround(14, -4, torchTile);
+            SetSurfaceDecorationOnOpenGround(36, -5, torchTile);
+            SetSurfaceDecorationOnOpenGround(58, -4, torchTile);
+            SetSurfaceDecorationOnOpenGround(70, 0, torchTile);
+            SetSurfaceDecorationOnOpenGround(94, -2, torchTile);
+            SetSurfaceDecorationOnOpenGround(106, 2, torchTile);
+        }
+
+        private void BuildVolcanoGapLava(int gapXMin, int gapXMax = int.MinValue)
+        {
+            if (gapXMax == int.MinValue)
+            {
+                gapXMax = gapXMin;
+            }
+
+            for (int gapX = gapXMin; gapX <= gapXMax; gapX++)
+            {
+                if (HasOpenGroundAt(gapX)) return;
+            }
+
+            if (TryGetGapEdgeFloatingSurfaces(gapXMin, gapXMax, out int leftFloatingY, out int rightFloatingY))
+            {
+                int lavaTopY = Mathf.Min(leftFloatingY, rightFloatingY) - 1;
+                BuildLavaStrip(gapXMin, gapXMax, lavaTopY, 3);
+                return;
+            }
+
+            if (!TryGetGapEdgeMainFloorSurfaces(gapXMin, gapXMax, out int leftMainY, out int rightMainY)) return;
+
+            int mainPitLavaTopY = Mathf.Min(leftMainY, rightMainY) - 2;
+            BuildLavaStrip(gapXMin, gapXMax, mainPitLavaTopY, 4);
+        }
+
+        private void BuildVolcanoBridgedPitLava(int gapXMin, int gapXMax)
+        {
+            if (!TryGetGapEdgeMainFloorSurfaces(gapXMin, gapXMax, out int leftMainY, out int rightMainY)) return;
+
+            int lavaTopY = Mathf.Min(leftMainY, rightMainY) - 2;
+            BuildLavaStrip(gapXMin, gapXMax, lavaTopY, 4);
+        }
+
+        private bool TryGetGapEdgeFloatingSurfaces(int gapXMin, int gapXMax, out int leftSurfaceY, out int rightSurfaceY)
+        {
+            leftSurfaceY = int.MinValue;
+            rightSurfaceY = int.MinValue;
+
+            bool hasLeft = TryGetHighestFloatingSurfaceAt(gapXMin - 1, out leftSurfaceY);
+            bool hasRight = TryGetHighestFloatingSurfaceAt(gapXMax + 1, out rightSurfaceY);
+            return hasLeft && hasRight;
+        }
+
+        private bool TryGetGapEdgeMainFloorSurfaces(int gapXMin, int gapXMax, out int leftSurfaceY, out int rightSurfaceY)
+        {
+            if (!TryGetMainFloorSurfaceAt(gapXMin - 1, out leftSurfaceY)) return false;
+
+            for (int cellX = gapXMax + 1; cellX <= gapXMax + 8; cellX++)
+            {
+                if (TryGetMainFloorSurfaceAt(cellX, out rightSurfaceY)) return true;
+            }
+
+            return false;
+        }
+
+        private bool TryGetMainFloorSurfaceAt(int cellX, out int surfaceY)
+        {
+            surfaceY = int.MaxValue;
+            bool found = false;
+            PlatformSegment[] layout = GetLayoutForSelectedMap();
+
+            foreach (PlatformSegment segment in layout)
+            {
+                if (segment.depth <= 1) continue;
+                if (cellX < segment.xMin || cellX > segment.xMax) continue;
+                if (!IsSurfaceOpen(cellX, segment.surfaceY)) continue;
+
+                if (!found || segment.surfaceY < surfaceY)
+                {
+                    surfaceY = segment.surfaceY;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
+        private bool TryGetHighestFloatingSurfaceAt(int cellX, out int surfaceY)
+        {
+            surfaceY = int.MinValue;
+            bool found = false;
+            PlatformSegment[] layout = GetLayoutForSelectedMap();
+
+            foreach (PlatformSegment segment in layout)
+            {
+                if (segment.depth != 1) continue;
+                if (cellX < segment.xMin || cellX > segment.xMax) continue;
+                if (!IsSurfaceOpen(cellX, segment.surfaceY)) continue;
+
+                if (!found || segment.surfaceY > surfaceY)
+                {
+                    surfaceY = segment.surfaceY;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
+        private void BuildBoundaryLava(int xMin, int xMax, int adjacentSurfaceY)
+        {
+            BuildLavaStrip(xMin, xMax, adjacentSurfaceY - 2, 4);
+        }
+
+        private void SetGroundDecorationOnOpenGround(int cellX, int preferredSurfaceY, TileBase tile)
+        {
+            if (tile == null || decorationTilemap == null) return;
+
+            int surfaceY = ResolveOpenSurfaceY(cellX, preferredSurfaceY);
+            if (!IsSurfaceOpen(cellX, surfaceY)) return;
+
+            SetGroundDecoration(cellX, surfaceY, tile);
         }
 
         private void BuildWaterStrip(int xMin, int xMax, int topY)
         {
             BuildDecorationLine(xMin, xMax, topY, waterTopTile);
             BuildDecorationLine(xMin, xMax, topY - 1, waterTile);
+        }
+
+        private void BuildLavaStrip(int xMin, int xMax, int topY, int depth = 2)
+        {
+            BuildDecorationLine(xMin, xMax, topY, lavaTopTile);
+
+            for (int layer = 1; layer <= Mathf.Max(1, depth - 1); layer++)
+            {
+                BuildDecorationLine(xMin, xMax, topY - layer, lavaTile);
+            }
         }
 
         private void BuildDecorationLine(int xMin, int xMax, int y, TileBase tile)
@@ -362,6 +776,86 @@ namespace MonsterTreasureHunt.Levels
             SetDecoration(x, surfaceY + 1, tile);
         }
 
+        private void SetSurfaceDecorationOnOpenGround(int cellX, int preferredSurfaceY, TileBase tile)
+        {
+            if (tile == null || decorationTilemap == null) return;
+
+            int surfaceY = ResolveOpenSurfaceY(cellX, preferredSurfaceY);
+            if (!IsSurfaceOpen(cellX, surfaceY)) return;
+
+            SetSurfaceDecoration(cellX, surfaceY, tile);
+        }
+
+        private void BuildGapWater(int gapX)
+        {
+            if (!TryGetAdjacentPlatformSurfaces(gapX, out int leftSurfaceY, out int rightSurfaceY)) return;
+
+            int pitSurfaceY = Mathf.Min(leftSurfaceY, rightSurfaceY);
+            BuildWaterStrip(gapX, gapX, pitSurfaceY - 2);
+        }
+
+        private void BuildBoundaryWater(int xMin, int xMax, int adjacentSurfaceY)
+        {
+            BuildWaterStrip(xMin, xMax, adjacentSurfaceY - 2);
+        }
+
+        private bool HasOpenGroundAt(int cellX)
+        {
+            PlatformSegment[] layout = GetLayoutForSelectedMap();
+
+            foreach (PlatformSegment segment in layout)
+            {
+                if (cellX < segment.xMin || cellX > segment.xMax) continue;
+                if (IsSurfaceOpen(cellX, segment.surfaceY)) return true;
+            }
+
+            return false;
+        }
+
+        private void BuildGapBridge(int gapX, TileBase tile)
+        {
+            if (tile == null || !TryGetAdjacentPlatformSurfaces(gapX, out int leftSurfaceY, out int rightSurfaceY)) return;
+
+            int bridgeSurfaceY = Mathf.Max(leftSurfaceY, rightSurfaceY);
+            SetSurfaceDecoration(gapX, bridgeSurfaceY, tile);
+        }
+
+        private bool TryGetAdjacentPlatformSurfaces(int gapX, out int leftSurfaceY, out int rightSurfaceY)
+        {
+            leftSurfaceY = int.MinValue;
+            rightSurfaceY = int.MinValue;
+
+            if (!TryGetHighestOpenSurfaceAt(gapX - 1, ref leftSurfaceY)) return false;
+            if (!TryGetHighestOpenSurfaceAt(gapX + 1, ref rightSurfaceY)) return false;
+
+            return true;
+        }
+
+        private bool TryGetHighestOpenSurfaceAt(int cellX, ref int highestSurfaceY)
+        {
+            bool found = false;
+            PlatformSegment[] layout = GetLayoutForSelectedMap();
+
+            foreach (PlatformSegment segment in layout)
+            {
+                if (cellX < segment.xMin || cellX > segment.xMax) continue;
+                if (!IsSurfaceOpen(cellX, segment.surfaceY)) continue;
+
+                if (!found || segment.surfaceY > highestSurfaceY)
+                {
+                    highestSurfaceY = segment.surfaceY;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
+
+        private void SetGroundDecoration(int x, int surfaceY, TileBase tile)
+        {
+            SetDecoration(x, surfaceY, tile);
+        }
+
         private void SetDecoration(int x, int y, TileBase tile)
         {
             if (tile == null) return;
@@ -375,7 +869,8 @@ namespace MonsterTreasureHunt.Levels
             PlacePlayerSpawn();
             PlaceTreasure();
             BuildHealthPickups();
-            BuildKeyPickup();
+            BuildKeyPickups();
+            BuildSpikeHazards();
         }
 
         public void SelectMap(MapTheme map)
@@ -404,13 +899,68 @@ namespace MonsterTreasureHunt.Levels
         [ContextMenu("Place Selected Map Treasure")]
         public void PlaceTreasure()
         {
-            GetPlacementForSelectedMap(out _, out _, out int treasureCellX, out int treasureSurfaceY);
-            if (!TryGetSurfaceWorldPosition(treasureCellX, treasureSurfaceY, out Vector3 treasureWorld)) return;
+            BuildTreasures();
+        }
+
+        [ContextMenu("Build Treasures")]
+        public void BuildTreasures()
+        {
+            ClearGeneratedTreasures();
+
+            ColoredPlacement[] placements = GetTreasurePlacementsForSelectedMap();
+            if (placements.Length == 0) return;
 
             if (treasure != null)
             {
-                treasure.position = treasureWorld;
+                treasure.gameObject.SetActive(false);
             }
+
+            for (int i = 0; i < placements.Length; i++)
+            {
+                ColoredPlacement placement = placements[i];
+                if (!TryGetItemWorldPosition(placement.cellX, placement.surfaceY, treasureHeightOffset, out Vector3 worldPosition)) continue;
+
+                CreateTreasure(i + 1, placement.color, worldPosition);
+            }
+        }
+
+        [ContextMenu("Clear Generated Treasures")]
+        public void ClearGeneratedTreasures()
+        {
+            Transform parent = GetTreasureParent();
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = parent.GetChild(i);
+                if (child == null || !child.name.StartsWith("TreasureChest_", StringComparison.Ordinal)) continue;
+
+                DestroyGeneratedChild(child.gameObject);
+            }
+        }
+
+        private void CreateTreasure(int index, TreasureKeyColor color, Vector3 worldPosition)
+        {
+            GameObject treasureObject = new GameObject($"TreasureChest_{TreasureKeyColorUtility.GetDisplayName(color)}_{index:00}");
+            treasureObject.tag = "Treasure";
+            treasureObject.transform.SetParent(GetTreasureParent(), true);
+            treasureObject.transform.position = worldPosition;
+            treasureObject.transform.localScale = Vector3.one * treasureVisualScale;
+
+            SpriteRenderer bodyRenderer = treasureObject.AddComponent<SpriteRenderer>();
+            Sprite lockSprite = GetChestLockSprite(color);
+            Sprite chestSprite = lockSprite != null ? lockSprite : GetChestBodySprite(color);
+            bodyRenderer.sprite = chestSprite;
+            bodyRenderer.sortingOrder = treasureSortingOrder;
+
+            BoxCollider2D collider = treasureObject.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            collider.size = treasureColliderSize / Mathf.Max(0.01f, treasureVisualScale);
+            collider.offset = treasureColliderOffset / Mathf.Max(0.01f, treasureVisualScale);
+
+            TreasureCollectible collectible = treasureObject.AddComponent<TreasureCollectible>();
+            collectible.ConfigureKeyRequirement(color);
+
+            collectible.ConfigureTrigger(treasureColliderSize / Mathf.Max(0.01f, treasureVisualScale), treasureColliderOffset / Mathf.Max(0.01f, treasureVisualScale));
+            collectible.ConfigureUnlockEffect(treasureUnlockEffectSprite);
         }
 
         [ContextMenu("Build Health Pickups")]
@@ -439,14 +989,7 @@ namespace MonsterTreasureHunt.Levels
                 Transform child = parent.GetChild(i);
                 if (child != null && child.name.StartsWith("HealthPickup_", StringComparison.Ordinal))
                 {
-                    if (Application.isPlaying)
-                    {
-                        Destroy(child.gameObject);
-                    }
-                    else
-                    {
-                        DestroyImmediate(child.gameObject);
-                    }
+                    DestroyGeneratedChild(child.gameObject);
                 }
             }
         }
@@ -472,26 +1015,44 @@ namespace MonsterTreasureHunt.Levels
         [ContextMenu("Build Key Pickup")]
         public void BuildKeyPickup()
         {
+            BuildKeyPickups();
+        }
+
+        [ContextMenu("Build Key Pickups")]
+        public void BuildKeyPickups()
+        {
             ClearKeyPickups();
-            if (keyPickupSprite == null) return;
 
-            Vector2Int placement = GetKeyPickupPlacementForSelectedMap();
-            if (!TryGetItemWorldPosition(placement.x, placement.y, keyPickupHeightOffset, out Vector3 worldPosition)) return;
+            ColoredPlacement[] placements = GetKeyPlacementsForSelectedMap();
+            for (int i = 0; i < placements.Length; i++)
+            {
+                ColoredPlacement placement = placements[i];
+                Sprite keySprite = GetKeyPickupSprite(placement.color);
+                if (keySprite == null) continue;
+                if (!TryGetItemWorldPosition(placement.cellX, placement.surfaceY, keyPickupHeightOffset, out Vector3 worldPosition)) continue;
 
-            GameObject pickupObject = new GameObject("KeyPickup_Yellow");
+                CreateKeyPickup(i + 1, placement.color, keySprite, worldPosition);
+            }
+        }
+
+        private void CreateKeyPickup(int index, TreasureKeyColor color, Sprite keySprite, Vector3 worldPosition)
+        {
+            string colorName = TreasureKeyColorUtility.GetDisplayName(color);
+            GameObject pickupObject = new GameObject($"KeyPickup_{colorName}_{index:00}");
             pickupObject.transform.SetParent(GetKeyPickupParent(), true);
             pickupObject.transform.position = worldPosition;
             pickupObject.transform.localScale = Vector3.one * keyPickupVisualScale;
 
             SpriteRenderer renderer = pickupObject.AddComponent<SpriteRenderer>();
-            renderer.sprite = keyPickupSprite;
+            renderer.sprite = keySprite;
             renderer.sortingOrder = keyPickupSortingOrder;
 
             BoxCollider2D collider = pickupObject.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
             collider.size = keyPickupColliderSize / Mathf.Max(0.01f, keyPickupVisualScale);
 
-            pickupObject.AddComponent<KeyPickup>();
+            KeyPickup keyPickup = pickupObject.AddComponent<KeyPickup>();
+            keyPickup.KeyColor = color;
         }
 
         [ContextMenu("Clear Key Pickups")]
@@ -503,14 +1064,114 @@ namespace MonsterTreasureHunt.Levels
                 Transform child = parent.GetChild(i);
                 if (child == null || !child.name.StartsWith("KeyPickup_", StringComparison.Ordinal)) continue;
 
-                if (Application.isPlaying)
-                {
-                    Destroy(child.gameObject);
-                }
-                else
-                {
-                    DestroyImmediate(child.gameObject);
-                }
+                DestroyGeneratedChild(child.gameObject);
+            }
+        }
+
+        [ContextMenu("Build Spike Hazards")]
+        public void BuildSpikeHazards()
+        {
+            ClearSpikeHazards();
+
+            if (selectedMap != MapTheme.VolcanoCave) return;
+
+            Sprite spikeSprite = GetSpikeSprite();
+            if (spikeSprite == null) return;
+
+            for (int i = 0; i < VolcanoSpikePlacements.Length; i++)
+            {
+                Vector2Int placement = VolcanoSpikePlacements[i];
+                if (!IsUpperRouteSurface(placement.x, placement.y)) continue;
+                if (!TryGetItemWorldPosition(placement.x, placement.y, 0.02f, out Vector3 worldPosition)) continue;
+
+                CreateSpikeHazard(i + 1, placement.x, placement.y, spikeSprite, worldPosition);
+            }
+        }
+
+        [ContextMenu("Clear Spike Hazards")]
+        public void ClearSpikeHazards()
+        {
+            Transform parent = GetSpikeHazardParent();
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = parent.GetChild(i);
+                if (child == null || !child.name.StartsWith("SpikeHazard_", StringComparison.Ordinal)) continue;
+
+                DestroyGeneratedChild(child.gameObject);
+            }
+        }
+
+        private void CreateSpikeHazard(int index, int cellX, int surfaceY, Sprite spikeSprite, Vector3 worldPosition)
+        {
+            GameObject spikeObject = new GameObject($"SpikeHazard_{cellX}_{surfaceY}_{index:00}");
+            spikeObject.transform.SetParent(GetSpikeHazardParent(), true);
+            spikeObject.transform.position = worldPosition;
+
+            SpriteRenderer renderer = spikeObject.AddComponent<SpriteRenderer>();
+            renderer.sprite = spikeSprite;
+            renderer.sortingOrder = spikeSortingOrder;
+
+            BoxCollider2D collider = spikeObject.AddComponent<BoxCollider2D>();
+            collider.isTrigger = true;
+            collider.size = spikeColliderSize;
+            collider.offset = spikeColliderOffset;
+
+            spikeObject.AddComponent<SpikeHazard>();
+        }
+
+        private Sprite GetSpikeSprite()
+        {
+            if (spikesTile is Tile tile && tile.sprite != null)
+            {
+                return tile.sprite;
+            }
+
+            return null;
+        }
+
+        private bool IsUpperRouteSurface(int cellX, int surfaceY)
+        {
+            PlatformSegment[] layout = GetLayoutForSelectedMap();
+
+            foreach (PlatformSegment segment in layout)
+            {
+                if (cellX < segment.xMin || cellX > segment.xMax) continue;
+                if (segment.depth != 1 || segment.surfaceY != surfaceY) continue;
+                if (IsSurfaceOpen(cellX, surfaceY)) return true;
+            }
+
+            return false;
+        }
+
+        private Transform GetSpikeHazardParent()
+        {
+            if (spikeHazardParent != null) return spikeHazardParent;
+
+            Transform existing = transform.Find("SpikeHazards");
+            if (existing != null)
+            {
+                spikeHazardParent = existing;
+                return spikeHazardParent;
+            }
+
+            GameObject parentObject = new GameObject("SpikeHazards");
+            spikeHazardParent = parentObject.transform;
+            spikeHazardParent.SetParent(transform, false);
+            return spikeHazardParent;
+        }
+
+        private void DestroyGeneratedChild(GameObject child)
+        {
+            if (child == null) return;
+
+            child.SetActive(false);
+            if (Application.isPlaying)
+            {
+                Destroy(child);
+            }
+            else
+            {
+                DestroyImmediate(child);
             }
         }
 
@@ -620,6 +1281,23 @@ namespace MonsterTreasureHunt.Levels
             return keyPickupParent;
         }
 
+        private Transform GetTreasureParent()
+        {
+            if (treasureParent != null) return treasureParent;
+
+            Transform existing = transform.Find("Treasures");
+            if (existing != null)
+            {
+                treasureParent = existing;
+                return treasureParent;
+            }
+
+            GameObject parentObject = new GameObject("Treasures");
+            treasureParent = parentObject.transform;
+            treasureParent.SetParent(transform, false);
+            return treasureParent;
+        }
+
         private void EnsureTilemapsAssigned()
         {
             if (groundTilemap != null && decorationTilemap != null) return;
@@ -659,7 +1337,9 @@ namespace MonsterTreasureHunt.Levels
 
         private bool SelectedMapUsesDecorations()
         {
-            return selectedMap == MapTheme.FoggyForest;
+            return selectedMap == MapTheme.BeginnerIsland ||
+                   selectedMap == MapTheme.FoggyForest ||
+                   selectedMap == MapTheme.VolcanoCave;
         }
 
         private void GetPlacementForSelectedMap(out int spawnCellX, out int spawnSurfaceY, out int treasureCellX, out int treasureSurfaceY)
@@ -688,14 +1368,15 @@ namespace MonsterTreasureHunt.Levels
                 case MapTheme.FoggyForest:
                     return new[]
                     {
-                        new Vector2Int(34, -4),
-                        new Vector2Int(52, -3),
+                        new Vector2Int(30, -4),
+                        new Vector2Int(66, -4),
                     };
                 case MapTheme.VolcanoCave:
                     return new[]
                     {
-                        new Vector2Int(24, -4),
-                        new Vector2Int(76, -3),
+                        new Vector2Int(28, -4),
+                        new Vector2Int(60, -4),
+                        new Vector2Int(82, -3),
                     };
                 default:
                     return new[]
@@ -706,16 +1387,74 @@ namespace MonsterTreasureHunt.Levels
             }
         }
 
-        private Vector2Int GetKeyPickupPlacementForSelectedMap()
+        private ColoredPlacement[] GetTreasurePlacementsForSelectedMap()
         {
             switch (selectedMap)
             {
                 case MapTheme.FoggyForest:
-                    return new Vector2Int(46, -4);
+                    return FoggyForestTreasurePlacements;
                 case MapTheme.VolcanoCave:
-                    return new Vector2Int(62, -3);
+                    return VolcanoCaveTreasurePlacements;
                 default:
-                    return new Vector2Int(66, -3);
+                    return BeginnerTreasurePlacements;
+            }
+        }
+
+        private ColoredPlacement[] GetKeyPlacementsForSelectedMap()
+        {
+            switch (selectedMap)
+            {
+                case MapTheme.FoggyForest:
+                    return FoggyForestKeyPlacements;
+                case MapTheme.VolcanoCave:
+                    return VolcanoCaveKeyPlacements;
+                default:
+                    return BeginnerKeyPlacements;
+            }
+        }
+
+        private Sprite GetKeyPickupSprite(TreasureKeyColor color)
+        {
+            switch (color)
+            {
+                case TreasureKeyColor.Red:
+                    return redKeyPickupSprite != null ? redKeyPickupSprite : keyPickupSprite;
+                case TreasureKeyColor.Green:
+                    return greenKeyPickupSprite != null ? greenKeyPickupSprite : keyPickupSprite;
+                case TreasureKeyColor.Blue:
+                    return blueKeyPickupSprite != null ? blueKeyPickupSprite : keyPickupSprite;
+                default:
+                    return keyPickupSprite;
+            }
+        }
+
+        private Sprite GetChestBodySprite(TreasureKeyColor color)
+        {
+            switch (color)
+            {
+                case TreasureKeyColor.Red:
+                    return redChestBodySprite != null ? redChestBodySprite : yellowChestBodySprite;
+                case TreasureKeyColor.Green:
+                    return greenChestBodySprite != null ? greenChestBodySprite : yellowChestBodySprite;
+                case TreasureKeyColor.Blue:
+                    return blueChestBodySprite != null ? blueChestBodySprite : yellowChestBodySprite;
+                default:
+                    return yellowChestBodySprite;
+            }
+        }
+
+        private Sprite GetChestLockSprite(TreasureKeyColor color)
+        {
+            switch (color)
+            {
+                case TreasureKeyColor.Red:
+                    return redChestLockSprite != null ? redChestLockSprite : yellowChestLockSprite;
+                case TreasureKeyColor.Green:
+                    return greenChestLockSprite != null ? greenChestLockSprite : yellowChestLockSprite;
+                case TreasureKeyColor.Blue:
+                    return blueChestLockSprite != null ? blueChestLockSprite : yellowChestLockSprite;
+                default:
+                    return yellowChestLockSprite;
             }
         }
 

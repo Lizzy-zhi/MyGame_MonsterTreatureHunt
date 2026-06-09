@@ -3,6 +3,8 @@ using UnityEngine.UIElements;
 using MonsterTreasureHunt.Gameplay;
 using MonsterTreasureHunt.Levels;
 using MonsterTreasureHunt.Player;
+using MonsterTreasureHunt.CameraSystem;
+using System;
 
 namespace MonsterTreasureHunt.UI
 {
@@ -40,8 +42,18 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private string[] lifeHeartNames = { "LifeHeart1", "LifeHeart2", "LifeHeart3" };
         [SerializeField] private string inventoryButtonName = "InventoryButton";
         [SerializeField] private string inventoryPanelName = "InventoryPanel";
-        [SerializeField] private string inventoryKeyIconName = "InventoryKeyIcon";
-        [SerializeField] private string inventoryKeyLabelName = "InventoryKeyLabel";
+        [SerializeField] private string inventoryYellowKeyRowName = "InventoryYellowKeyRow";
+        [SerializeField] private string inventoryYellowKeyIconName = "InventoryYellowKeyIcon";
+        [SerializeField] private string inventoryYellowKeyLabelName = "InventoryYellowKeyLabel";
+        [SerializeField] private string inventoryRedKeyRowName = "InventoryRedKeyRow";
+        [SerializeField] private string inventoryRedKeyIconName = "InventoryRedKeyIcon";
+        [SerializeField] private string inventoryRedKeyLabelName = "InventoryRedKeyLabel";
+        [SerializeField] private string inventoryGreenKeyRowName = "InventoryGreenKeyRow";
+        [SerializeField] private string inventoryGreenKeyIconName = "InventoryGreenKeyIcon";
+        [SerializeField] private string inventoryGreenKeyLabelName = "InventoryGreenKeyLabel";
+        [SerializeField] private string inventoryBlueKeyRowName = "InventoryBlueKeyRow";
+        [SerializeField] private string inventoryBlueKeyIconName = "InventoryBlueKeyIcon";
+        [SerializeField] private string inventoryBlueKeyLabelName = "InventoryBlueKeyLabel";
         [SerializeField] private string chestLockedMessageName = "ChestLockedMessage";
         [SerializeField] private string victoryPanelName = "VictoryPanel";
         [SerializeField] private string victoryMessageName = "VictoryMessage";
@@ -50,6 +62,7 @@ namespace MonsterTreasureHunt.UI
         [Header("Level")]
         [SerializeField] private IslandLevelController levelController;
         [SerializeField] private IslandMapBuilder mapBuilder;
+        [SerializeField] private CameraFollow2D cameraFollow;
         [SerializeField] private PlayerMovement playerMovement;
         [SerializeField] private PlayerHealth playerHealth;
         [SerializeField] private PlayerInventory playerInventory;
@@ -63,7 +76,10 @@ namespace MonsterTreasureHunt.UI
         [Header("Lives HUD")]
         [SerializeField] private Sprite fullHeartSprite;
         [SerializeField] private Sprite emptyHeartSprite;
-        [SerializeField] private Sprite inventoryKeySprite;
+        [SerializeField] private Sprite yellowInventoryKeySprite;
+        [SerializeField] private Sprite redInventoryKeySprite;
+        [SerializeField] private Sprite greenInventoryKeySprite;
+        [SerializeField] private Sprite blueInventoryKeySprite;
 
         [Header("Purple Skin")]
         [SerializeField] private Sprite purpleIdleSprite;
@@ -130,8 +146,18 @@ namespace MonsterTreasureHunt.UI
         private Image[] lifeHearts;
         private Button inventoryButton;
         private VisualElement inventoryPanel;
-        private Image inventoryKeyIcon;
-        private Label inventoryKeyLabel;
+        private VisualElement inventoryYellowKeyRow;
+        private Image inventoryYellowKeyIcon;
+        private Label inventoryYellowKeyLabel;
+        private VisualElement inventoryRedKeyRow;
+        private Image inventoryRedKeyIcon;
+        private Label inventoryRedKeyLabel;
+        private VisualElement inventoryGreenKeyRow;
+        private Image inventoryGreenKeyIcon;
+        private Label inventoryGreenKeyLabel;
+        private VisualElement inventoryBlueKeyRow;
+        private Image inventoryBlueKeyIcon;
+        private Label inventoryBlueKeyLabel;
         private Label chestLockedMessage;
         private VisualElement victoryPanel;
         private Label victoryMessage;
@@ -148,6 +174,7 @@ namespace MonsterTreasureHunt.UI
         private bool healthCallbacksRegistered;
         private bool inventoryCallbacksRegistered;
         private bool treasureCallbacksRegistered;
+        private TreasureCollectible[] observedTreasures = Array.Empty<TreasureCollectible>();
         private float hideLockedMessageAt;
         private IslandMapBuilder.MapTheme pendingMap = IslandMapBuilder.MapTheme.BeginnerIsland;
         private bool mapChosen;
@@ -161,9 +188,9 @@ namespace MonsterTreasureHunt.UI
             "Press Space to jump over small steps.\n" +
             "Follow the scent arrow when the treasure is off screen.\n" +
             "You have three lives. Falling costs one life and returns you to safe ground.\n" +
-            "Find the yellow key before opening the treasure chest.\n" +
+            "Find matching colored keys before opening colored treasure chests.\n" +
             "Press I to view the items collected this round.\n" +
-            "Reach the treasure chest at the far right side of the island.";
+            "Unlock every treasure chest to clear the island.";
 
         private struct SkinChoice
         {
@@ -240,8 +267,18 @@ namespace MonsterTreasureHunt.UI
             lifeHearts = BuildLifeHeartElements(root);
             inventoryButton = root.Q<Button>(inventoryButtonName);
             inventoryPanel = root.Q<VisualElement>(inventoryPanelName);
-            inventoryKeyIcon = root.Q<Image>(inventoryKeyIconName);
-            inventoryKeyLabel = root.Q<Label>(inventoryKeyLabelName);
+            inventoryYellowKeyRow = root.Q<VisualElement>(inventoryYellowKeyRowName);
+            inventoryYellowKeyIcon = root.Q<Image>(inventoryYellowKeyIconName);
+            inventoryYellowKeyLabel = root.Q<Label>(inventoryYellowKeyLabelName);
+            inventoryRedKeyRow = root.Q<VisualElement>(inventoryRedKeyRowName);
+            inventoryRedKeyIcon = root.Q<Image>(inventoryRedKeyIconName);
+            inventoryRedKeyLabel = root.Q<Label>(inventoryRedKeyLabelName);
+            inventoryGreenKeyRow = root.Q<VisualElement>(inventoryGreenKeyRowName);
+            inventoryGreenKeyIcon = root.Q<Image>(inventoryGreenKeyIconName);
+            inventoryGreenKeyLabel = root.Q<Label>(inventoryGreenKeyLabelName);
+            inventoryBlueKeyRow = root.Q<VisualElement>(inventoryBlueKeyRowName);
+            inventoryBlueKeyIcon = root.Q<Image>(inventoryBlueKeyIconName);
+            inventoryBlueKeyLabel = root.Q<Label>(inventoryBlueKeyLabelName);
             chestLockedMessage = root.Q<Label>(chestLockedMessageName);
             victoryPanel = root.Q<VisualElement>(victoryPanelName);
             victoryMessage = root.Q<Label>(victoryMessageName);
@@ -269,6 +306,11 @@ namespace MonsterTreasureHunt.UI
             if (mapBuilder == null)
             {
                 mapBuilder = FindObjectOfType<IslandMapBuilder>();
+            }
+
+            if (cameraFollow == null)
+            {
+                cameraFollow = FindObjectOfType<CameraFollow2D>();
             }
 
             if (playerMovement == null)
@@ -440,6 +482,7 @@ namespace MonsterTreasureHunt.UI
             if (playerHealth == null || healthCallbacksRegistered) return;
 
             playerHealth.HealthChanged += HandleHealthChanged;
+            playerHealth.Damaged += HandlePlayerDamaged;
             healthCallbacksRegistered = true;
         }
 
@@ -448,6 +491,7 @@ namespace MonsterTreasureHunt.UI
             if (playerHealth == null || !healthCallbacksRegistered) return;
 
             playerHealth.HealthChanged -= HandleHealthChanged;
+            playerHealth.Damaged -= HandlePlayerDamaged;
             healthCallbacksRegistered = false;
         }
 
@@ -469,18 +513,51 @@ namespace MonsterTreasureHunt.UI
 
         private void RegisterTreasureCallbacks()
         {
-            if (treasure == null || treasureCallbacksRegistered) return;
+            if (treasureCallbacksRegistered) return;
 
-            treasure.Locked += HandleTreasureLocked;
+            observedTreasures = FindObjectsOfType<TreasureCollectible>(false);
+            if ((observedTreasures == null || observedTreasures.Length == 0) && treasure != null)
+            {
+                observedTreasures = new[] { treasure };
+            }
+
+            if (observedTreasures == null || observedTreasures.Length == 0) return;
+
+            for (int i = 0; i < observedTreasures.Length; i++)
+            {
+                if (observedTreasures[i] != null)
+                {
+                    observedTreasures[i].Locked += HandleTreasureLocked;
+                }
+            }
+
             treasureCallbacksRegistered = true;
         }
 
         private void UnregisterTreasureCallbacks()
         {
-            if (treasure == null || !treasureCallbacksRegistered) return;
+            if (!treasureCallbacksRegistered) return;
 
-            treasure.Locked -= HandleTreasureLocked;
+            if (observedTreasures != null)
+            {
+                for (int i = 0; i < observedTreasures.Length; i++)
+                {
+                    if (observedTreasures[i] != null)
+                    {
+                        observedTreasures[i].Locked -= HandleTreasureLocked;
+                    }
+                }
+            }
+
+            observedTreasures = Array.Empty<TreasureCollectible>();
             treasureCallbacksRegistered = false;
+        }
+
+        private void RefreshTreasureCallbacks()
+        {
+            UnregisterTreasureCallbacks();
+            treasure = FindObjectOfType<TreasureCollectible>();
+            RegisterTreasureCallbacks();
         }
 
         private void StartGame()
@@ -588,8 +665,14 @@ namespace MonsterTreasureHunt.UI
 
             if (mapBuilder != null)
             {
+                UnregisterTreasureCallbacks();
                 mapBuilder.SelectMap(pendingMap);
                 mapBuilder.BuildMap();
+            }
+
+            if (cameraFollow != null)
+            {
+                cameraFollow.ApplyMapTheme(pendingMap);
             }
 
             if (levelController != null)
@@ -613,8 +696,10 @@ namespace MonsterTreasureHunt.UI
             if (playerInventory != null)
             {
                 playerInventory.ResetInventory();
-                UpdateInventoryUI(playerInventory.YellowKeys);
+                UpdateInventoryUI(playerInventory);
             }
+
+            RefreshTreasureCallbacks();
 
             nextFallDamageTime = 0f;
             hideLockedMessageAt = 0f;
@@ -736,11 +821,34 @@ namespace MonsterTreasureHunt.UI
         {
             nextFallDamageTime = Time.time + respawnInvulnerabilityTime;
 
-            if (playerHealth == null || !playerHealth.Damage(1) || playerHealth.IsDepleted)
+            if (playerHealth == null)
             {
                 HandleLevelFailed();
                 return;
             }
+
+            if (!playerHealth.Damage(1, PlayerHealth.DamageSource.Fall))
+            {
+                return;
+            }
+
+            if (playerHealth.IsDepleted)
+            {
+                HandleLevelFailed();
+                return;
+            }
+
+            RespawnPlayer();
+        }
+
+        private void HandlePlayerDamaged(PlayerHealth.DamageSource source)
+        {
+            if (!gameStarted || levelCompleted || levelFailed) return;
+            if (source != PlayerHealth.DamageSource.Hazard) return;
+
+            nextFallDamageTime = Time.time + respawnInvulnerabilityTime;
+
+            if (playerHealth != null && playerHealth.IsDepleted) return;
 
             RespawnPlayer();
         }
@@ -773,24 +881,45 @@ namespace MonsterTreasureHunt.UI
 
             if (resultLabel != null)
             {
-                resultLabel.text = "You fell!\nLevel failed.";
+                resultLabel.text = GetFailureMessage();
                 resultLabel.style.display = DisplayStyle.Flex;
             }
+        }
+
+        private string GetFailureMessage()
+        {
+            if (playerHealth != null && playerHealth.LastDamageSource == PlayerHealth.DamageSource.Hazard)
+            {
+                return "Impaled by spikes!\nOut of lives.";
+            }
+
+            return "You fell too far!\nOut of lives.";
         }
 
         private void HandleHealthChanged(int currentLives, int totalLives)
         {
             UpdateLivesUI(currentLives, totalLives);
+
+            if (gameStarted && !levelCompleted && !levelFailed && currentLives <= 0)
+            {
+                HandleLevelFailed();
+            }
         }
 
-        private void HandleInventoryChanged(int yellowKeys)
+        private void HandleInventoryChanged(PlayerInventory inventory)
         {
-            UpdateInventoryUI(yellowKeys);
+            UpdateInventoryUI(inventory);
         }
 
         private void HandleTreasureLocked(TreasureCollectible lockedTreasure)
         {
             if (!gameStarted || levelCompleted || levelFailed) return;
+
+            if (chestLockedMessage != null)
+            {
+                string colorName = TreasureKeyColorUtility.GetDisplayName(lockedTreasure.RequiredKeyColor);
+                chestLockedMessage.text = $"{colorName} Key Required";
+            }
 
             SetChestLockedMessageVisible(true);
             hideLockedMessageAt = Time.time + 2.5f;
@@ -798,20 +927,50 @@ namespace MonsterTreasureHunt.UI
 
         private void ConfigureInventoryIcons()
         {
-            if (inventoryKeyIcon != null)
-            {
-                inventoryKeyIcon.sprite = inventoryKeySprite;
-                inventoryKeyIcon.scaleMode = ScaleMode.ScaleToFit;
-                inventoryKeyIcon.tintColor = Color.white;
-            }
-
+            ConfigureInventoryIcon(inventoryYellowKeyIcon, yellowInventoryKeySprite);
+            ConfigureInventoryIcon(inventoryRedKeyIcon, redInventoryKeySprite);
+            ConfigureInventoryIcon(inventoryGreenKeyIcon, greenInventoryKeySprite);
+            ConfigureInventoryIcon(inventoryBlueKeyIcon, blueInventoryKeySprite);
         }
 
-        private void UpdateInventoryUI(int yellowKeys)
+        private void UpdateInventoryUI(PlayerInventory inventory)
         {
-            if (inventoryKeyLabel != null)
+            UpdateInventoryRow(inventoryYellowKeyRow, inventoryYellowKeyLabel, "Yellow Key", GetKeyCount(inventory, TreasureKeyColor.Yellow), true);
+            UpdateInventoryRow(inventoryRedKeyRow, inventoryRedKeyLabel, "Red Key", GetKeyCount(inventory, TreasureKeyColor.Red), MapUsesColoredKeys(pendingMap));
+            UpdateInventoryRow(inventoryGreenKeyRow, inventoryGreenKeyLabel, "Green Key", GetKeyCount(inventory, TreasureKeyColor.Green), MapUsesColoredKeys(pendingMap));
+            UpdateInventoryRow(inventoryBlueKeyRow, inventoryBlueKeyLabel, "Blue Key", GetKeyCount(inventory, TreasureKeyColor.Blue), false);
+        }
+
+        private static void ConfigureInventoryIcon(Image icon, Sprite sprite)
+        {
+            if (icon == null) return;
+
+            icon.sprite = sprite;
+            icon.scaleMode = ScaleMode.ScaleToFit;
+            icon.tintColor = Color.white;
+        }
+
+        private static int GetKeyCount(PlayerInventory inventory, TreasureKeyColor color)
+        {
+            return inventory != null ? inventory.GetKeyCount(color) : 0;
+        }
+
+        private static bool MapUsesColoredKeys(IslandMapBuilder.MapTheme map)
+        {
+            return map == IslandMapBuilder.MapTheme.FoggyForest
+                || map == IslandMapBuilder.MapTheme.VolcanoCave;
+        }
+
+        private static void UpdateInventoryRow(VisualElement row, Label label, string itemName, int count, bool visible)
+        {
+            if (row != null)
             {
-                inventoryKeyLabel.text = $"Yellow Key  x{yellowKeys}";
+                row.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            if (label != null)
+            {
+                label.text = $"{itemName}  x{count}";
             }
         }
 
@@ -968,7 +1127,7 @@ namespace MonsterTreasureHunt.UI
 
             if (victoryMessage != null)
             {
-                victoryMessage.text = $"You used the yellow key and cleared {selectedMapTitle}.";
+                victoryMessage.text = $"You unlocked every chest and cleared {selectedMapTitle}.";
             }
 
             if (victoryReward != null)

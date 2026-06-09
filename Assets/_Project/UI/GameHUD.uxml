@@ -48,9 +48,21 @@
         <ui:Button name="InventoryButton" text="Inventory" display="none" />
         <ui:VisualElement name="InventoryPanel" display="none">
             <ui:Label name="InventoryTitle" text="Collected Items" />
-            <ui:VisualElement name="InventoryItemRow">
-                <ui:Image name="InventoryKeyIcon" />
-                <ui:Label name="InventoryKeyLabel" text="Yellow Key  x0" />
+            <ui:VisualElement name="InventoryYellowKeyRow" class="inventory-item-row">
+                <ui:Image name="InventoryYellowKeyIcon" class="inventory-key-icon" />
+                <ui:Label name="InventoryYellowKeyLabel" text="Yellow Key  x0" class="inventory-key-label" />
+            </ui:VisualElement>
+            <ui:VisualElement name="InventoryRedKeyRow" class="inventory-item-row">
+                <ui:Image name="InventoryRedKeyIcon" class="inventory-key-icon" />
+                <ui:Label name="InventoryRedKeyLabel" text="Red Key  x0" class="inventory-key-label" />
+            </ui:VisualElement>
+            <ui:VisualElement name="InventoryGreenKeyRow" class="inventory-item-row">
+                <ui:Image name="InventoryGreenKeyIcon" class="inventory-key-icon" />
+                <ui:Label name="InventoryGreenKeyLabel" text="Green Key  x0" class="inventory-key-label" />
+            </ui:VisualElement>
+            <ui:VisualElement name="InventoryBlueKeyRow" class="inventory-item-row" display="none">
+                <ui:Image name="InventoryBlueKeyIcon" class="inventory-key-icon" />
+                <ui:Label name="InventoryBlueKeyLabel" text="Blue Key  x0" class="inventory-key-label" />
             </ui:VisualElement>
             <ui:Label name="InventoryHint" text="Press I to close" />
         </ui:VisualElement>

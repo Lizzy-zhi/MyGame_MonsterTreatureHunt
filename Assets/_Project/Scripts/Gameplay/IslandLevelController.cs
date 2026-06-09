@@ -1,11 +1,13 @@
 using UnityEngine;
 using MonsterTreasureHunt.Gameplay;
+using System;
 
 namespace MonsterTreasureHunt.Levels
 {
     public class IslandLevelController : MonoBehaviour
     {
         [SerializeField] private TreasureCollectible treasure;
+        [SerializeField] private TreasureCollectible[] treasures = Array.Empty<TreasureCollectible>();
 
         public bool IsCompleted { get; private set; }
 
@@ -14,47 +16,87 @@ namespace MonsterTreasureHunt.Levels
 
         private void OnEnable()
         {
-            EnsureTreasureAssigned();
-
-            if (treasure != null)
-            {
-                treasure.Collected += HandleTreasureCollected;
-            }
+            RegisterTreasureCallbacks();
         }
 
         private void OnDisable()
         {
-            if (treasure != null)
-            {
-                treasure.Collected -= HandleTreasureCollected;
-            }
+            UnregisterTreasureCallbacks();
         }
 
         public void ResetLevel()
         {
             IsCompleted = false;
-            EnsureTreasureAssigned();
+            RegisterTreasureCallbacks();
 
-            if (treasure != null)
+            for (int i = 0; i < treasures.Length; i++)
             {
-                treasure.ResetCollectible();
+                if (treasures[i] != null)
+                {
+                    treasures[i].ResetCollectible();
+                }
             }
         }
 
         private void HandleTreasureCollected(TreasureCollectible collectedTreasure)
         {
             if (IsCompleted) return;
+            if (!AllTreasuresCollected()) return;
 
             IsCompleted = true;
             LevelCompleted?.Invoke();
         }
 
-        private void EnsureTreasureAssigned()
+        private void RegisterTreasureCallbacks()
         {
-            if (treasure == null)
+            UnregisterTreasureCallbacks();
+
+            treasures = FindObjectsOfType<TreasureCollectible>(false);
+            if ((treasures == null || treasures.Length == 0) && treasure != null)
             {
-                treasure = FindObjectOfType<TreasureCollectible>();
+                treasures = new[] { treasure };
             }
+
+            if (treasures == null)
+            {
+                treasures = Array.Empty<TreasureCollectible>();
+            }
+
+            for (int i = 0; i < treasures.Length; i++)
+            {
+                if (treasures[i] != null)
+                {
+                    treasures[i].Collected += HandleTreasureCollected;
+                }
+            }
+        }
+
+        private void UnregisterTreasureCallbacks()
+        {
+            if (treasures == null) return;
+
+            for (int i = 0; i < treasures.Length; i++)
+            {
+                if (treasures[i] != null)
+                {
+                    treasures[i].Collected -= HandleTreasureCollected;
+                }
+            }
+        }
+
+        private bool AllTreasuresCollected()
+        {
+            if (treasures == null || treasures.Length == 0) return false;
+
+            for (int i = 0; i < treasures.Length; i++)
+            {
+                if (treasures[i] != null && !treasures[i].IsCollected)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

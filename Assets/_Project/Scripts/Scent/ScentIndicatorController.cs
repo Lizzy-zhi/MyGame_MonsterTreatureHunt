@@ -25,6 +25,7 @@ namespace MonsterTreasureHunt.UI
         private UIDocument uiDocument;
         private VisualElement indicator;
         private Camera mainCam;
+        private TreasureCollectible[] targetTreasures;
 
         private void Awake()
         {
@@ -39,7 +40,7 @@ namespace MonsterTreasureHunt.UI
 
             if (targetTreasure == null)
             {
-                targetTreasure = FindObjectOfType<TreasureCollectible>();
+                RefreshTargets();
             }
         }
 
@@ -64,7 +65,7 @@ namespace MonsterTreasureHunt.UI
 
             if (targetTreasure == null)
             {
-                targetTreasure = FindObjectOfType<TreasureCollectible>();
+                RefreshTargets();
             }
 
             Debug.Log($"[ScentIndicator] Ready. player={(player != null)} treasure={(targetTreasure != null)}");
@@ -72,6 +73,8 @@ namespace MonsterTreasureHunt.UI
 
         private void Update()
         {
+            targetTreasure = FindNearestAvailableTreasure();
+
             if (player == null || targetTreasure == null || targetTreasure.IsCollected || mainCam == null)
             {
                 if (indicator != null) indicator.style.display = DisplayStyle.None;
@@ -129,6 +132,50 @@ namespace MonsterTreasureHunt.UI
 
             Color tint = Color.Lerp(new Color(0.85f, 0.85f, 0.85f), new Color(0.2f, 0.2f, 0.2f), closeness);
             indicator.style.unityBackgroundImageTintColor = tint;
+        }
+
+        private void RefreshTargets()
+        {
+            targetTreasures = FindObjectsOfType<TreasureCollectible>(false);
+            if (targetTreasures != null && targetTreasures.Length > 0)
+            {
+                targetTreasure = targetTreasures[0];
+            }
+        }
+
+        private TreasureCollectible FindNearestAvailableTreasure()
+        {
+            if (player == null) return targetTreasure;
+
+            if (targetTreasures == null || targetTreasures.Length == 0)
+            {
+                RefreshTargets();
+            }
+
+            TreasureCollectible nearest = null;
+            float nearestDistance = float.MaxValue;
+
+            if (targetTreasures != null)
+            {
+                for (int i = 0; i < targetTreasures.Length; i++)
+                {
+                    TreasureCollectible candidate = targetTreasures[i];
+                    if (candidate == null || candidate.IsCollected || !candidate.gameObject.activeInHierarchy) continue;
+
+                    float distance = Vector2.SqrMagnitude(candidate.transform.position - player.position);
+                    if (distance >= nearestDistance) continue;
+
+                    nearest = candidate;
+                    nearestDistance = distance;
+                }
+            }
+
+            if (nearest != null) return nearest;
+
+            RefreshTargets();
+            return targetTreasure != null && !targetTreasure.IsCollected && targetTreasure.gameObject.activeInHierarchy
+                ? targetTreasure
+                : null;
         }
     }
 }

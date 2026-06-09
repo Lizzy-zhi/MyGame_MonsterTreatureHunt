@@ -8,7 +8,8 @@ namespace MonsterTreasureHunt.Gameplay
     {
         [SerializeField] private string collectorTag = "Player";
         [SerializeField] private bool disableOnCollect = true;
-        [SerializeField] private bool requiresYellowKey = true;
+        [SerializeField] private bool requiresKey = true;
+        [SerializeField] private TreasureKeyColor requiredKeyColor = TreasureKeyColor.Yellow;
         [SerializeField] private Vector2 triggerSize = new Vector2(1.35f, 1.25f);
         [SerializeField] private Vector2 triggerOffset = new Vector2(0f, 0.22f);
         [SerializeField] private Sprite unlockEffectSprite;
@@ -18,6 +19,7 @@ namespace MonsterTreasureHunt.Gameplay
         [SerializeField] private Vector3 unlockEffectOffset = new Vector3(0f, 0.45f, 0f);
 
         public bool IsCollected { get; private set; }
+        public TreasureKeyColor RequiredKeyColor => requiredKeyColor;
 
         public delegate void CollectedHandler(TreasureCollectible treasure);
         public event CollectedHandler Collected;
@@ -66,10 +68,10 @@ namespace MonsterTreasureHunt.Gameplay
         {
             if (IsCollected || isOpening || other == null || !other.CompareTag(collectorTag)) return;
 
-            if (requiresYellowKey)
+            if (requiresKey)
             {
                 PlayerInventory inventory = other.GetComponentInParent<PlayerInventory>();
-                if (inventory == null || !inventory.TryConsumeYellowKey())
+                if (inventory == null || !inventory.TryConsumeKey(requiredKeyColor))
                 {
                     Locked?.Invoke(this);
                     return;
@@ -122,6 +124,24 @@ namespace MonsterTreasureHunt.Gameplay
             }
 
             EnsureCollectTrigger();
+        }
+
+        public void ConfigureKeyRequirement(TreasureKeyColor keyColor, bool requireKey = true)
+        {
+            requiredKeyColor = keyColor;
+            requiresKey = requireKey;
+        }
+
+        public void ConfigureTrigger(Vector2 size, Vector2 offset)
+        {
+            triggerSize = size;
+            triggerOffset = offset;
+            EnsureCollectTrigger();
+        }
+
+        public void ConfigureUnlockEffect(Sprite effectSprite)
+        {
+            unlockEffectSprite = effectSprite;
         }
 
         private IEnumerator PlayUnlockEffectThenCollect()

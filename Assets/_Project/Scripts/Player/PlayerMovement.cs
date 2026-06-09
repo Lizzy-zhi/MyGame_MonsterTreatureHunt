@@ -33,6 +33,12 @@ namespace MonsterTreasureHunt.Player
         [SerializeField] private Sprite crouchSprite;
         [SerializeField] private float runAnimationRate = 9f;
 
+        [Header("Hurt Feedback")]
+        [SerializeField] private Color hurtTint = new Color(1f, 0.42f, 0.42f, 1f);
+        [SerializeField] private float hurtFlashDuration = 0.45f;
+        [SerializeField] private float hurtKnockbackX = 4.5f;
+        [SerializeField] private float hurtKnockbackY = 6f;
+
         [Header("Ground Check")]
         [SerializeField] private Transform groundCheckPoint;
         [SerializeField] private float groundCheckRadius = 0.2f;
@@ -48,8 +54,10 @@ namespace MonsterTreasureHunt.Player
         private float runAnimationTimer;
         private Vector2 standingColliderSize;
         private Vector2 standingColliderOffset;
+        private float hurtFlashUntil;
 
         public bool IsGrounded => isGrounded;
+        public bool IsHurt => Time.time < hurtFlashUntil;
         public bool IsCrouching => isCrouching;
         public Rigidbody2D Body => rb;
 
@@ -87,6 +95,7 @@ namespace MonsterTreasureHunt.Player
 
             UpdateColliderForCrouch();
             UpdateAnimation();
+            UpdateHurtVisual();
         }
 
         private void FixedUpdate()
@@ -178,6 +187,26 @@ namespace MonsterTreasureHunt.Player
             return blocker == null;
         }
 
+        public void PlayHurtFeedback(float knockbackDirectionX)
+        {
+            hurtFlashUntil = Time.time + hurtFlashDuration;
+
+            if (rb == null) return;
+
+            float direction = Mathf.Abs(knockbackDirectionX) > 0.01f
+                ? Mathf.Sign(knockbackDirectionX)
+                : (spriteRenderer != null && spriteRenderer.flipX ? -1f : 1f);
+
+            rb.velocity = new Vector2(direction * hurtKnockbackX, hurtKnockbackY);
+        }
+
+        private void UpdateHurtVisual()
+        {
+            if (spriteRenderer == null) return;
+
+            spriteRenderer.color = IsHurt ? hurtTint : Color.white;
+        }
+
         private void UpdateAnimation()
         {
             if (spriteRenderer == null) return;
@@ -186,6 +215,13 @@ namespace MonsterTreasureHunt.Player
             if (Mathf.Abs(visualSpeedX) > 0.05f)
             {
                 spriteRenderer.flipX = visualSpeedX < 0f;
+            }
+
+            if (IsHurt)
+            {
+                SetSpriteIfPresent(crouchSprite != null ? crouchSprite : idleSprite);
+                runAnimationTimer = 0f;
+                return;
             }
 
             if (!isGrounded)

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using MonsterTreasureHunt.Levels;
 
 namespace MonsterTreasureHunt.CameraSystem
 {
@@ -9,6 +10,7 @@ namespace MonsterTreasureHunt.CameraSystem
         private const float TileOverlapRatio = 0.02f;
         private const float BaseLayerDepth = 18f;
         private const float SortingDepthSpacing = 0.01f;
+        private const string ParallaxTilePrefix = "Parallax_";
 
         [System.Serializable]
         private class ParallaxLayer
@@ -31,6 +33,12 @@ namespace MonsterTreasureHunt.CameraSystem
         [SerializeField] private bool buildParallaxBackground = true;
         [SerializeField, Range(1f, 2f)] private float parallaxOverscan = 1.25f;
         [SerializeField] private ParallaxLayer[] parallaxLayers;
+        [SerializeField] private ParallaxLayer[] beginnerIslandLayers;
+        [SerializeField] private ParallaxLayer[] foggyForestLayers;
+        [SerializeField] private ParallaxLayer[] volcanoCaveLayers;
+        [SerializeField] private Color beginnerIslandBackgroundColor = new Color(0.765f, 0.91f, 0.945f, 1f);
+        [SerializeField] private Color foggyForestBackgroundColor = new Color(0.4f, 0.5f, 0.44f, 1f);
+        [SerializeField] private Color volcanoCaveBackgroundColor = new Color(0.16f, 0.1f, 0.12f, 1f);
 
         private Camera attachedCamera;
         private Vector3 parallaxOriginPosition;
@@ -45,6 +53,8 @@ namespace MonsterTreasureHunt.CameraSystem
             {
                 CreateParallaxLayers();
             }
+
+            ApplyCameraBackground(IslandMapBuilder.MapTheme.BeginnerIsland);
         }
 
         private void LateUpdate()
@@ -71,7 +81,7 @@ namespace MonsterTreasureHunt.CameraSystem
 
                 for (int tileIndex = 0; tileIndex < layer.tiles.Length; tileIndex++)
                 {
-                    string tileName = $"{layer.name}_{tileIndex}";
+                    string tileName = $"{ParallaxTilePrefix}{layer.name}_{tileIndex}";
                     Transform existing = transform.Find(tileName);
                     GameObject layerObject = existing != null ? existing.gameObject : new GameObject(tileName);
                     layer.tiles[tileIndex] = layerObject.transform;
@@ -93,6 +103,73 @@ namespace MonsterTreasureHunt.CameraSystem
             }
 
             UpdateParallaxLayers();
+        }
+
+        public void ApplyMapTheme(IslandMapBuilder.MapTheme mapTheme)
+        {
+            ParallaxLayer[] themeLayers = GetLayersForTheme(mapTheme);
+            if (themeLayers == null || themeLayers.Length == 0) return;
+
+            parallaxLayers = themeLayers;
+            RefreshParallaxLayers();
+            ApplyCameraBackground(mapTheme);
+        }
+
+        private ParallaxLayer[] GetLayersForTheme(IslandMapBuilder.MapTheme mapTheme)
+        {
+            switch (mapTheme)
+            {
+                case IslandMapBuilder.MapTheme.FoggyForest:
+                    return foggyForestLayers != null && foggyForestLayers.Length > 0 ? foggyForestLayers : parallaxLayers;
+                case IslandMapBuilder.MapTheme.VolcanoCave:
+                    return volcanoCaveLayers != null && volcanoCaveLayers.Length > 0 ? volcanoCaveLayers : parallaxLayers;
+                default:
+                    return beginnerIslandLayers != null && beginnerIslandLayers.Length > 0 ? beginnerIslandLayers : parallaxLayers;
+            }
+        }
+
+        private void RefreshParallaxLayers()
+        {
+            if (!buildParallaxBackground) return;
+
+            ClearParallaxLayerObjects();
+            CreateParallaxLayers();
+        }
+
+        private void ClearParallaxLayerObjects()
+        {
+            for (int i = transform.childCount - 1; i >= 0; i--)
+            {
+                Transform child = transform.GetChild(i);
+                if (child == null || !IsGeneratedParallaxLayer(child.name)) continue;
+
+                if (Application.isPlaying)
+                {
+                    Destroy(child.gameObject);
+                }
+                else
+                {
+                    DestroyImmediate(child.gameObject);
+                }
+            }
+        }
+
+        private static bool IsGeneratedParallaxLayer(string childName)
+        {
+            return !string.IsNullOrEmpty(childName)
+                && childName.StartsWith(ParallaxTilePrefix, StringComparison.Ordinal);
+        }
+
+        private void ApplyCameraBackground(IslandMapBuilder.MapTheme mapTheme)
+        {
+            if (attachedCamera == null) return;
+
+            attachedCamera.backgroundColor = mapTheme switch
+            {
+                IslandMapBuilder.MapTheme.FoggyForest => foggyForestBackgroundColor,
+                IslandMapBuilder.MapTheme.VolcanoCave => volcanoCaveBackgroundColor,
+                _ => beginnerIslandBackgroundColor
+            };
         }
 
         private void UpdateParallaxLayers()

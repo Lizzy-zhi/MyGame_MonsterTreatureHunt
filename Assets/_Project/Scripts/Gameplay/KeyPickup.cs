@@ -6,9 +6,16 @@ namespace MonsterTreasureHunt.Gameplay
     public class KeyPickup : MonoBehaviour
     {
         [SerializeField] private string collectorTag = "Player";
+        [SerializeField] private TreasureKeyColor keyColor = TreasureKeyColor.Yellow;
         [SerializeField] private int keyAmount = 1;
 
         private bool collected;
+
+        public TreasureKeyColor KeyColor
+        {
+            get => keyColor;
+            set => keyColor = value;
+        }
 
         private void Awake()
         {
@@ -26,7 +33,7 @@ namespace MonsterTreasureHunt.Gameplay
             PlayerInventory inventory = other.GetComponentInParent<PlayerInventory>();
             if (inventory == null) return;
 
-            inventory.AddYellowKey(keyAmount);
+            inventory.AddKey(keyColor, keyAmount);
             collected = true;
             gameObject.SetActive(false);
         }

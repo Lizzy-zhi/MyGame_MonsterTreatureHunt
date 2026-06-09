@@ -17,22 +17,24 @@ Main 2D camera controller. Follows the player smoothly and builds scrolling para
 ## Gameplay
 
 ### `Gameplay/IslandMapBuilder.cs`
-Builds all selectable island maps: Beginner Island, Foggy Forest, and Volcano Cave. It controls ground tile placement, optional decoration placement, player spawn, treasure position, health pickup generation, and yellow key generation.
+Builds all selectable island maps: Beginner Island, Foggy Forest, and Volcano Cave. It controls ground tile placement, separated decoration placement, player spawn, generated treasure chests, health pickup generation, and colored key generation.
 
 Important details:
 - Ground tiles are placed on the collision tilemap.
 - Decorations are placed separately on the decoration tilemap.
-- Health pickups and key pickups are spawned as child GameObjects under generated parent containers.
+- Health pickups, key pickups, and treasure chests are spawned as child GameObjects under generated parent containers.
+- Beginner Island generates one yellow key and one yellow chest.
+- Foggy Forest generates yellow, red, and green keys/chests; each key opens only the matching chest color.
 - Item placement resolves to open platform surfaces so objects do not spawn inside terrain or between overlapping platforms.
 
 ### `Gameplay/IslandLevelController.cs`
-Tracks whether the current island level has been completed. It listens to `TreasureCollectible.Collected`, exposes `LevelCompleted`, and resets the treasure state when a new run starts.
+Tracks whether the current island level has been completed. It listens to all active `TreasureCollectible` objects, exposes `LevelCompleted`, and completes the level only after every generated chest has been opened.
 
 ### `Gameplay/TreasureCollectible.cs`
-Controls the final treasure. The treasure can require a yellow key before collection. When unlocked, it plays a short star burst effect, then fires the collected event and hides itself.
+Controls a treasure chest. A chest can require a configured key color before collection. When unlocked, it plays a short star burst effect, then fires the collected event and hides itself.
 
 ### `Gameplay/KeyPickup.cs`
-Trigger pickup for yellow keys. When the player touches it, it adds a key to `PlayerInventory` and disables the pickup object.
+Trigger pickup for colored keys. When the player touches it, it adds the configured key color to `PlayerInventory` and disables the pickup object.
 
 ### `Gameplay/HealthPickup.cs`
 Trigger pickup for health. When the player touches it, it heals `PlayerHealth` and disables the pickup object. Health pickups are not stored in the inventory.
@@ -41,7 +43,7 @@ Trigger pickup for health. When the player touches it, it heals `PlayerHealth` a
 Stores current and maximum lives. Supports damage, healing, reset, depletion checks, and a `HealthChanged` event for the HUD.
 
 ### `Gameplay/PlayerInventory.cs`
-Stores items collected during the current run. Currently tracks yellow keys only. Treasure collection consumes one yellow key.
+Stores items collected during the current run. Tracks yellow, red, green, and blue key counts. Treasure collection consumes one matching key.
 
 ## Player
 
@@ -51,7 +53,7 @@ Controls horizontal movement, jumping, crouching, slow crouch movement, facing d
 ## Scent
 
 ### `Scent/ScentIndicatorController.cs`
-Controls the UI scent arrow. It points toward the treasure when the player is within scent range, grows/darkens as the player gets closer, and hides when the treasure is collected or out of range.
+Controls the UI scent arrow. It points toward the nearest uncollected treasure chest when the player is within scent range, grows/darkens as the player gets closer, and hides when all nearby chests are collected or out of range.
 
 ## UI
 
