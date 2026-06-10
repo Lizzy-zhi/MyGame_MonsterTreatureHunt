@@ -50,19 +50,23 @@
             <ui:Label name="InventoryTitle" text="Collected Items" />
             <ui:VisualElement name="InventoryYellowKeyRow" class="inventory-item-row">
                 <ui:Image name="InventoryYellowKeyIcon" class="inventory-key-icon" />
-                <ui:Label name="InventoryYellowKeyLabel" text="Yellow Key  x0" class="inventory-key-label" />
+                <ui:Label name="InventoryYellowKeyLabel" text="Yellow Key" class="inventory-key-label" />
+                <ui:Label name="InventoryYellowKeyCount" text="x0" class="inventory-key-count" />
             </ui:VisualElement>
             <ui:VisualElement name="InventoryRedKeyRow" class="inventory-item-row">
                 <ui:Image name="InventoryRedKeyIcon" class="inventory-key-icon" />
-                <ui:Label name="InventoryRedKeyLabel" text="Red Key  x0" class="inventory-key-label" />
+                <ui:Label name="InventoryRedKeyLabel" text="Red Key" class="inventory-key-label" />
+                <ui:Label name="InventoryRedKeyCount" text="x0" class="inventory-key-count" />
             </ui:VisualElement>
             <ui:VisualElement name="InventoryGreenKeyRow" class="inventory-item-row">
                 <ui:Image name="InventoryGreenKeyIcon" class="inventory-key-icon" />
-                <ui:Label name="InventoryGreenKeyLabel" text="Green Key  x0" class="inventory-key-label" />
+                <ui:Label name="InventoryGreenKeyLabel" text="Green Key" class="inventory-key-label" />
+                <ui:Label name="InventoryGreenKeyCount" text="x0" class="inventory-key-count" />
             </ui:VisualElement>
             <ui:VisualElement name="InventoryBlueKeyRow" class="inventory-item-row" display="none">
                 <ui:Image name="InventoryBlueKeyIcon" class="inventory-key-icon" />
-                <ui:Label name="InventoryBlueKeyLabel" text="Blue Key  x0" class="inventory-key-label" />
+                <ui:Label name="InventoryBlueKeyLabel" text="Blue Key" class="inventory-key-label" />
+                <ui:Label name="InventoryBlueKeyCount" text="x0" class="inventory-key-count" />
             </ui:VisualElement>
             <ui:Label name="InventoryHint" text="Press I to close" />
         </ui:VisualElement>
@@ -85,6 +89,5 @@
                 <ui:Label name="VictoryReward" text="Victory" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="ScentIndicator" style="top: 100%; left: 100%; display: none; width: 64px; height: 64px; background-image: url(&quot;project://database/Assets/_Project/Art/arrow.png?fileID=21300000&amp;guid=55a1856c69c2b5247a8437246e3fe4e7&amp;type=3#arrow&quot;); background-color: rgb(255, 255, 255); -unity-background-scale-mode: scale-to-fit;" />
     </ui:VisualElement>
 </ui:UXML>

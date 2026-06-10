@@ -1,68 +1,130 @@
 # Monster Treasure Hunt
 
-Players control a clumsy little monster on a island, using scent guidance to find treasure, explore themed maps, and unlock character skins.
+Monster Treasure Hunt is a 2D Unity platformer about a small monster exploring themed islands, collecting colored keys, opening matching treasure chests, and surviving tricky jumps.
 
-## Current Build Status
+## Current Playable Flow
 
-### Done
+1. Open `Assets/Main.unity`
+2. Press Play in the Unity Editor
+3. Click `Start Game`
+4. Choose a map: `Beginner Island`, `Foggy Forest`, or `Volcano Cave`
+5. Choose a monster skin
+6. Collect the required keys and unlock every chest in the selected level
 
-- Start flow: Start Game -> map selection -> skin selection -> gameplay.
-- Settings button opens Help, Continue, and Escape controls.
-- Help panel shows game rules.
-- Character skins can be previewed and confirmed before entering gameplay.
-- Player movement includes inertia, skid feel, jumping, crouching, and slow crouch movement.
-- Treasure collection triggers level clear text.
-- Falling too far below the spawn height shows a failure icon and stops player input.
-- Ground, decoration, player spawn, and treasure placement are controlled separately in the map builder.
-- Camera background uses Kenney parallax layers for stronger movement feeling.
+## Current Gameplay Features
 
-### Maps
+- English-only UI flow
+- Start screen, map selection, skin selection, settings, help, inventory, failure, and victory panels
+- Five selectable monster skin colors with preview before gameplay
+- Clumsy platforming movement with inertia, skid, jump, crouch, and crouch-walk
+- Three-life system with respawn at the last safe ground position
+- Color-matched key and chest progression
+- Health pickups that restore lost lives
+- Chest unlock effect before collection completes
+- Per-map parallax backgrounds built from Kenney art
+- Separated map builder controls for ground, decorations, spawn, pickups, hazards, and treasure chests
 
-- Beginner Island: playable tutorial map with one treasure and no traps.
-- Foggy Forest: compact second map layout built with Kenney tiles, forest decorations, one treasure near the end, and stable grid colliders on ground tiles.
-- Volcano Cave: placeholder layout exists, but final theme, traps, and treasure count still need design work.
+## Controls
 
-### In Progress
+- Move: `A / D` or `Left / Right Arrow`
+- Jump: `Space`
+- Crouch / crouch-walk: `S` or `Down Arrow`
+- Open inventory: `I`
+- Open settings: click `Settings` in the top-left corner during gameplay
 
-- Foggy Forest polish pass in Unity Play Mode:
-  - Verify every main platform is standable.
-  - Confirm the treasure is reachable from the spawn.
-  - Check camera framing and parallax background movement across the route.
+## Settings Panel
 
-### Backlog
+- `Help`: shows the current game rules
+- `Continue`: closes the panel and resumes play
+- `Escape`: quits Play Mode in the Editor or closes the built game
 
-- Foggy Forest gameplay upgrade:
-  - Add 3 treasures.
-  - Add mud pits and rolling stones.
-  - Add wind influence to scent guidance.
-- Volcano Cave:
-  - Build final cave layout.
-  - Add 5 treasures.
-  - Add complex traps.
-- Progression:
-  - Unlock skins or hats after collecting treasures.
-  - Save selected skin and unlocked rewards.
-- UI polish:
-  - Add retry/restart action on failure.
-  - Add clearer level completion panel.
-  - Add map-specific preview art on map selection.
+## Maps in the Current Build
 
-## Core Mechanics
+### Beginner Island
 
-1. Smell-based treasure hunt system
-   - Scent indicator arrows appear near the screen edge.
-   - The arrow guides the player toward the active treasure.
+- Grass-themed tutorial map
+- One yellow key and one yellow chest
+- Simple introduction to jumping and chest unlocking
+- Two health pickups
 
-2. Clumsy physics system
-   - Movement has inertia and skid when stopping or turning.
-   - Crouching changes the collider and allows slow movement.
+### Foggy Forest
 
-3. Treasure collection and upgrades
-   - Current build supports treasure collection and skin selection.
-   - Future work should connect treasure progress to unlockable appearances.
+- Short forest route with layered jump platforms
+- Full-width background river band under the map
+- Three chests and three matching keys: yellow, red, and green
+- Two health pickups
+- Forest parallax background
 
-## Level Plan
+### Volcano Cave
 
-- Beginner Island: tutorial level, one treasure, no traps.
-- Foggy Forest: forest level, planned three treasures and two trap types.
-- Volcano Cave: final level, planned five treasures and more complex trap combinations.
+- Hardest current map
+- Full-width background lava band under the map
+- Three chests and three matching keys: yellow, red, and green
+- Spike hazards
+- Three health pickups
+- More vertical stepping-platform sections than the earlier maps
+
+## Failure and Victory
+
+- Falling too far below the safe route costs one life
+- Spikes also cost one life
+- After taking damage, the player respawns at the last safe position
+- Reaching zero lives shows the failure state
+- Unlocking every chest in the selected map shows the victory screen
+
+## Project Setup
+
+- Unity version: `2022.3.62f3c1`
+- Main scene: `Assets/Main.unity`
+- Current build settings scene list: `Assets/Main.unity`
+
+## Editor Workflow
+
+To rebuild the active map in the Unity Editor:
+
+1. Open `Assets/Main.unity`
+2. Select `Map_Islands/Environment`
+3. In the `IslandMapBuilder` inspector, choose the target map theme
+4. Click `Build Selected Map`
+
+The custom inspector also includes separate controls for:
+
+- `Build Ground Only`
+- `Clear Ground Only`
+- `Build Decorations Only`
+- `Clear Decorations Only`
+- `Place Player Spawn Only`
+- `Place Treasure Only`
+
+## Key Scripts
+
+- `Assets/_Project/Scripts/UI/HUDManager.cs`  
+  Handles the start flow, map selection, skin selection, settings, help text, inventory UI, lives UI, failure state, and victory state.
+
+- `Assets/_Project/Scripts/Gameplay/IslandMapBuilder.cs`  
+  Builds level layouts, tiles, pickups, colored keys, colored chests, hazards, and full-width background water or lava strips.
+
+- `Assets/_Project/Scripts/Player/PlayerMovement.cs`  
+  Handles movement, jump physics, crouch logic, crouch movement, and sprite-based animation changes.
+
+- `Assets/_Project/Scripts/Gameplay/PlayerHealth.cs`  
+  Tracks lives, damage, healing, and damage source state.
+
+- `Assets/_Project/Scripts/Gameplay/PlayerInventory.cs`  
+  Tracks collected keys for the current run.
+
+- `Assets/_Project/Scripts/Gameplay/TreasureCollectible.cs`  
+  Handles chest locking, key checks, unlock effects, and collection completion.
+
+- `Assets/_Project/Scripts/Camera/CameraFollow2D.cs`  
+  Handles camera follow behavior and map-specific parallax backgrounds.
+
+## Art and Assets
+
+This project uses Kenney 2D assets for terrain, props, character sprites, pickups, and background elements.
+
+## Current Notes
+
+- The original scent-guidance concept is not part of the current playable build.
+- The inventory currently tracks keys only.
+- Blue key and chest support exists in code, but the current maps only use yellow, red, and green content.

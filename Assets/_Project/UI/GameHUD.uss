@@ -273,9 +273,9 @@
     position: absolute;
     right: 32px;
     top: 112px;
-    width: 330px;
-    padding-left: 22px;
-    padding-right: 22px;
+    width: 368px;
+    padding-left: 20px;
+    padding-right: 20px;
     padding-top: 18px;
     padding-bottom: 18px;
     background-color: rgba(0, 0, 0, 0.78);
@@ -288,33 +288,61 @@
     font-size: 30px;
     -unity-font-style: bold;
     color: #ffe082;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
-#InventoryItemRow {
-    height: 58px;
+.inventory-item-row {
+    min-height: 62px;
     flex-direction: row;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    padding-left: 14px;
+    padding-right: 12px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
 }
 
-#InventoryKeyIcon {
-    width: 42px;
-    height: 42px;
-    margin-right: 14px;
+.inventory-key-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    flex-shrink: 0;
     -unity-background-scale-mode: scale-to-fit;
 }
 
-#InventoryKeyLabel {
+.inventory-key-label {
+    flex-grow: 1;
     font-size: 24px;
     color: white;
     -unity-font-style: bold;
+    -unity-text-align: middle-left;
+}
+
+.inventory-key-count {
+    min-width: 54px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: 20px;
+    color: #ffe082;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgba(255, 224, 130, 0.16);
+    border-width: 1px;
+    border-color: rgba(255, 224, 130, 0.4);
+    border-radius: 8px;
 }
 
 #InventoryHint {
     font-size: 18px;
     color: rgba(255, 255, 255, 0.72);
-    margin-top: 4px;
+    margin-top: 6px;
+    -unity-text-align: middle-center;
 }
 
 #ChestLockedMessage {
@@ -485,14 +513,4 @@
     border-width: 5px;
     border-color: white;
     border-radius: 58px;
-}
-
-#ScentIndicator {
-    width: 78px;
-    height: 78px;
-    background-repeat: no-repeat;
-    background-size: contain;
-    position: absolute;
-    opacity: 0.95;
-    transform-origin: center;
 }

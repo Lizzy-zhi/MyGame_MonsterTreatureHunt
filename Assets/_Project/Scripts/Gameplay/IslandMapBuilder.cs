@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using MonsterTreasureHunt.CameraSystem;
 using MonsterTreasureHunt.Gameplay;
 
 namespace MonsterTreasureHunt.Levels
@@ -34,6 +35,8 @@ namespace MonsterTreasureHunt.Levels
         [Header("Tilemaps")]
         [SerializeField] private Tilemap groundTilemap;
         [SerializeField] private Tilemap decorationTilemap;
+        [SerializeField] private Tilemap backgroundWaterTilemap;
+        [SerializeField] private Tilemap backgroundLavaTilemap;
 
         [Header("Grass Tiles")]
         [SerializeField] private TileBase topLeft;
@@ -68,11 +71,18 @@ namespace MonsterTreasureHunt.Levels
         [SerializeField] private TileBase mushroomRedTile;
         [SerializeField] private TileBase mushroomBrownTile;
 
+        [Header("Foggy Forest Water")]
+        [SerializeField] private int foggyForestRiverTopY = -6;
+        [SerializeField] private int foggyForestRiverDepth = 5;
+        [SerializeField] private int backgroundWaterSortingOrder = -1;
+
         [Header("Volcano Decorations")]
         [SerializeField] private TileBase lavaTile;
         [SerializeField] private TileBase lavaTopTile;
         [SerializeField] private TileBase spikesTile;
         [SerializeField] private TileBase torchTile;
+        [SerializeField] private int volcanoLavaTopY = -7;
+        [SerializeField] private int volcanoLavaDepth = 4;
 
         [Header("Spike Hazards")]
         [SerializeField] private int spikeSortingOrder = 1;
@@ -137,6 +147,8 @@ namespace MonsterTreasureHunt.Levels
         private const int FoggyForestTreasureSurfaceY = 2;
         private const int VolcanoCaveTreasureCellX = 106;
         private const int VolcanoCaveTreasureSurfaceY = 2;
+        private const int FoggyForestRiverEdgePadding = 8;
+        private const int VolcanoLavaEdgePadding = 8;
 
         private static readonly ColoredPlacement[] BeginnerTreasurePlacements =
         {
@@ -171,8 +183,8 @@ namespace MonsterTreasureHunt.Levels
             new() { color = TreasureKeyColor.Yellow, cellX = -7, surfaceY = -3 },
             // Act 3 detour: narrow high stone over the mist pit.
             new() { color = TreasureKeyColor.Red, cellX = 45, surfaceY = -1 },
-            // Act 4 main path: collected before the final climb.
-            new() { color = TreasureKeyColor.Green, cellX = 74, surfaceY = -3 },
+            // Act 4 second-tier jump platform: collected before the summit climb.
+            new() { color = TreasureKeyColor.Green, cellX = 76, surfaceY = 1 },
         };
 
         private static readonly ColoredPlacement[] VolcanoCaveKeyPlacements =
@@ -366,6 +378,7 @@ namespace MonsterTreasureHunt.Levels
             BuildGround();
             BuildDecorations();
             PlaceGameplayObjects();
+            ApplyCameraTheme();
         }
 
         [ContextMenu("Build Selected Map Ground")]
@@ -426,6 +439,16 @@ namespace MonsterTreasureHunt.Levels
             if (decorationTilemap == null) return;
 
             decorationTilemap.ClearAllTiles();
+
+            if (TryGetBackgroundWaterTilemap(out Tilemap riverTilemap))
+            {
+                riverTilemap.ClearAllTiles();
+            }
+
+            if (TryGetBackgroundLavaTilemap(out Tilemap lavaTilemap))
+            {
+                lavaTilemap.ClearAllTiles();
+            }
         }
 
         private void BuildPlatform(PlatformSegment segment)
@@ -550,6 +573,8 @@ namespace MonsterTreasureHunt.Levels
         {
             if (decorationTilemap == null) return;
 
+            BuildFoggyForestFullRiver();
+
             // Act 1 trail markers.
             SetSurfaceDecorationOnOpenGround(-27, -5, signTile);
             SetSurfaceDecorationOnOpenGround(-22, -5, bushTile);
@@ -565,11 +590,7 @@ namespace MonsterTreasureHunt.Levels
             SetSurfaceDecorationOnOpenGround(29, -1, mushroomRedTile);
 
             // Act 3 mist pits and risky detour cues.
-            BuildFoggyForestGapWater(9);
             BuildFoggyForestGapBridge(21);
-            BuildFoggyForestGapWater(33);
-            BuildFoggyForestGapWater(43);
-            BuildFoggyForestGapWater(53);
             SetSurfaceDecorationOnOpenGround(40, -2, mushroomBrownTile);
             SetSurfaceDecorationOnOpenGround(45, -1, rockTile);
             SetSurfaceDecorationOnOpenGround(58, -4, bushTile);
@@ -586,19 +607,13 @@ namespace MonsterTreasureHunt.Levels
             SetSurfaceDecorationOnOpenGround(84, 1, bushTile);
             SetSurfaceDecorationOnOpenGround(87, 2, mushroomRedTile);
             SetSurfaceDecorationOnOpenGround(89, 2, mushroomBrownTile);
-
-            // Later gaps and map boundaries.
-            BuildFoggyForestGapWater(73);
-            BuildFoggyForestGapWater(83);
-            BuildBoundaryWater(-36, -29, -5);
-            BuildBoundaryWater(92, 98, -2);
         }
 
         private void BuildFoggyForestGapWater(int gapX)
         {
             if (HasOpenGroundAt(gapX)) return;
 
-            BuildGapWater(gapX);
+            BuildFoggyForestRiverStrip(gapX, gapX);
         }
 
         private void BuildFoggyForestGapBridge(int gapX)
@@ -606,22 +621,33 @@ namespace MonsterTreasureHunt.Levels
             BuildGapBridge(gapX, bridgeTile);
         }
 
+        private void BuildFoggyForestFullRiver()
+        {
+            Tilemap riverTilemap = GetOrCreateBackgroundWaterTilemap();
+            if (riverTilemap == null) return;
+
+            GetLayoutHorizontalBounds(FoggyForestLayout, out int minX, out int maxX);
+            BuildWaterStrip(
+                riverTilemap,
+                minX - FoggyForestRiverEdgePadding,
+                maxX + FoggyForestRiverEdgePadding,
+                foggyForestRiverTopY,
+                foggyForestRiverDepth);
+        }
+
+        private void BuildFoggyForestRiverStrip(int xMin, int xMax)
+        {
+            Tilemap riverTilemap = GetOrCreateBackgroundWaterTilemap();
+            if (riverTilemap == null) return;
+
+            BuildWaterStrip(riverTilemap, xMin, xMax, foggyForestRiverTopY, foggyForestRiverDepth);
+        }
+
         private void PlaceVolcanoCaveDecorations()
         {
             if (decorationTilemap == null) return;
 
-            BuildVolcanoGapLava(-15, -14);
-            BuildVolcanoGapLava(-2, -1);
-            BuildVolcanoGapLava(9);
-            BuildVolcanoGapLava(19, 20);
-            BuildVolcanoGapLava(29, 31);
-            BuildVolcanoGapLava(41, 43);
-            BuildVolcanoGapLava(47, 48);
-            BuildVolcanoGapLava(52);
-            BuildVolcanoGapLava(75, 76);
-            BuildVolcanoBridgedPitLava(99, 101);
-            BuildBoundaryLava(-36, -29, -5);
-            BuildBoundaryLava(111, 118, -2);
+            BuildVolcanoFullLava();
 
             SetSurfaceDecorationOnOpenGround(-25, -5, torchTile);
             SetSurfaceDecorationOnOpenGround(-4, -5, torchTile);
@@ -633,6 +659,20 @@ namespace MonsterTreasureHunt.Levels
             SetSurfaceDecorationOnOpenGround(106, 2, torchTile);
         }
 
+        private void BuildVolcanoFullLava()
+        {
+            Tilemap lavaTilemap = GetOrCreateBackgroundLavaTilemap();
+            if (lavaTilemap == null) return;
+
+            GetLayoutHorizontalBounds(VolcanoCaveLayout, out int minX, out int maxX);
+            BuildLavaStrip(
+                lavaTilemap,
+                minX - VolcanoLavaEdgePadding,
+                maxX + VolcanoLavaEdgePadding,
+                volcanoLavaTopY,
+                volcanoLavaDepth);
+        }
+
         private void BuildVolcanoGapLava(int gapXMin, int gapXMax = int.MinValue)
         {
             if (gapXMax == int.MinValue)
@@ -640,30 +680,12 @@ namespace MonsterTreasureHunt.Levels
                 gapXMax = gapXMin;
             }
 
-            for (int gapX = gapXMin; gapX <= gapXMax; gapX++)
-            {
-                if (HasOpenGroundAt(gapX)) return;
-            }
-
-            if (TryGetGapEdgeFloatingSurfaces(gapXMin, gapXMax, out int leftFloatingY, out int rightFloatingY))
-            {
-                int lavaTopY = Mathf.Min(leftFloatingY, rightFloatingY) - 1;
-                BuildLavaStrip(gapXMin, gapXMax, lavaTopY, 3);
-                return;
-            }
-
-            if (!TryGetGapEdgeMainFloorSurfaces(gapXMin, gapXMax, out int leftMainY, out int rightMainY)) return;
-
-            int mainPitLavaTopY = Mathf.Min(leftMainY, rightMainY) - 2;
-            BuildLavaStrip(gapXMin, gapXMax, mainPitLavaTopY, 4);
+            BuildVolcanoLavaInOpenPitColumns(gapXMin, gapXMax, volcanoLavaTopY, volcanoLavaDepth);
         }
 
         private void BuildVolcanoBridgedPitLava(int gapXMin, int gapXMax)
         {
-            if (!TryGetGapEdgeMainFloorSurfaces(gapXMin, gapXMax, out int leftMainY, out int rightMainY)) return;
-
-            int lavaTopY = Mathf.Min(leftMainY, rightMainY) - 2;
-            BuildLavaStrip(gapXMin, gapXMax, lavaTopY, 4);
+            BuildVolcanoLavaInOpenPitColumns(gapXMin, gapXMax, volcanoLavaTopY, volcanoLavaDepth);
         }
 
         private bool TryGetGapEdgeFloatingSurfaces(int gapXMin, int gapXMax, out int leftSurfaceY, out int rightSurfaceY)
@@ -678,6 +700,9 @@ namespace MonsterTreasureHunt.Levels
 
         private bool TryGetGapEdgeMainFloorSurfaces(int gapXMin, int gapXMax, out int leftSurfaceY, out int rightSurfaceY)
         {
+            leftSurfaceY = int.MinValue;
+            rightSurfaceY = int.MinValue;
+
             if (!TryGetMainFloorSurfaceAt(gapXMin - 1, out leftSurfaceY)) return false;
 
             for (int cellX = gapXMax + 1; cellX <= gapXMax + 8; cellX++)
@@ -734,7 +759,7 @@ namespace MonsterTreasureHunt.Levels
 
         private void BuildBoundaryLava(int xMin, int xMax, int adjacentSurfaceY)
         {
-            BuildLavaStrip(xMin, xMax, adjacentSurfaceY - 2, 4);
+            BuildLavaStrip(xMin, xMax, volcanoLavaTopY, volcanoLavaDepth);
         }
 
         private void SetGroundDecorationOnOpenGround(int cellX, int preferredSurfaceY, TileBase tile)
@@ -747,27 +772,79 @@ namespace MonsterTreasureHunt.Levels
             SetGroundDecoration(cellX, surfaceY, tile);
         }
 
-        private void BuildWaterStrip(int xMin, int xMax, int topY)
+        private void BuildWaterStrip(int xMin, int xMax, int topY, int depth = 2)
         {
-            BuildDecorationLine(xMin, xMax, topY, waterTopTile);
-            BuildDecorationLine(xMin, xMax, topY - 1, waterTile);
+            BuildWaterStrip(decorationTilemap, xMin, xMax, topY, depth);
+        }
+
+        private void BuildWaterStrip(Tilemap targetTilemap, int xMin, int xMax, int topY, int depth = 2)
+        {
+            if (targetTilemap == null) return;
+
+            BuildDecorationLine(targetTilemap, xMin, xMax, topY, waterTopTile);
+
+            for (int layer = 1; layer <= Mathf.Max(1, depth - 1); layer++)
+            {
+                BuildDecorationLine(targetTilemap, xMin, xMax, topY - layer, waterTile);
+            }
         }
 
         private void BuildLavaStrip(int xMin, int xMax, int topY, int depth = 2)
         {
-            BuildDecorationLine(xMin, xMax, topY, lavaTopTile);
+            BuildLavaStrip(decorationTilemap, xMin, xMax, topY, depth);
+        }
+
+        private void BuildLavaStrip(Tilemap targetTilemap, int xMin, int xMax, int topY, int depth = 2)
+        {
+            if (targetTilemap == null) return;
+
+            BuildDecorationLine(targetTilemap, xMin, xMax, topY, lavaTopTile);
 
             for (int layer = 1; layer <= Mathf.Max(1, depth - 1); layer++)
             {
-                BuildDecorationLine(xMin, xMax, topY - layer, lavaTile);
+                BuildDecorationLine(targetTilemap, xMin, xMax, topY - layer, lavaTile);
+            }
+        }
+
+        private void BuildVolcanoLavaInOpenPitColumns(int xMin, int xMax, int topY, int depth)
+        {
+            int runStart = int.MinValue;
+
+            for (int x = xMin; x <= xMax; x++)
+            {
+                if (HasMainFloorAt(x))
+                {
+                    if (runStart != int.MinValue)
+                    {
+                        BuildLavaStrip(runStart, x - 1, topY, depth);
+                        runStart = int.MinValue;
+                    }
+
+                    continue;
+                }
+
+                if (runStart == int.MinValue)
+                {
+                    runStart = x;
+                }
+            }
+
+            if (runStart != int.MinValue)
+            {
+                BuildLavaStrip(runStart, xMax, topY, depth);
             }
         }
 
         private void BuildDecorationLine(int xMin, int xMax, int y, TileBase tile)
         {
+            BuildDecorationLine(decorationTilemap, xMin, xMax, y, tile);
+        }
+
+        private void BuildDecorationLine(Tilemap targetTilemap, int xMin, int xMax, int y, TileBase tile)
+        {
             for (int x = xMin; x <= xMax; x++)
             {
-                SetDecoration(x, y, tile);
+                SetTile(targetTilemap, x, y, tile);
             }
         }
 
@@ -805,6 +882,20 @@ namespace MonsterTreasureHunt.Levels
 
             foreach (PlatformSegment segment in layout)
             {
+                if (cellX < segment.xMin || cellX > segment.xMax) continue;
+                if (IsSurfaceOpen(cellX, segment.surfaceY)) return true;
+            }
+
+            return false;
+        }
+
+        private bool HasMainFloorAt(int cellX)
+        {
+            PlatformSegment[] layout = GetLayoutForSelectedMap();
+
+            foreach (PlatformSegment segment in layout)
+            {
+                if (segment.depth <= 1) continue;
                 if (cellX < segment.xMin || cellX > segment.xMax) continue;
                 if (IsSurfaceOpen(cellX, segment.surfaceY)) return true;
             }
@@ -853,14 +944,19 @@ namespace MonsterTreasureHunt.Levels
 
         private void SetGroundDecoration(int x, int surfaceY, TileBase tile)
         {
-            SetDecoration(x, surfaceY, tile);
+            SetTile(decorationTilemap, x, surfaceY, tile);
         }
 
         private void SetDecoration(int x, int y, TileBase tile)
         {
-            if (tile == null) return;
+            SetTile(decorationTilemap, x, y, tile);
+        }
 
-            decorationTilemap.SetTile(new Vector3Int(x, y, 0), tile);
+        private static void SetTile(Tilemap targetTilemap, int x, int y, TileBase tile)
+        {
+            if (tile == null || targetTilemap == null) return;
+
+            targetTilemap.SetTile(new Vector3Int(x, y, 0), tile);
         }
 
         [ContextMenu("Place Selected Map Gameplay Objects")]
@@ -876,6 +972,14 @@ namespace MonsterTreasureHunt.Levels
         public void SelectMap(MapTheme map)
         {
             selectedMap = map;
+        }
+
+        private void ApplyCameraTheme()
+        {
+            CameraFollow2D cameraFollow = FindObjectOfType<CameraFollow2D>();
+            if (cameraFollow == null) return;
+
+            cameraFollow.ApplyMapTheme(selectedMap);
         }
 
         [ContextMenu("Place Selected Map Player Spawn")]
@@ -1317,6 +1421,144 @@ namespace MonsterTreasureHunt.Levels
                 {
                     decorationTilemap = tilemap;
                 }
+            }
+        }
+
+        private bool TryGetBackgroundWaterTilemap(out Tilemap tilemap)
+        {
+            if (backgroundWaterTilemap != null)
+            {
+                EnsureBackgroundWaterTilemapSettings(backgroundWaterTilemap);
+                tilemap = backgroundWaterTilemap;
+                return true;
+            }
+
+            Tilemap[] childTilemaps = GetComponentsInChildren<Tilemap>(true);
+            foreach (Tilemap childTilemap in childTilemaps)
+            {
+                if (childTilemap == null) continue;
+                if (childTilemap.name.IndexOf("BackgroundWater", StringComparison.OrdinalIgnoreCase) < 0 &&
+                    childTilemap.name.IndexOf("River", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    continue;
+                }
+
+                backgroundWaterTilemap = childTilemap;
+                EnsureBackgroundWaterTilemapSettings(backgroundWaterTilemap);
+                tilemap = backgroundWaterTilemap;
+                return true;
+            }
+
+            tilemap = null;
+            return false;
+        }
+
+        private bool TryGetBackgroundLavaTilemap(out Tilemap tilemap)
+        {
+            if (backgroundLavaTilemap != null)
+            {
+                EnsureBackgroundTilemapSettings(backgroundLavaTilemap);
+                tilemap = backgroundLavaTilemap;
+                return true;
+            }
+
+            Tilemap[] childTilemaps = GetComponentsInChildren<Tilemap>(true);
+            foreach (Tilemap childTilemap in childTilemaps)
+            {
+                if (childTilemap == null) continue;
+                if (childTilemap.name.IndexOf("BackgroundLava", StringComparison.OrdinalIgnoreCase) < 0 &&
+                    childTilemap.name.IndexOf("Lava", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    continue;
+                }
+
+                backgroundLavaTilemap = childTilemap;
+                EnsureBackgroundTilemapSettings(backgroundLavaTilemap);
+                tilemap = backgroundLavaTilemap;
+                return true;
+            }
+
+            tilemap = null;
+            return false;
+        }
+
+        private Tilemap GetOrCreateBackgroundWaterTilemap()
+        {
+            if (TryGetBackgroundWaterTilemap(out Tilemap existingTilemap))
+            {
+                return existingTilemap;
+            }
+
+            GameObject waterObject = new GameObject("BackgroundWater");
+            waterObject.layer = gameObject.layer;
+            waterObject.transform.SetParent(transform, false);
+
+            backgroundWaterTilemap = waterObject.AddComponent<Tilemap>();
+            waterObject.AddComponent<TilemapRenderer>();
+            EnsureBackgroundTilemapSettings(backgroundWaterTilemap);
+            return backgroundWaterTilemap;
+        }
+
+        private Tilemap GetOrCreateBackgroundLavaTilemap()
+        {
+            if (TryGetBackgroundLavaTilemap(out Tilemap existingTilemap))
+            {
+                return existingTilemap;
+            }
+
+            GameObject lavaObject = new GameObject("BackgroundLava");
+            lavaObject.layer = gameObject.layer;
+            lavaObject.transform.SetParent(transform, false);
+
+            backgroundLavaTilemap = lavaObject.AddComponent<Tilemap>();
+            lavaObject.AddComponent<TilemapRenderer>();
+            EnsureBackgroundTilemapSettings(backgroundLavaTilemap);
+            return backgroundLavaTilemap;
+        }
+
+        private void EnsureBackgroundWaterTilemapSettings(Tilemap tilemap)
+        {
+            EnsureBackgroundTilemapSettings(tilemap);
+        }
+
+        private void EnsureBackgroundTilemapSettings(Tilemap tilemap)
+        {
+            if (tilemap == null) return;
+
+            TilemapRenderer renderer = tilemap.GetComponent<TilemapRenderer>();
+            if (renderer == null)
+            {
+                renderer = tilemap.gameObject.AddComponent<TilemapRenderer>();
+            }
+
+            renderer.sortingOrder = backgroundWaterSortingOrder;
+
+            if (groundTilemap == null) return;
+
+            TilemapRenderer groundRenderer = groundTilemap.GetComponent<TilemapRenderer>();
+            if (groundRenderer == null) return;
+
+            renderer.sortingLayerID = groundRenderer.sortingLayerID;
+            renderer.sortingOrder = Mathf.Min(backgroundWaterSortingOrder, groundRenderer.sortingOrder - 1);
+        }
+
+        private static void GetLayoutHorizontalBounds(PlatformSegment[] layout, out int minX, out int maxX)
+        {
+            minX = int.MaxValue;
+            maxX = int.MinValue;
+
+            if (layout == null || layout.Length == 0)
+            {
+                minX = 0;
+                maxX = 0;
+                return;
+            }
+
+            for (int i = 0; i < layout.Length; i++)
+            {
+                PlatformSegment segment = layout[i];
+                if (segment.xMin < minX) minX = segment.xMin;
+                if (segment.xMax > maxX) maxX = segment.xMax;
             }
         }
 

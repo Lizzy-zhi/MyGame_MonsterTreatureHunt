@@ -149,15 +149,19 @@ namespace MonsterTreasureHunt.UI
         private VisualElement inventoryYellowKeyRow;
         private Image inventoryYellowKeyIcon;
         private Label inventoryYellowKeyLabel;
+        private Label inventoryYellowKeyCount;
         private VisualElement inventoryRedKeyRow;
         private Image inventoryRedKeyIcon;
         private Label inventoryRedKeyLabel;
+        private Label inventoryRedKeyCount;
         private VisualElement inventoryGreenKeyRow;
         private Image inventoryGreenKeyIcon;
         private Label inventoryGreenKeyLabel;
+        private Label inventoryGreenKeyCount;
         private VisualElement inventoryBlueKeyRow;
         private Image inventoryBlueKeyIcon;
         private Label inventoryBlueKeyLabel;
+        private Label inventoryBlueKeyCount;
         private Label chestLockedMessage;
         private VisualElement victoryPanel;
         private Label victoryMessage;
@@ -184,13 +188,12 @@ namespace MonsterTreasureHunt.UI
 
         private const string SelectedSkinClass = "skin-option-selected";
         private const string RulesText =
-            "Move left and right with A / D or the arrow keys.\n" +
-            "Press Space to jump over small steps.\n" +
-            "Follow the scent arrow when the treasure is off screen.\n" +
-            "You have three lives. Falling costs one life and returns you to safe ground.\n" +
-            "Find matching colored keys before opening colored treasure chests.\n" +
-            "Press I to view the items collected this round.\n" +
-            "Unlock every treasure chest to clear the island.";
+            "Guide your little monster across each island and unlock every treasure chest to win.\n" +
+            "Move with A / D or the arrow keys, and press Space to jump between platforms.\n" +
+            "Hold S or the Down Arrow to crouch, and keep moving to shuffle through low passages.\n" +
+            "Collect keys and use the matching color to open each chest.\n" +
+            "You have three lives. Falling costs one life and sends you back to the last safe ground.\n" +
+            "Press I at any time to check the keys collected in the current run.";
 
         private struct SkinChoice
         {
@@ -270,15 +273,19 @@ namespace MonsterTreasureHunt.UI
             inventoryYellowKeyRow = root.Q<VisualElement>(inventoryYellowKeyRowName);
             inventoryYellowKeyIcon = root.Q<Image>(inventoryYellowKeyIconName);
             inventoryYellowKeyLabel = root.Q<Label>(inventoryYellowKeyLabelName);
+            inventoryYellowKeyCount = root.Q<Label>("InventoryYellowKeyCount");
             inventoryRedKeyRow = root.Q<VisualElement>(inventoryRedKeyRowName);
             inventoryRedKeyIcon = root.Q<Image>(inventoryRedKeyIconName);
             inventoryRedKeyLabel = root.Q<Label>(inventoryRedKeyLabelName);
+            inventoryRedKeyCount = root.Q<Label>("InventoryRedKeyCount");
             inventoryGreenKeyRow = root.Q<VisualElement>(inventoryGreenKeyRowName);
             inventoryGreenKeyIcon = root.Q<Image>(inventoryGreenKeyIconName);
             inventoryGreenKeyLabel = root.Q<Label>(inventoryGreenKeyLabelName);
+            inventoryGreenKeyCount = root.Q<Label>("InventoryGreenKeyCount");
             inventoryBlueKeyRow = root.Q<VisualElement>(inventoryBlueKeyRowName);
             inventoryBlueKeyIcon = root.Q<Image>(inventoryBlueKeyIconName);
             inventoryBlueKeyLabel = root.Q<Label>(inventoryBlueKeyLabelName);
+            inventoryBlueKeyCount = root.Q<Label>("InventoryBlueKeyCount");
             chestLockedMessage = root.Q<Label>(chestLockedMessageName);
             victoryPanel = root.Q<VisualElement>(victoryPanelName);
             victoryMessage = root.Q<Label>(victoryMessageName);
@@ -935,10 +942,10 @@ namespace MonsterTreasureHunt.UI
 
         private void UpdateInventoryUI(PlayerInventory inventory)
         {
-            UpdateInventoryRow(inventoryYellowKeyRow, inventoryYellowKeyLabel, "Yellow Key", GetKeyCount(inventory, TreasureKeyColor.Yellow), true);
-            UpdateInventoryRow(inventoryRedKeyRow, inventoryRedKeyLabel, "Red Key", GetKeyCount(inventory, TreasureKeyColor.Red), MapUsesColoredKeys(pendingMap));
-            UpdateInventoryRow(inventoryGreenKeyRow, inventoryGreenKeyLabel, "Green Key", GetKeyCount(inventory, TreasureKeyColor.Green), MapUsesColoredKeys(pendingMap));
-            UpdateInventoryRow(inventoryBlueKeyRow, inventoryBlueKeyLabel, "Blue Key", GetKeyCount(inventory, TreasureKeyColor.Blue), false);
+            UpdateInventoryRow(inventoryYellowKeyRow, inventoryYellowKeyLabel, inventoryYellowKeyCount, "Yellow Key", GetKeyCount(inventory, TreasureKeyColor.Yellow), true);
+            UpdateInventoryRow(inventoryRedKeyRow, inventoryRedKeyLabel, inventoryRedKeyCount, "Red Key", GetKeyCount(inventory, TreasureKeyColor.Red), MapUsesColoredKeys(pendingMap));
+            UpdateInventoryRow(inventoryGreenKeyRow, inventoryGreenKeyLabel, inventoryGreenKeyCount, "Green Key", GetKeyCount(inventory, TreasureKeyColor.Green), MapUsesColoredKeys(pendingMap));
+            UpdateInventoryRow(inventoryBlueKeyRow, inventoryBlueKeyLabel, inventoryBlueKeyCount, "Blue Key", GetKeyCount(inventory, TreasureKeyColor.Blue), false);
         }
 
         private static void ConfigureInventoryIcon(Image icon, Sprite sprite)
@@ -961,7 +968,7 @@ namespace MonsterTreasureHunt.UI
                 || map == IslandMapBuilder.MapTheme.VolcanoCave;
         }
 
-        private static void UpdateInventoryRow(VisualElement row, Label label, string itemName, int count, bool visible)
+        private static void UpdateInventoryRow(VisualElement row, Label label, Label countLabel, string itemName, int count, bool visible)
         {
             if (row != null)
             {
@@ -970,7 +977,12 @@ namespace MonsterTreasureHunt.UI
 
             if (label != null)
             {
-                label.text = $"{itemName}  x{count}";
+                label.text = itemName;
+            }
+
+            if (countLabel != null)
+            {
+                countLabel.text = $"x{count}";
             }
         }
 
