@@ -120,6 +120,15 @@ namespace MonsterTreasureHunt.Levels
         [SerializeField] private int spikeSortingOrder = 1;
         [SerializeField] private Vector2 spikeColliderSize = new Vector2(0.9f, 0.45f);
         [SerializeField] private Vector2 spikeColliderOffset = new Vector2(0f, 0.35f);
+        [SerializeField] private Vector2Int[] volcanoSpikePlacements =
+        {
+            new(15, -2),
+            new(39, -2),
+            new(62, -1),
+            new(77, 1),
+            new(94, 1),
+            new(110, 3),
+        };
         [SerializeField] private Transform spikeHazardParent;
 
         [Header("Foggy Forest Bee Enemies")]
@@ -297,16 +306,6 @@ namespace MonsterTreasureHunt.Levels
             new() { color = TreasureKeyColor.Red, cellX = 58, surfaceY = 1 },
             // Upper route after the red chest: collected before the caldera crossing.
             new() { color = TreasureKeyColor.Green, cellX = 107, surfaceY = 3 },
-        };
-
-        private static readonly Vector2Int[] VolcanoSpikePlacements =
-        {
-            new(15, -2),
-            new(39, -2),
-            new(62, -1),
-            new(77, 1),
-            new(94, 1),
-            new(110, 3),
         };
 
         private static readonly SlimePlacement[] VolcanoSlimePlacements =
@@ -1473,9 +1472,11 @@ namespace MonsterTreasureHunt.Levels
             Sprite spikeSprite = GetSpikeSprite();
             if (spikeSprite == null) return;
 
-            for (int i = 0; i < VolcanoSpikePlacements.Length; i++)
+            if (volcanoSpikePlacements == null) return;
+
+            for (int i = 0; i < volcanoSpikePlacements.Length; i++)
             {
-                Vector2Int placement = VolcanoSpikePlacements[i];
+                Vector2Int placement = volcanoSpikePlacements[i];
                 if (!IsUpperRouteSurface(placement.x, placement.y)) continue;
                 if (!TryGetItemWorldPosition(placement.x, placement.y, 0.02f, out Vector3 worldPosition)) continue;
 

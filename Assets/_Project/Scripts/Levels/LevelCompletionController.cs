@@ -4,7 +4,7 @@ using System;
 
 namespace MonsterTreasureHunt.Levels
 {
-    public class IslandLevelController : MonoBehaviour
+    public class LevelCompletionController : MonoBehaviour
     {
         [SerializeField] private TreasureCollectible treasure;
         [SerializeField] private TreasureCollectible[] treasures = Array.Empty<TreasureCollectible>();

@@ -51,6 +51,16 @@ namespace MonsterTreasureHunt.Levels
                 ExecuteForTargets("Place Selected Map Treasure", builder => builder.PlaceTreasure());
             }
 
+            if (GUILayout.Button("Build Spike Hazards Only"))
+            {
+                ExecuteForTargets("Build Selected Map Spike Hazards", builder => builder.BuildSpikeHazards());
+            }
+
+            if (GUILayout.Button("Clear Spike Hazards Only"))
+            {
+                ExecuteForTargets("Clear Selected Map Spike Hazards", builder => builder.ClearSpikeHazards());
+            }
+
             if (GUILayout.Button("Build Bee Enemies Only"))
             {
                 ExecuteForTargets("Build Selected Map Bee Enemies", builder => builder.BuildBeeEnemies());

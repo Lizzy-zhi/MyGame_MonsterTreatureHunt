@@ -65,7 +65,7 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private string victoryRewardName = "VictoryReward";
 
         [Header("Level")]
-        [SerializeField] private IslandLevelController levelController;
+        [SerializeField] private LevelCompletionController levelController;
         [SerializeField] private IslandMapBuilder mapBuilder;
         [SerializeField] private CameraFollow2D cameraFollow;
         [SerializeField] private PlayerMovement playerMovement;
