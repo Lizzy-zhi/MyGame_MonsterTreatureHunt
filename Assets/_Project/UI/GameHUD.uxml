@@ -71,6 +71,7 @@
             <ui:Label name="InventoryHint" text="Press I to close" />
         </ui:VisualElement>
         <ui:Label name="ChestLockedMessage" text="The chest is locked. Find the yellow key." display="none" />
+        <ui:Label name="GameplayHintMessage" text="Only crouching lets you dodge the bee." display="none" />
         <ui:VisualElement name="SettingsPanel" display="none">
             <ui:Button name="HelpButton" text="Help" />
             <ui:Button name="ContinueButton" text="Continue" />
@@ -79,6 +80,13 @@
         <ui:VisualElement name="RulesPanel" display="none">
             <ui:Label name="RulesTitle" text="Game Rules" />
             <ui:Label name="RulesLabel" />
+        </ui:VisualElement>
+        <ui:VisualElement name="LevelPromptPanel" display="none">
+            <ui:VisualElement name="LevelPromptCard">
+                <ui:Label name="LevelPromptTitle" text="Warning" />
+                <ui:Label name="LevelPromptMessage" />
+                <ui:Button name="LevelPromptContinueButton" text="Continue" />
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:Label name="FailureIcon" text="X" display="none" />
         <ui:Label name="ResultLabel" display="none" />

@@ -365,6 +365,26 @@
     border-radius: 10px;
 }
 
+#GameplayHintMessage {
+    position: absolute;
+    left: 50%;
+    top: 16%;
+    width: 760px;
+    margin-left: -380px;
+    padding-left: 22px;
+    padding-right: 22px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    font-size: 28px;
+    color: white;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgba(34, 52, 18, 0.88);
+    border-width: 3px;
+    border-color: rgba(212, 255, 160, 0.92);
+    border-radius: 10px;
+}
+
 #SettingsPanel {
     position: absolute;
     left: 32px;
@@ -422,6 +442,60 @@
     font-size: 26px;
     color: white;
     white-space: normal;
+}
+
+#LevelPromptPanel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(8, 16, 28, 0.76);
+}
+
+#LevelPromptCard {
+    width: 760px;
+    max-width: 84%;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    background-color: rgba(22, 10, 10, 0.94);
+    border-width: 3px;
+    border-color: rgba(255, 196, 128, 0.94);
+    border-radius: 10px;
+    align-items: center;
+}
+
+#LevelPromptTitle {
+    font-size: 42px;
+    -unity-font-style: bold;
+    color: #ffb36b;
+    -unity-text-align: middle-center;
+    margin-bottom: 14px;
+}
+
+#LevelPromptMessage {
+    width: 100%;
+    font-size: 28px;
+    color: white;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 22px;
+}
+
+#LevelPromptContinueButton {
+    width: 220px;
+    height: 58px;
+    font-size: 28px;
+    -unity-font-style: bold;
+    color: rgb(25, 25, 25);
+    background-color: rgb(255, 214, 153);
+    border-width: 2px;
+    border-color: rgb(140, 80, 40);
+    border-radius: 8px;
 }
 
 #ResultLabel {

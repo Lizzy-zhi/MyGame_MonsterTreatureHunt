@@ -50,6 +50,46 @@ namespace MonsterTreasureHunt.Levels
             {
                 ExecuteForTargets("Place Selected Map Treasure", builder => builder.PlaceTreasure());
             }
+
+            if (GUILayout.Button("Build Bee Enemies Only"))
+            {
+                ExecuteForTargets("Build Selected Map Bee Enemies", builder => builder.BuildBeeEnemies());
+            }
+
+            if (GUILayout.Button("Clear Bee Enemies Only"))
+            {
+                ExecuteForTargets("Clear Selected Map Bee Enemies", builder => builder.ClearBeeEnemies());
+            }
+
+            if (GUILayout.Button("Build Fish Enemies Only"))
+            {
+                ExecuteForTargets("Build Selected Map Fish Enemies", builder => builder.BuildFishEnemies());
+            }
+
+            if (GUILayout.Button("Clear Fish Enemies Only"))
+            {
+                ExecuteForTargets("Clear Selected Map Fish Enemies", builder => builder.ClearFishEnemies());
+            }
+
+            if (GUILayout.Button("Build Fire Slime Enemies Only"))
+            {
+                ExecuteForTargets("Build Selected Map Fire Slime Enemies", builder => builder.BuildFireSlimeEnemies());
+            }
+
+            if (GUILayout.Button("Clear Fire Slime Enemies Only"))
+            {
+                ExecuteForTargets("Clear Selected Map Fire Slime Enemies", builder => builder.ClearFireSlimeEnemies());
+            }
+
+            if (GUILayout.Button("Build Ladders Only"))
+            {
+                ExecuteForTargets("Build Selected Map Ladders", builder => builder.BuildLadders());
+            }
+
+            if (GUILayout.Button("Clear Ladders Only"))
+            {
+                ExecuteForTargets("Clear Selected Map Ladders", builder => builder.ClearLadders());
+            }
         }
 
         private void ExecuteForTargets(string undoName, System.Action<IslandMapBuilder> action)

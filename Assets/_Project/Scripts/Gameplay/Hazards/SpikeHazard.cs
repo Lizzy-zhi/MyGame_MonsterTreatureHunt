@@ -39,7 +39,7 @@ namespace MonsterTreasureHunt.Gameplay
             PlayerHealth health = other.GetComponentInParent<PlayerHealth>();
             if (health == null || health.IsDepleted) return;
 
-            if (!health.Damage(damageAmount, PlayerHealth.DamageSource.Hazard)) return;
+            if (!health.Damage(damageAmount, PlayerHealth.DamageSource.Spike)) return;
 
             float knockbackDirectionX = other.transform.position.x - transform.position.x;
             PlayerMovement movement = other.GetComponentInParent<PlayerMovement>();

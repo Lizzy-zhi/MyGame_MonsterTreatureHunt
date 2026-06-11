@@ -10,7 +10,11 @@ namespace MonsterTreasureHunt.Gameplay
         {
             Unknown = 0,
             Fall = 1,
-            Hazard = 2,
+            Spike = 2,
+            Bee = 3,
+            FireSlime = 4,
+            FakeChestExplosion = 5,
+            Fish = 6,
         }
 
         [SerializeField] private int maxLives = 3;
