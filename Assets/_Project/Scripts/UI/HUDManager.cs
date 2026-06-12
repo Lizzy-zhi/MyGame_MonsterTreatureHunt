@@ -43,7 +43,7 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private string resultLabelName = "ResultLabel";
         [SerializeField] private string failureIconName = "FailureIcon";
         [SerializeField] private string livesContainerName = "LivesContainer";
-        [SerializeField] private string[] lifeHeartNames = { "LifeHeart1", "LifeHeart2", "LifeHeart3" };
+        [SerializeField] private string[] lifeHeartNames = { "LifeHeart1", "LifeHeart2", "LifeHeart3", "LifeHeart4" };
         [SerializeField] private string inventoryButtonName = "InventoryButton";
         [SerializeField] private string inventoryPanelName = "InventoryPanel";
         [SerializeField] private string inventoryYellowKeyRowName = "InventoryYellowKeyRow";
@@ -73,7 +73,7 @@ namespace MonsterTreasureHunt.UI
         [SerializeField] private PlayerInventory playerInventory;
         [SerializeField] private TreasureCollectible treasure;
         [SerializeField] private float fallFailureDistance = 12f;
-        [SerializeField] private int maxLives = 3;
+        [SerializeField] private int maxLives = 4;
         [SerializeField] private float respawnBackDistance = 4f;
         [SerializeField] private float safePositionSampleInterval = 0.25f;
         [SerializeField] private float respawnInvulnerabilityTime = 0.75f;
@@ -1113,16 +1113,45 @@ namespace MonsterTreasureHunt.UI
 
         private Image[] BuildLifeHeartElements(VisualElement root)
         {
-            if (lifeHeartNames == null || lifeHeartNames.Length == 0) return new Image[0];
+            int configuredCount = lifeHeartNames != null ? lifeHeartNames.Length : 0;
+            int desiredCount = Mathf.Max(1, maxLives, configuredCount);
 
-            Image[] hearts = new Image[lifeHeartNames.Length];
-            for (int i = 0; i < lifeHeartNames.Length; i++)
+            Image[] hearts = new Image[desiredCount];
+            for (int i = 0; i < desiredCount; i++)
             {
-                hearts[i] = root.Q<Image>(lifeHeartNames[i]);
+                string heartName = i < configuredCount && !string.IsNullOrEmpty(lifeHeartNames[i])
+                    ? lifeHeartNames[i]
+                    : $"LifeHeart{i + 1}";
+
+                hearts[i] = root.Q<Image>(heartName);
+                if (hearts[i] == null && livesContainer != null)
+                {
+                    hearts[i] = new Image
+                    {
+                        name = heartName,
+                        pickingMode = PickingMode.Ignore
+                    };
+                    livesContainer.Add(hearts[i]);
+                }
+
+                ConfigureLifeHeartElement(hearts[i]);
                 DisableKeyboardFocus(hearts[i]);
             }
 
             return hearts;
+        }
+
+        private static void ConfigureLifeHeartElement(Image heart)
+        {
+            if (heart == null) return;
+
+            heart.AddToClassList("life-heart");
+            heart.style.width = 44;
+            heart.style.height = 44;
+            heart.style.marginLeft = 5;
+            heart.style.marginRight = 5;
+            heart.scaleMode = ScaleMode.ScaleToFit;
+            heart.tintColor = Color.white;
         }
 
         private void UpdateLivesUI(int currentLives, int totalLives)

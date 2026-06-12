@@ -864,6 +864,7 @@ MonoBehaviour:
   - LifeHeart1
   - LifeHeart2
   - LifeHeart3
+  - LifeHeart4
   inventoryButtonName: InventoryButton
   inventoryPanelName: InventoryPanel
   inventoryYellowKeyRowName: InventoryYellowKeyRow
@@ -891,7 +892,7 @@ MonoBehaviour:
   playerInventory: {fileID: 399969097}
   treasure: {fileID: 1295720796}
   fallFailureDistance: 12
-  maxLives: 3
+  maxLives: 4
   respawnBackDistance: 4
   safePositionSampleInterval: 0.25
   respawnInvulnerabilityTime: 0.75
@@ -1519,8 +1520,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fb47a42d7a74f7a9b21990c5f8c3e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxLives: 3
-  currentLives: 3
+  maxLives: 4
+  currentLives: 4
 --- !u!114 &399969097
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -244,9 +244,11 @@
     border-radius: 8px;
 }
 
+.life-heart,
 #LifeHeart1,
 #LifeHeart2,
-#LifeHeart3 {
+#LifeHeart3,
+#LifeHeart4 {
     width: 44px;
     height: 44px;
     margin-left: 5px;

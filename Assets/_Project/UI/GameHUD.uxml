@@ -41,9 +41,10 @@
         </ui:VisualElement>
         <ui:Button name="SettingsButton" text="Settings" />
         <ui:VisualElement name="LivesContainer" display="none" picking-mode="Ignore">
-            <ui:Image name="LifeHeart1" />
-            <ui:Image name="LifeHeart2" />
-            <ui:Image name="LifeHeart3" />
+            <ui:Image name="LifeHeart1" class="life-heart" />
+            <ui:Image name="LifeHeart2" class="life-heart" />
+            <ui:Image name="LifeHeart3" class="life-heart" />
+            <ui:Image name="LifeHeart4" class="life-heart" />
         </ui:VisualElement>
         <ui:Button name="InventoryButton" text="Inventory" display="none" />
         <ui:VisualElement name="InventoryPanel" display="none">

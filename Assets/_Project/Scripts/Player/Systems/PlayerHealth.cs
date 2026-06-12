@@ -17,8 +17,8 @@ namespace MonsterTreasureHunt.Gameplay
             Fish = 6,
         }
 
-        [SerializeField] private int maxLives = 3;
-        [SerializeField] private int currentLives = 3;
+        [SerializeField] private int maxLives = 4;
+        [SerializeField] private int currentLives = 4;
 
         public int MaxLives => maxLives;
         public int CurrentLives => currentLives;
